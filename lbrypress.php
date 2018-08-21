@@ -70,7 +70,7 @@ if (lbry_requirements_met()) {
     require_once(dirname(__FILE__) . '/classes/lbrypress.php');
 
     if (class_exists('LBRYPress')) {
-        $lbryPress = new LBRYPress();
+        $lbryPress = LBRYPress::get_instance();
         // register_activation_hook(__FILE__, array( $lbryPress, 'activate' ));
         // register_deactivation_hook(__FILE__, array( $lbryPress, 'deactivate' ));
     }

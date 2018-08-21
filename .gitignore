@@ -1,0 +1,4 @@
+# ignore extension-less files
+*
+!/**/
+!*.*
