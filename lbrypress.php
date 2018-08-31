@@ -21,7 +21,7 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+*/
 
 defined('ABSPATH') || die('No Peeking!');
 
@@ -30,6 +30,9 @@ define('LBRY_NAME', 'LBRYPress');
 define('LBRY_URI', dirname(__FILE__));
 define('LBRY_REQUIRED_PHP_VERSION', '5.3'); // TODO: Figure out what versions we actually need
 define('LBRY_REQUIRED_WP_VERSION', '3.1');
+
+// Library Options Names
+define('LBRY_WALLET', 'lbry_wallet');
 
 /**
  * Checks if the system requirements are met
@@ -62,18 +65,41 @@ function lbry_requirements_error()
     require_once(LBRY_URI . '/templates/requirements-error.php');
 }
 
-/*
+/**
+ * Autoloader Registration
+ */
+function lbry_autoload_register($class)
+{
+    $file_name = LBRY_URI . '/classes/' . $class . '.php';
+
+    if (file_exists($file_name)) {
+        require $file_name;
+        return;
+    }
+}
+
+spl_autoload_register('lbry_autoload_register');
+
+/**
  * Check requirements and load main class
  * The main program needs to be in a separate file that only gets loaded if the plugin requirements are met. Otherwise older PHP installations could crash when trying to parse it.
  */
 if (lbry_requirements_met()) {
-    require_once(dirname(__FILE__) . '/classes/lbrypress.php');
+    add_action('init', function () {
+        LBRYPress::get_instance()->init();
+    });
 
-    if (class_exists('LBRYPress')) {
-        $lbryPress = LBRYPress::get_instance();
-        // register_activation_hook(__FILE__, array( $lbryPress, 'activate' ));
-        // register_deactivation_hook(__FILE__, array( $lbryPress, 'deactivate' ));
-    }
+    register_activation_hook(__FILE__, function () {
+        LBRYPress::get_instance()->activate();
+    });
+
+    register_deactivation_hook(__FILE__, function () {
+        LBRYPress::get_instance()->deactivate();
+    });
 } else {
     add_action('admin_notices', 'lbry_requirements_error');
 }
+
+/**
+ * Admin Set up
+ */

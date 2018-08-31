@@ -1,12 +1,11 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * Class for sending LBRYPress related admin notifications
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Notifier
 {
     private static $instance = null;
 

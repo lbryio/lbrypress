@@ -1,12 +1,11 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * A class for logging LBRY Daemon interactions
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Daemon_Logger
 {
     private static $instance = null;
 

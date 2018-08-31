@@ -1,12 +1,13 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * Connects to an spee.ch style server to host assets via the LBRY Protocol
+ *
+ * Visit https://github.com/lbryio/spee.ch for more info
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Speech_Parser
 {
     private static $instance = null;
 

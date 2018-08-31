@@ -5,65 +5,57 @@
  * @package LBRYPress
  */
 
-if (! class_exists('LBRYPress')) {
-    class LBRYPress
+class LBRYPress
+{
+    private static $instance = null;
+
+    public static function get_instance()
     {
-        // Employ Singleton pattern to preserve single instance
-        private static $instance = null;
-
-        public static function get_instance()
-        {
-            if (null == self::$instance) {
-                self::$instance = new self;
-            }
-
-            return self::$instance;
+        // Create the object
+        if (self::$instance === null) {
+            self::$instance = new self;
         }
 
-        // Create instances of all necessary classes
-        private $LBRY_Admin;
+        return self::$instance;
+    }
 
-        private function __construct()
-        {
-            $this->require_dependencies();
-            $this->LBRY_Admin = new LBRY_Admin();
+    /**
+     * Set up all hooks and actions necessary for the plugin to run
+     * @return [type] [description]
+     */
+    public function init()
+    {
+        // Initialize the admin interface
+        $LBRY_Admin = LBRY_Admin::get_instance();
+        $LBRY_Admin->settings_init();
 
+        $LBRY_Daemon = LBRY_Daemon::get_instance();
+    }
 
-            $this->LBRY_Admin->settings_init();
+    /**
+     * Run during plugin activation
+     * @return [type] [description]
+     */
+    public function activate()
+    {
+        $LBRY_Daemon = LBRY_Daemon::get_instance();
 
-            $this->download_daemon();
+        // Add options to the options table we need
+        if (! get_option(LBRY_WALLET)) {
+            $wallet_address = $LBRY_Daemon->wallet_unused_address();
+            add_option(LBRY_WALLET, $wallet_address);
         }
 
-        private function require_dependencies()
-        {
-            require_once(LBRY_URI . '/classes/admin/lbry_admin.php');
-        }
 
-        private function download_daemon()
-        {
-            $output_filename = "lbrydaemon";
+        error_log('Activated');
+    }
 
-            $host = "http://build.lbry.io/daemon/build-6788_commit-5099e19_branch-lbryum-refactor/mac/lbrynet";
-            $fp = fopen(LBRY_URI . '/' . $output_filename, 'w+');
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $host);
-            curl_setopt($ch, CURLOPT_VERBOSE, 1);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-
-            $result = curl_exec($ch);
-            curl_close($ch);
-            fclose($fp);
-
-            $filepath = LBRY_URI . '/' . $output_filename;
-
-
-            `chmod +x  {$filepath}`;
-            error_log(`{$filepath} status`);
-            `{$filepath} start &`;
-        }
+    /**
+     * Clean up on deactivation
+     * @return [type] [description]
+     */
+    public function deactivate()
+    {
+        error_log('Deactivated');
     }
 }

@@ -1,12 +1,11 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * Class for publishing to the LBRY Network
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Network_Publisher
 {
     private static $instance = null;
 

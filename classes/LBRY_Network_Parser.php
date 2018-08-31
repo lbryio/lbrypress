@@ -1,12 +1,11 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * Parses wordpress posts to be ready for the LBRY Network
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Network_Parser
 {
     private static $instance = null;
 

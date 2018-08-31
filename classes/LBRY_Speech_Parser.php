@@ -1,12 +1,11 @@
 <?php
 /**
- * Handles post saves and updates, triggering proper plugin
- * functions when necessary
+ * Parses post markup in order to use specified spee.ch url for assets
  *
  * @package LBRYPress
  */
 
-class LBRY_Post_Handler
+class LBRY_Speech_Parser
 {
     private static $instance = null;
 
