@@ -7,34 +7,39 @@
 
 class LBRYPress
 {
-    private static $instance = null;
+    // TODO: Remove Singleton pattern, replace with dependency injection for all classes
+    // private static $instance = null;
+    //
+    // public static function get_instance()
+    // {
+    //     // Create the object
+    //     if (self::$instance === null) {
+    //         self::$instance = new self;
+    //     }
+    //
+    //     return self::$instance;
+    // }
+    protected $daemon;
+    protected $admin;
 
-    public static function get_instance()
+    public function __construct(LBRY_Daemon $daemon = null, LBRY_Admin $admin = null)
     {
-        // Create the object
-        if (self::$instance === null) {
-            self::$instance = new self;
-        }
-
-        return self::$instance;
+        $this->daemon = $daemon ?? new LBRY_Daemon();
+        $this->admin = $admin ?? new LBRY_Admin();
+        error_log('new LBRYPress constructed');
     }
 
     /**
      * Set up all hooks and actions necessary for the plugin to run
-     * @return [type] [description]
      */
     public function init()
     {
         // Initialize the admin interface
-        $LBRY_Admin = LBRY_Admin::get_instance();
-        $LBRY_Admin->settings_init();
-
-        $LBRY_Daemon = LBRY_Daemon::get_instance();
+        $this->admin->settings_init();
     }
 
     /**
      * Run during plugin activation
-     * @return [type] [description]
      */
     public function activate()
     {
@@ -42,17 +47,15 @@ class LBRYPress
 
         // Add options to the options table we need
         if (! get_option(LBRY_WALLET)) {
-            $wallet_address = $LBRY_Daemon->wallet_unused_address();
+            $wallet_address = $this->daemon->wallet_unused_address();
             add_option(LBRY_WALLET, $wallet_address);
         }
-
 
         error_log('Activated');
     }
 
     /**
      * Clean up on deactivation
-     * @return [type] [description]
      */
     public function deactivate()
     {

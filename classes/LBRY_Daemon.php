@@ -26,8 +26,8 @@ class LBRY_Daemon
      */
     public function wallet_unused_address()
     {
-        $result = json_decode($this->request('wallet_unused_address'));
-        return $result->result;
+        $result = $this->request('wallet_unused_address');
+        return json_decode($result->result);
     }
 
     /**
@@ -35,12 +35,21 @@ class LBRY_Daemon
      * @param  string $address Wallet Address
      * @return float           Wallet Balance
      */
-    public function wallet_balance($address)
+    public function wallet_balance($address = '')
     {
-        return $this->request('wallet_balance', array(
+        $address = $address ?? get_option(LBRY_WALLET);
+        $result = $this->request('wallet_balance', array(
             'address' => $address,
             'include_unconfirmed' => false
         ));
+
+        error_log(print_r($result, true));
+
+        return json_decode($result)->result;
+    }
+
+    public function channel_list()
+    {
     }
 
     private function request($method, $params = array())

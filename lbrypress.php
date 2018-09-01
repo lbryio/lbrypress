@@ -32,7 +32,10 @@ define('LBRY_REQUIRED_PHP_VERSION', '5.3'); // TODO: Figure out what versions we
 define('LBRY_REQUIRED_WP_VERSION', '3.1');
 
 // Library Options Names
-define('LBRY_WALLET', 'lbry_wallet');
+define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
+define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
+define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
+define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
 
 /**
  * Checks if the system requirements are met
@@ -86,16 +89,17 @@ spl_autoload_register('lbry_autoload_register');
  */
 if (lbry_requirements_met()) {
     add_action('init', function () {
-        LBRYPress::get_instance()->init();
+        $LBRYPress = new LBRYPress();
+        $LBRYPress->init();
     });
 
-    register_activation_hook(__FILE__, function () {
-        LBRYPress::get_instance()->activate();
-    });
-
-    register_deactivation_hook(__FILE__, function () {
-        LBRYPress::get_instance()->deactivate();
-    });
+// register_activation_hook(__FILE__, function () {
+    //     LBRYPress::get_instance()->activate();
+    // });
+    //
+    // register_deactivation_hook(__FILE__, function () {
+    //     LBRYPress::get_instance()->deactivate();
+    // });
 } else {
     add_action('admin_notices', 'lbry_requirements_error');
 }

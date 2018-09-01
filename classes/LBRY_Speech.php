@@ -7,7 +7,7 @@
  * @package LBRYPress
  */
 
-class LBRY_Speech_Parser
+class LBRY_Speech
 {
     private static $instance = null;
 
@@ -19,5 +19,15 @@ class LBRY_Speech_Parser
         }
 
         return self::$instance;
+    }
+
+    public function get_address()
+    {
+        return get_option(LBRY_SPEECH);
+    }
+
+    public function set_address($address)
+    {
+        update_option(LBRY_SPEECH, $address);
     }
 }
