@@ -1,8 +1,7 @@
 <?php
-$LBRY_Daemon = LBRY_Daemon::get_instance();
-$LBRY_Speech = LBRY_Speech::get_instance();
-$wallet_balance = $LBRY_Daemon->wallet_balance();
-$speech_address = $LBRY_Speech->get_address() || '';
+$LBRY = LBRY();
+$wallet_balance = $LBRY->daemon->wallet_balance();
+$speech_address = $LBRY->speech->get_address() || '';
 ?>
 <div class="wrap">
     <h1><?= esc_html(get_admin_page_title()); ?></h1>

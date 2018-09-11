@@ -7,17 +7,13 @@
 
 class LBRY_Daemon
 {
-    private static $instance = null;
     private $address = 'localhost:5279';
 
-    public static function get_instance()
+    /**
+     * LBRY Daemon Object constructor
+     */
+    public function __construct()
     {
-        // Create the object
-        if (self::$instance === null) {
-            self::$instance = new self;
-        }
-
-        return self::$instance;
     }
 
     /**
@@ -42,8 +38,6 @@ class LBRY_Daemon
             'address' => $address,
             'include_unconfirmed' => false
         ));
-
-        error_log(print_r($result, true));
 
         return json_decode($result)->result;
     }

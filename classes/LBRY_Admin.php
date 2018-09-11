@@ -7,16 +7,11 @@
 
 class LBRY_Admin
 {
-    private static $instance = null;
-
-    public static function get_instance()
+    /**
+     * [__construct description]
+     */
+    public function __construct()
     {
-        // Create the object
-        if (self::$instance === null) {
-            self::$instance = new self;
-        }
-
-        return self::$instance;
     }
 
     /**
@@ -49,6 +44,6 @@ class LBRY_Admin
      */
     public function options_page_html()
     {
-        require_once(LBRY_URI . '/templates/options_page.php');
+        require_once(LBRY_ABSPATH . 'templates/options_page.php');
     }
 }
