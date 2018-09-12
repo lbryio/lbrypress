@@ -83,10 +83,19 @@ class LBRYPress
         $this->define('LBRY_VERSION', $this->version);
 
         // Library Options Names
+        $this->define('LBRY_SETTINGS_GROUP', 'lbry_settings_group');
+        $this->define('LBRY_SETTINGS', 'lbry_settings');
+        $this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
+        $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
+        $this->define('LBRY_AVAILABLE_LICENSES', array(
+            'mit' => 'MIT',
+            'license2' => 'License 2',
+            'license3' => 'License 3'
+        ));
     }
 
     /**
@@ -108,7 +117,6 @@ class LBRYPress
     private function init()
     {
         $this->daemon = new LBRY_Daemon();
-        $this->admin = new LBRY_Admin();
         $this->speech = new LBRY_Speech();
     }
 
@@ -122,7 +130,7 @@ class LBRYPress
 
         // Admin request
         if (is_admin()) {
-            $this->admin->settings_init();
+            $this->admin = new LBRY_Admin();
         }
     }
 
@@ -131,11 +139,34 @@ class LBRYPress
      */
     public function activate()
     {
+        // TODO: Make sure errors are thrown if daemon can't be contacted, stop activation
+
         // Add options to the options table we need
-        if (! get_option(LBRY_WALLET)) {
+        if (! get_option(LBRY_SETTINGS)) {
+            // Get a wallet address
             $wallet_address = $this->daemon->wallet_unused_address();
-            add_option(LBRY_WALLET, $wallet_address);
+
+            // Default options
+            $option_defaults = array(
+                LBRY_WALLET => $wallet_address,
+                LBRY_SPEECH => null,
+                LBRY_LICENSE => 'mit',
+                LBRY_LBC_PUBLISH => 1
+            );
+
+            add_option(LBRY_SETTINGS, $option_defaults, false);
         }
+
+        // TODO: decide if we need to check for missing or corrupt settings. May be unecessary.
+        // Double check we have all settings, if not, update with default
+        // $current_settings = get_option(LBRY_SETTINGS);
+        // $new_settings = $current_settings;
+        // foreach ($option_defaults as $key => $value) {
+        //     if (! array_key_exists($key, $current_settings)) {
+        //         $new_settings[$key] = $value;
+        //     }
+        // }
+        // update_option(LBRY_SETTINGS, $new_settings);
 
         error_log('Activated');
     }

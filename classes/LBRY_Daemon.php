@@ -23,7 +23,7 @@ class LBRY_Daemon
     public function wallet_unused_address()
     {
         $result = $this->request('wallet_unused_address');
-        return json_decode($result->result);
+        return json_decode($result)->result;
     }
 
     /**
@@ -42,10 +42,31 @@ class LBRY_Daemon
         return json_decode($result)->result;
     }
 
+    /**
+     * https://lbryio.github.io/lbry/#channel_list
+     * @return array claim dictionary
+     */
     public function channel_list()
+    {
+        $result = $this->request('channel_list');
+        error_log(print_r(json_decode($result), true));
+        return null;
+    }
+
+    /**
+     * https://lbryio.github.io/lbry/#channel_new
+     * @return array dictionary containing result of the request
+     */
+    public function channel_new()
     {
     }
 
+    /**
+     * Sends a cURL request to the LBRY Daemon
+     * @param  string $method The method to call on the LBRY API
+     * @param  array  $params The Parameters to send the LBRY API Call
+     * @return string The cURL response
+     */
     private function request($method, $params = array())
     {
         // JSONify our request data
@@ -95,7 +116,6 @@ class LBRY_Daemon
         fclose($fp);
 
         $filepath = LBRY_URI . '/' . $output_filename;
-
 
         `chmod +x  {$filepath}`;
         error_log(`{$filepath} status`);

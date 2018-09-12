@@ -1,24 +1,32 @@
 <?php
 $LBRY = LBRY();
 $wallet_balance = $LBRY->daemon->wallet_balance();
-$speech_address = $LBRY->speech->get_address() || '';
+$channel_list = $LBRY->daemon->channel_list();
 ?>
 <div class="wrap">
     <h1><?= esc_html(get_admin_page_title()); ?></h1>
 
-    <h2>Your wallet address:</h2>
-    <code><?= get_option(LBRY_WALLET); ?></code>
-
     <h2>Your wallet amount:</h2>
     <code><?= number_format($wallet_balance, 6, '.', ','); ?></code>
+
     <form action="options.php" method="post">
-        <label for="speech_address">
-            <h2>Your Spee.ch server address to act as a cdn for assets:</h2>
-            <p class="form-help">Learn more about spee.ch <a href="https://github.com/lbryio/spee.ch" target="_blank">here</a>.</p>
-        </label>
-        <input type="text" name="speech_address" placeholder="https://your-speech-address.com" value="<?= $speech_address ?>">
         <?php
+        settings_fields(LBRY_SETTINGS_GROUP);
+        do_settings_sections(LBRY_ADMIN_PAGE);
         submit_button('Save Settings');
         ?>
+    </form>
+
+    <h2>Your Publishable Channels</h2>
+    <?php if ($channel_list): ?>
+
+    <?php else: ?>
+        <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
+    <?php endif; ?>
+
+    <h2>Add a new channel to publish to:</h2>
+    <form action="" method="post">
+        <input type="text" name="new_channel" value="" placeholder="Your New Channel">
+        <?php submit_button('Add New Channel'); ?>
     </form>
 </div>
