@@ -17,7 +17,6 @@ class LBRY_Admin
         add_action('admin_menu', array($this, 'create_options_page'));
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
-        add_action('admin_notices', array($this, 'admin_notices'));
     }
 
     /**
@@ -185,58 +184,12 @@ class LBRY_Admin
 
         // Check that nonce
         if (! isset($_POST['_lbrynonce']) || ! wp_verify_nonce($_POST['_lbrynonce'], 'lbry_add_channel')) {
-            $this->set_notice('error');
+            LBRY()->notice->set_notice('error');
         } else {
-            $this->set_notice('success', 'Successfully added a new channel!', true);
+            LBRY()->notice->set_notice('success', 'Successfully added a new channel!', true);
         }
 
         wp_safe_redirect($redirect_url);
         exit();
-    }
-
-    /**
-    * Displays all messages set with the lbry_notices transient
-    */
-    public function admin_notices()
-    {
-        if (get_transient('lbry_notices')) {
-            $notices = get_transient('lbry_notices');
-            foreach ($notices as $key => $notice) {
-                $this->create_admin_notice($notice);
-            }
-            delete_transient('lbry_notices');
-        }
-    }
-
-    /**
-     * Sets transients for admin errors
-     */
-    private function set_notice($status = 'error', $message = 'Something went wrong', $is_dismissible = false)
-    {
-        $notice = array(
-            'status' => $status,
-            'message' => $message,
-            'is_dismissible' => $is_dismissible
-        );
-
-        if (! get_transient('lbry_notices')) {
-            set_transient('lbry_notices', array($notice));
-        } else {
-            $notices = get_transient('lbry_notices');
-            $notices[] = $notice;
-            set_transient('lbry_notices', $notices);
-        }
-    }
-
-    /**
-     * Prints an admin notice
-     */
-    private function create_admin_notice($notice)
-    {
-        $class = 'notice notice-' . $notice['status'];
-        if ($notice['is_dismissible']) {
-            $class .= ' is-dismissible';
-        }
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
     }
 }

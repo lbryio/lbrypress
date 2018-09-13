@@ -34,6 +34,11 @@ class LBRYPress
     public $speech = null;
 
     /**
+     * The Admin Notice object
+     */
+    public $notice = null;
+
+    /**
      * Main LBRYPress Instance.
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
@@ -118,6 +123,7 @@ class LBRYPress
     {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
+        $this->notice = new LBRY_Admin_Notice();
     }
 
     /**
