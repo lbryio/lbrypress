@@ -25,8 +25,25 @@ $channel_list = $LBRY->daemon->channel_list();
     <?php endif; ?>
 
     <h2>Add a new channel to publish to:</h2>
-    <form action="" method="post">
-        <input type="text" name="new_channel" value="" placeholder="Your New Channel">
+    <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+        <?php wp_nonce_field('lbry_add_channel', '_lbrynonce'); ?>
+        <input type="hidden" name="action" value="lbry_add_channel">
+        <table class="form-table">
+            <tbody>
+                <tr>
+                    <th scope="row">New Channel Name</th>
+                    <td>
+                        <input type="text" name="new_channel" value="" placeholder="Your New Channel" required>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Amount of LBC to Bid</th>
+                    <td>
+                        <input type="number" step="0.1" min="0.1" name="bid_amount" value="10" required>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <?php submit_button('Add New Channel'); ?>
     </form>
 </div>

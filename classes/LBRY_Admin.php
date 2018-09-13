@@ -10,17 +10,19 @@ class LBRY_Admin
     private $options;
 
     /**
-     * LBRY_Admin Constructor
-     */
+    * LBRY_Admin Constructor
+    */
     public function __construct()
     {
         add_action('admin_menu', array($this, 'create_options_page'));
         add_action('admin_init', array($this, 'page_init'));
+        add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
+        add_action('admin_notices', array($this, 'admin_notices'));
     }
 
     /**
-     * Creates the options page in the WP admin interface
-     */
+    * Creates the options page in the WP admin interface
+    */
     public function create_options_page()
     {
         add_options_page(
@@ -33,8 +35,8 @@ class LBRY_Admin
     }
 
     /**
-     * Registers all settings for the plugin
-     */
+    * Registers all settings for the plugin
+    */
     public function page_init()
     {
         // Register the LBRY Setting array
@@ -42,10 +44,10 @@ class LBRY_Admin
 
         // Add Required Settings Sections
         add_settings_section(
-           LBRY_SETTINGS_SECTION_GENERAL, // ID
-           'General Settings', // Title
-           array( $this, 'general_section_info' ), // Callback
-           LBRY_ADMIN_PAGE // Page
+            LBRY_SETTINGS_SECTION_GENERAL, // ID
+            'General Settings', // Title
+            array( $this, 'general_section_info' ), // Callback
+            LBRY_ADMIN_PAGE // Page
         );
 
         // Add all settings fields
@@ -83,8 +85,8 @@ class LBRY_Admin
     }
 
     /**
-     * Returns the Options Page HTML for the plugin
-     */
+    * Returns the Options Page HTML for the plugin
+    */
     public function options_page_html()
     {
         // Set class property to be referenced in callbacks
@@ -93,25 +95,25 @@ class LBRY_Admin
     }
 
     /**
-     * Sanitizes setting input
-     * // TODO Actually sanitize the input
-     */
+    * Sanitizes setting input
+    * // TODO Actually sanitize the input
+    */
     public function sanitize($input)
     {
         return $input;
     }
 
     /**
-     * Section info for the General Section
-     */
+    * Section info for the General Section
+    */
     public function general_section_info()
     {
         print 'This is where you can configure how LBRYPress will distribute your content:';
     }
 
     /**
-     * Prints Wallet input
-     */
+    * Prints Wallet input
+    */
     public function wallet_callback()
     {
         printf(
@@ -123,21 +125,21 @@ class LBRY_Admin
     }
 
     /**
-     * Prints Spee.ch input
-     */
+    * Prints Spee.ch input
+    */
     public function speech_callback()
     {
         printf(
-           '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" placeholder="https://your-speech-address.com"/>',
-           LBRY_SPEECH,
-           LBRY_SETTINGS,
-           isset($this->options[LBRY_SPEECH]) ? esc_attr($this->options[LBRY_SPEECH]) : ''
+            '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" placeholder="https://your-speech-address.com"/>',
+            LBRY_SPEECH,
+            LBRY_SETTINGS,
+            isset($this->options[LBRY_SPEECH]) ? esc_attr($this->options[LBRY_SPEECH]) : ''
         );
     }
 
     /**
-     * Prints License input
-     */
+    * Prints License input
+    */
     public function license_callback()
     {
         // TODO: Maybe make this more elegant?
@@ -162,15 +164,79 @@ class LBRY_Admin
     }
 
     /**
-     * Prints LBC per publish input
-     */
+    * Prints LBC per publish input
+    */
     public function lbc_publish_callback()
     {
         printf(
-           '<input type="number" id="%1$s" name="%2$s[%1$s]" value="%3$s" min="0.01" step="0.01"/>',
-           LBRY_LBC_PUBLISH,
-           LBRY_SETTINGS,
-           $this->options[LBRY_LBC_PUBLISH]
+            '<input type="number" id="%1$s" name="%2$s[%1$s]" value="%3$s" min="0.01" step="0.01"/>',
+            LBRY_LBC_PUBLISH,
+            LBRY_SETTINGS,
+            $this->options[LBRY_LBC_PUBLISH]
         );
+    }
+
+    /**
+    * Handles new channel form submission
+    */
+    public function add_channel()
+    {
+        $redirect_url = admin_url('options-general.php?page=' . LBRY_ADMIN_PAGE);
+
+        // Check that nonce
+        if (! isset($_POST['_lbrynonce']) || ! wp_verify_nonce($_POST['_lbrynonce'], 'lbry_add_channel')) {
+            $this->set_notice('error');
+        } else {
+            $this->set_notice('success', 'Successfully added a new channel!', true);
+        }
+
+        wp_safe_redirect($redirect_url);
+        exit();
+    }
+
+    /**
+    * Displays all messages set with the lbry_notices transient
+    */
+    public function admin_notices()
+    {
+        if (get_transient('lbry_notices')) {
+            $notices = get_transient('lbry_notices');
+            foreach ($notices as $key => $notice) {
+                $this->create_admin_notice($notice);
+            }
+            delete_transient('lbry_notices');
+        }
+    }
+
+    /**
+     * Sets transients for admin errors
+     */
+    private function set_notice($status = 'error', $message = 'Something went wrong', $is_dismissible = false)
+    {
+        $notice = array(
+            'status' => $status,
+            'message' => $message,
+            'is_dismissible' => $is_dismissible
+        );
+
+        if (! get_transient('lbry_notices')) {
+            set_transient('lbry_notices', array($notice));
+        } else {
+            $notices = get_transient('lbry_notices');
+            $notices[] = $notice;
+            set_transient('lbry_notices', $notices);
+        }
+    }
+
+    /**
+     * Prints an admin notice
+     */
+    private function create_admin_notice($notice)
+    {
+        $class = 'notice notice-' . $notice['status'];
+        if ($notice['is_dismissible']) {
+            $class .= ' is-dismissible';
+        }
+        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
     }
 }

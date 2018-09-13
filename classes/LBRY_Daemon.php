@@ -18,6 +18,7 @@ class LBRY_Daemon
 
     /**
      * Returns an unused wallet address
+     * https://lbryio.github.io/lbry/#wallet_unused_address
      * @return string Unused wallet address in base58
      */
     public function wallet_unused_address()
@@ -28,6 +29,7 @@ class LBRY_Daemon
 
     /**
      * Returns the balance of a current LBRY wallet
+     * https://lbryio.github.io/lbry/cli/#wallet_balance
      * @param  string $address Wallet Address
      * @return float           Wallet Balance
      */
@@ -49,7 +51,6 @@ class LBRY_Daemon
     public function channel_list()
     {
         $result = $this->request('channel_list');
-        error_log(print_r(json_decode($result), true));
         return null;
     }
 
