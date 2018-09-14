@@ -18,6 +18,7 @@ class LBRY_Speech
     public function __construct()
     {
         $this->parser = new LBRY_Speech_Parser();
+        add_action('save_post', $this->upload_assets);
     }
 
     /**
@@ -30,5 +31,20 @@ class LBRY_Speech
         if ($speech_url != '' && !is_admin()) {
             ob_start(array($this->parser, 'rewrite'));
         }
+    }
+
+    /**
+     * Uploads assets to the speech server
+     */
+    public function upload_assets()
+    {
+        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
+
+        // Die if we don't have a spee.ch url
+        if (!$speech_url || $speech_url === '') {
+            return;
+        }
+
+        // TODO: Find assets, upload them to the Spee.ch Server
     }
 }
