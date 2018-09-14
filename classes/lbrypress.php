@@ -137,6 +137,8 @@ class LBRYPress
         // Admin request
         if (is_admin()) {
             $this->admin = new LBRY_Admin();
+        } else {
+            $this->speech->maybe_rewrite_urls();
         }
     }
 
@@ -163,7 +165,7 @@ class LBRYPress
             add_option(LBRY_SETTINGS, $option_defaults, false);
         }
 
-        // TODO: decide if we need to check for missing or corrupt settings. May be unecessary.
+        // COMBAK: decide if we need to check for missing or corrupt settings. May be unecessary.
         // Double check we have all settings, if not, update with default
         // $current_settings = get_option(LBRY_SETTINGS);
         // $new_settings = $current_settings;

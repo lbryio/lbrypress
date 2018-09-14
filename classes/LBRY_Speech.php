@@ -10,19 +10,25 @@
 class LBRY_Speech
 {
     /**
-     * [__construct description]
+     * HTML Parser
+     * @var LBRY_Speech_Parser
      */
+    private $parser = null;
+
     public function __construct()
     {
+        $this->parser = new LBRY_Speech_Parser();
     }
 
-    public function get_address()
+    /**
+     * Checks to see if we need to rewrite URLS, does if necessary
+     */
+    public function maybe_rewrite_urls()
     {
-        return get_option(LBRY_SPEECH);
-    }
-
-    public function set_address($address)
-    {
-        update_option(LBRY_SPEECH, $address);
+        // See if we have a Spee.ch URL and if we are on the front-end
+        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
+        if ($speech_url != '' && !is_admin()) {
+            ob_start(array($this->parser, 'rewrite'));
+        }
     }
 }

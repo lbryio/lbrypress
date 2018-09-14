@@ -58,8 +58,9 @@ class LBRY_Daemon
      * https://lbryio.github.io/lbry/#channel_new
      * @return array dictionary containing result of the request
      */
-    public function channel_new()
+    public function channel_new($channel_name, $bid_amount)
     {
+        return null;
     }
 
     /**
@@ -101,6 +102,8 @@ class LBRY_Daemon
     {
         $output_filename = "lbrydaemon";
 
+        // HACK: Shouldn't just directly download, need to know OS, etc
+        // TODO: Make sure we are only installing if not there or corrupted
         $host = "http://build.lbry.io/daemon/build-6788_commit-5099e19_branch-lbryum-refactor/mac/lbrynet";
         $fp = fopen(LBRY_URI . '/' . $output_filename, 'w+');
         $ch = curl_init();

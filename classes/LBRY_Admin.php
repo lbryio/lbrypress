@@ -185,7 +185,14 @@ class LBRY_Admin
         // Check that nonce
         if (! isset($_POST['_lbrynonce']) || ! wp_verify_nonce($_POST['_lbrynonce'], 'lbry_add_channel')) {
             LBRY()->notice->set_notice('error');
+        } elseif (! isset($_POST['new_channel']) || ! isset($_POST['bid_amount'])) {
+            LBRY()->notice->set_notice('error', 'Must supply both channel name and bid amount');
         } else {
+            $new_channel = $_POST['new_channel'];
+            $bid_amount = $_POST['bid_amount'];
+
+            // TODO: Wrap in a try catch
+            LBRY()->daemon->channel_new($new_channel, $bid_amount);
             LBRY()->notice->set_notice('success', 'Successfully added a new channel!', true);
         }
 

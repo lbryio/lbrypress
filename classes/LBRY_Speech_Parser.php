@@ -7,10 +7,13 @@
 
 class LBRY_Speech_Parser
 {
-    /**
-     * [__construct description]
-     */
-    public function __construct()
+    public function rewrite($html)
     {
+        // TODO: Completely fix this, as its super slow. Looking at cdn_enabler for ideas
+        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
+
+        $html = str_replace(site_url(), $speech_url, $html);
+
+        return $html;
     }
 }
