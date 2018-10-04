@@ -18,7 +18,7 @@ class LBRY_Speech
     public function __construct()
     {
         $this->parser = new LBRY_Speech_Parser();
-        add_action('save_post', $this->upload_assets);
+        add_action('save_post', array($this, 'upload_assets'));
     }
 
     /**

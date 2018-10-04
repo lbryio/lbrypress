@@ -4,6 +4,7 @@ $wallet_balance = $LBRY->daemon->wallet_balance();
 $channel_list = $LBRY->daemon->channel_list();
 ?>
 <div class="wrap">
+
     <h1><?= esc_html(get_admin_page_title()); ?></h1>
 
     <h2>Your wallet amount:</h2>

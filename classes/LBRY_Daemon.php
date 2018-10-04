@@ -35,11 +35,14 @@ class LBRY_Daemon
      */
     public function wallet_balance($address = '')
     {
-        $address = $address ?? get_option(LBRY_WALLET);
+        $address = $address ?: get_option(LBRY_SETTINGS)[LBRY_WALLET];
+        error_log('Address: ' . $address);
         $result = $this->request('wallet_balance', array(
             'address' => $address,
-            'include_unconfirmed' => false
+            'include_unconfirmed' => true
         ));
+
+        error_log($result);
 
         return json_decode($result)->result;
     }
