@@ -152,6 +152,7 @@ class LBRYPress
         // Add options to the options table we need
         if (! get_option(LBRY_SETTINGS)) {
             // Get a wallet address
+            // TODO: May have to rethink this based on how wallet address are linked to daemon
             $wallet_address = $this->daemon->wallet_unused_address();
 
             // Default options

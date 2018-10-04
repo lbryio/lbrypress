@@ -8,7 +8,7 @@ $channel_list = $LBRY->daemon->channel_list();
     <h1><?= esc_html(get_admin_page_title()); ?></h1>
 
     <h2>Your wallet amount:</h2>
-    <code><?= number_format($wallet_balance, 6, '.', ','); ?></code>
+    <code><?= number_format($wallet_balance, 2, '.', ','); ?></code>
 
     <form action="options.php" method="post">
         <?php
