@@ -33,17 +33,9 @@ class LBRY_Daemon
      * @param  string $address Wallet Address
      * @return float           Wallet Balance
      */
-    public function wallet_balance($address = '')
+    public function wallet_balance()
     {
-        $address = $address ?: get_option(LBRY_SETTINGS)[LBRY_WALLET];
-        error_log('Address: ' . $address);
-        $result = $this->request('wallet_balance', array(
-            'address' => $address,
-            'include_unconfirmed' => true
-        ));
-
-        error_log($result);
-
+        $result = $this->request('wallet_balance');
         return json_decode($result)->result;
     }
 
