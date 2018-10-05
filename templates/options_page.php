@@ -38,7 +38,8 @@ $channel_list = $LBRY->daemon->channel_list();
                 <tr>
                     <th scope="row">New Channel Name</th>
                     <td>
-                        <input type="text" name="new_channel" value="" placeholder="Your New Channel" required>
+                        <span>@</span>
+                        <input type="text" name="new_channel" value="" placeholder="your-new-channel" required>
                     </td>
                 </tr>
                 <tr>
