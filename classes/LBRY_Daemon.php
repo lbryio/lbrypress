@@ -41,12 +41,12 @@ class LBRY_Daemon
 
     /**
      * https://lbryio.github.io/lbry/#channel_list
-     * @return array claim dictionary
+     * @return array claim dictionary or null if empty
      */
     public function channel_list()
     {
-        $result = $this->request('channel_list');
-        return null;
+        $result = json_decode($this->request('channel_list'))->result;
+        return empty($result) ? null : $result;
     }
 
     /**
@@ -55,6 +55,14 @@ class LBRY_Daemon
      */
     public function channel_new($channel_name, $bid_amount)
     {
+        $result = $this->request(
+            'channel_new',
+            array(
+                'channel_name' => $channel_name,
+                'amount' => $bid_amount
+            )
+        );
+        error_log($result);
         return null;
     }
 

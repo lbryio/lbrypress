@@ -192,7 +192,7 @@ class LBRY_Admin
             $bid_amount = $_POST['bid_amount'];
 
             // TODO: Wrap in a try catch
-            LBRY()->daemon->channel_new($new_channel, $bid_amount);
+            $result = LBRY()->daemon->channel_new($new_channel, $bid_amount);
             LBRY()->notice->set_notice('success', 'Successfully added a new channel!', true);
         }
 
