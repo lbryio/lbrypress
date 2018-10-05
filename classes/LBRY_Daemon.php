@@ -59,11 +59,11 @@ class LBRY_Daemon
             'channel_new',
             array(
                 'channel_name' => $channel_name,
-                'amount' => $bid_amount
+                'amount' => floatval($bid_amount)
             )
         );
         error_log($result);
-        return null;
+        return json_decode($result)->result;
     }
 
     /**
