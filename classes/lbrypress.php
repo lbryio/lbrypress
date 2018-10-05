@@ -124,7 +124,6 @@ class LBRYPress
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
         $this->notice = new LBRY_Admin_Notice();
-        $parser = new LBRY_Network_Parser();
     }
 
     /**
