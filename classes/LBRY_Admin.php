@@ -191,9 +191,14 @@ class LBRY_Admin
             $new_channel = $_POST['new_channel'];
             $bid_amount = $_POST['bid_amount'];
 
-            // TODO: Wrap in a try catch
-            LBRY()->daemon->channel_new($new_channel, $bid_amount);
-            LBRY()->notice->set_notice('success', 'Successfully added a new channel!', true);
+            // Try to add the new channel
+            try {
+                $result = LBRY()->daemon->channel_new($new_channel, $bid_amount);
+                // Tell the user it takes some time to go through
+                LBRY()->notice->set_notice('success', 'Successfully added a new channel! Please wait a few minutes for the bid to process.', true);
+            } catch (\Exception $e) {
+                LBRY()->notice->set_notice('error', $e->getMessage(), false);
+            }
         }
 
         wp_safe_redirect($redirect_url);

@@ -20,7 +20,11 @@ $channel_list = $LBRY->daemon->channel_list();
 
     <h2>Your Publishable Channels</h2>
     <?php if ($channel_list): ?>
-
+        <ul class="lbry-channel-list">
+            <?php foreach ($channel_list as $channel): ?>
+                <li><?= $channel->name ?></li>
+            <?php endforeach; ?>
+        </ul>
     <?php else: ?>
         <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
     <?php endif; ?>
@@ -34,7 +38,8 @@ $channel_list = $LBRY->daemon->channel_list();
                 <tr>
                     <th scope="row">New Channel Name</th>
                     <td>
-                        <input type="text" name="new_channel" value="" placeholder="Your New Channel" required>
+                        <span>@</span>
+                        <input type="text" name="new_channel" value="" placeholder="your-new-channel" required>
                     </td>
                 </tr>
                 <tr>

@@ -24,7 +24,7 @@ class LBRY_Daemon
     public function wallet_unused_address()
     {
         $result = $this->request('wallet_unused_address');
-        return json_decode($result)->result;
+        return $result->result;
     }
 
     /**
@@ -36,17 +36,17 @@ class LBRY_Daemon
     public function wallet_balance()
     {
         $result = $this->request('wallet_balance');
-        return json_decode($result)->result;
+        return $result->result;
     }
 
     /**
      * https://lbryio.github.io/lbry/#channel_list
-     * @return array claim dictionary
+     * @return array claim dictionary or null if empty
      */
     public function channel_list()
     {
-        $result = $this->request('channel_list');
-        return null;
+        $result = $this->request('channel_list')->result;
+        return empty($result) ? null : $result;
     }
 
     /**
@@ -55,7 +55,29 @@ class LBRY_Daemon
      */
     public function channel_new($channel_name, $bid_amount)
     {
-        return null;
+        // TODO: Sanitize channel name and bid
+
+        // Make sure no @ sign, as we will add that
+        if (strpos($channel_name, '@')) {
+            throw new \Exception('Illegal character "@" in channel name', 1);
+        }
+
+        // No white space allowed
+        if (strpos($channel_name, ' ')) {
+            throw new \Exception("No spaces allowed in channel name", 1);
+        }
+
+        $channel_name = '@' . $channel_name;
+
+        $result = $this->request(
+            'channel_new',
+            array(
+                'channel_name' => $channel_name,
+                'amount' => floatval($bid_amount)
+            )
+        );
+        $this->check_for_errors($result);
+        return $result->result;
     }
 
     /**
@@ -86,7 +108,18 @@ class LBRY_Daemon
 
         $result = curl_exec($ch);
         curl_close($ch);
-        return $result;
+        return json_decode($result);
+    }
+
+    /**
+     * Checks for erros in decoded daemon response and throws an exception if it finds one
+     * @param  $response
+     */
+    private function check_for_errors($response)
+    {
+        if (property_exists($response, 'error')) {
+            throw new \Exception($response->error->message, $response->error->code);
+        }
     }
 
     /**
