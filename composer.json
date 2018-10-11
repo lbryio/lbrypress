@@ -1,0 +1,13 @@
+{
+    "name": "undergroundweblab/lbrypress",
+    "description": "A Wordpress plugin to connect to the LBRY Network",
+    "require": {
+        "league/html-to-markdown": "^4.8"
+    },
+    "authors": [
+        {
+            "name": "Underground Web Lab",
+            "email": "paul@undergroundweblab.com"
+        }
+    ]
+}

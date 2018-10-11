@@ -176,8 +176,6 @@ class LBRYPress
         //     }
         // }
         // update_option(LBRY_SETTINGS, $new_settings);
-
-        error_log('Activated');
     }
 
     /**
