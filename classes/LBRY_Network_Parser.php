@@ -20,7 +20,6 @@ class LBRY_Network_Parser
         $this->converter = new HtmlConverter(array(
             'strip_tags' => true
         ));
-        add_action('save_post', array($this, 'convert_to_markdown'));
     }
 
     public function convert_to_markdown($post_id)
@@ -31,7 +30,9 @@ class LBRY_Network_Parser
         $featured_image = get_the_post_thumbnail($post);
 
         $content = $title;
-        $content .= $featured_image . '<br />';
+        if ($featured_image) {
+            $content .= $featured_image . '<br />';
+        }
         $content .= apply_filters('the_content', get_post($post_id)->post_content);
         $converted = $this->converter->convert($content);
 
