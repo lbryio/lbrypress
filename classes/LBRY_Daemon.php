@@ -82,29 +82,36 @@ class LBRY_Daemon
 
     /**
      * Publishes a post to the LBRY Network
-     * @param  [type] $name        [description]
-     * @param  [type] $bid         [description]
-     * @param  [type] $filepath    [description]
-     * @param  [type] $title       [description]
-     * @param  [type] $description [description]
-     * @param  [type] $language    [description]
-     * @return [type]              [description]
+     * @param  string $name        The slug for the post
+     * @param  float  $bid         The amount of LBC to bid
+     * @param  string $filepath    The path of the temporary content file
+     * @param  string $title       The Title of the post
+     * @param  string $description The Description of the Post
+     * @param  string $language    Two letter ISO Code of the language
+     * @return string $channel     The Claim ID of the Channel
      */
     public function publish($name, $bid, $filepath, $title, $description, $language, $channel)
     {
+        $args = array(
+            'name' => $name,
+            'bid' => $bid,
+            'file_path' => $filepath,
+            'title' => $title,
+            'description' => $description,
+            'language' => $language,
+        );
+
+        // Make sure we aren't publishing to unattributed
+        if ($channel != 'null') {
+            $args['channel_id'] = $channel;
+        }
+
         // TODO: Bring thumbnails into the mix
         $result = $this->request(
             'publish',
-            array(
-                'name' => $name,
-                'bid' => $bid,
-                'file_path' => $filepath,
-                'title' => $title,
-                'description' => $description,
-                'language' => $language,
-                'channel_name' => $channel
-            )
+            $args
         );
+
         $this->check_for_errors($result);
         return $result;
     }

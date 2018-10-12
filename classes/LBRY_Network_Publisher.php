@@ -17,12 +17,12 @@ class LBRY_Network_Publisher
     /**
      * Publish the post to the LBRY Network
      * @param  int $post_id  The ID of the post we are publishing
-     * @param  array $channels An array of channels we are publishing to
+     * @param  string $channel The Claim ID of the channel we are posting to
      */
-    public function publish($post, $channels)
+    public function publish($post, $channel)
     {
         // Leave if nothing to publish to
-        if (!$channels) {
+        if (!$channel) {
             return;
         }
 
@@ -40,7 +40,7 @@ class LBRY_Network_Publisher
                 $featured_image = get_the_post_thumbnail($post);
 
                 $name = $post->post_name;
-                $bid = get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH];
+                $bid = floatval(get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH]);
                 $title = $post->post_title;
                 $language = substr(get_locale(), 0, 2);
                 $license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
@@ -49,9 +49,7 @@ class LBRY_Network_Publisher
                 // TODO: Bring thumbnails into the mix
                 // $thumbnail = $featured_image ? $featured_image : null;
 
-                foreach ($channels as $channel) {
-                    LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel);
-                }
+                LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel);
             }
         } finally {
             // Delete the temporary markdown file

@@ -66,7 +66,6 @@ class LBRYPress
         spl_autoload_register(array($this, 'lbry_autoload_register'));
         $this->init();
         $this->init_hooks();
-        error_log("language: " . get_locale());
     }
 
     /**
@@ -102,6 +101,8 @@ class LBRYPress
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
+        $this->define('LBRY_WILL_PUBLISH', 'lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
+        $this->define('LBRY_POST_CHANNEL', 'lbry_channel'); // The meta key for which channel to publish
         $this->define('LBRY_AVAILABLE_LICENSES', array(
             'mit' => 'MIT',
             'license2' => 'License 2',
@@ -191,5 +192,20 @@ class LBRYPress
     public function deactivate()
     {
         error_log('Deactivated');
+    }
+
+    /*
+     * Utility Functions
+     */
+    public static function channel_name_comp($a, $b)
+    {
+        if ($a->name === $b->name) {
+            return 0;
+        }
+
+        if ($b->name == '(none / unattributed)') {
+            return -1;
+        }
+        return strnatcasecmp($a->name, $b->name);
     }
 }
