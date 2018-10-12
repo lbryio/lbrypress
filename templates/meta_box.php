@@ -1,8 +1,7 @@
 <?php
 $LBRY = LBRY();
 $unnatributed = (object) array(
-    'name' => 'Unattributed',
-    'permanent_url' => 'unattributed'
+    'name' => 'unattributed',
 );
 $channels = LBRY()->daemon->channel_list();
 array_unshift($channels, $unnatributed);
@@ -15,8 +14,8 @@ $cur_channels = get_post_meta($post->ID, 'lbry_channels');
       <?php foreach ($channels as $channel): ?>
           <li>
               <label class="selectit">
-                  <input type="checkbox" name="lbry_channels[]" value="<?= $channel->permanent_url ?>"
-                  <?php if (in_array($channel->permanent_url, $cur_channels)): ?>
+                  <input type="checkbox" name="lbry_channels[]" value="<?= $channel->name ?>"
+                  <?php if (in_array($channel->name, $cur_channels)): ?>
                       checked="true"
                   <?php endif; ?>
                   >

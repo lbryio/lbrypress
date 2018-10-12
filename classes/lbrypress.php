@@ -66,6 +66,7 @@ class LBRYPress
         spl_autoload_register(array($this, 'lbry_autoload_register'));
         $this->init();
         $this->init_hooks();
+        error_log("language: " . get_locale());
     }
 
     /**

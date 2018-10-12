@@ -81,6 +81,35 @@ class LBRY_Daemon
     }
 
     /**
+     * Publishes a post to the LBRY Network
+     * @param  [type] $name        [description]
+     * @param  [type] $bid         [description]
+     * @param  [type] $filepath    [description]
+     * @param  [type] $title       [description]
+     * @param  [type] $description [description]
+     * @param  [type] $language    [description]
+     * @return [type]              [description]
+     */
+    public function publish($name, $bid, $filepath, $title, $description, $language, $channel)
+    {
+        // TODO: Bring thumbnails into the mix
+        $result = $this->request(
+            'publish',
+            array(
+                'name' => $name,
+                'bid' => $bid,
+                'file_path' => $filepath,
+                'title' => $title,
+                'description' => $description,
+                'language' => $language,
+                'channel_name' => $channel
+            )
+        );
+        $this->check_for_errors($result);
+        return $result;
+    }
+
+    /**
      * Sends a cURL request to the LBRY Daemon
      * @param  string $method The method to call on the LBRY API
      * @param  array  $params The Parameters to send the LBRY API Call
