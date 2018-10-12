@@ -39,6 +39,11 @@ class LBRYPress
     public $notice = null;
 
     /**
+     * The Library Network Object
+     */
+    public $network = null;
+
+    /**
      * Main LBRYPress Instance.
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
@@ -123,7 +128,6 @@ class LBRYPress
     {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
-        $this->notice = new LBRY_Admin_Notice();
     }
 
     /**
@@ -137,6 +141,8 @@ class LBRYPress
         // Admin request
         if (is_admin()) {
             $this->admin = new LBRY_Admin();
+            $this->notice = new LBRY_Admin_Notice();
+            $this->network = new LBRY_Network();
         } else {
             $this->speech->maybe_rewrite_urls();
         }
