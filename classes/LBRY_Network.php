@@ -86,6 +86,9 @@ class LBRY_Network
                 add_post_meta($post_id, $meta_key, $channel);
             }
         }
+
+        // Publish the post on the LBRY Network
+        $this->publisher->publish($post, $new_channels);
     }
 
     public function meta_box_html($post)
