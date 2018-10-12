@@ -1,29 +1,43 @@
 <?php
-$LBRY = LBRY();
 $unnatributed = (object) array(
-    'name' => 'Unattributed',
-    'permanent_url' => 'unattributed'
+    'name' => '(none / unattributed)',
+    'claim_id' => 'null'
 );
+// TODO: Test what happens with empty channel list, can't remember the return value
 $channels = LBRY()->daemon->channel_list();
-array_unshift($channels, $unnatributed);
-$cur_channels = get_post_meta($post->ID, 'lbry_channels');
+$channels[] = $unnatributed;
+// Sort the channels in a natural way
+usort($channels, array('LBRYPress', 'channel_name_comp'));
+$cur_channel = get_post_meta($post->ID, LBRY_POST_CHANNEL, true);
+$will_publish = get_post_meta($post->ID, LBRY_WILL_PUBLISH, true);
 ?>
 <?php wp_nonce_field('lbry_publish_channels', '_lbrynonce'); ?>
-<h4>Choose which channels you would like to publish this post to:</h4>
-<ul class="categorychecklist">
-    <?php if ($channels): ?>
-      <?php foreach ($channels as $channel): ?>
-          <li>
-              <label class="selectit">
-                  <input type="checkbox" name="lbry_channels[]" value="<?= $channel->permanent_url ?>"
-                  <?php if (in_array($channel->permanent_url, $cur_channels)): ?>
-                      checked="true"
-                  <?php endif; ?>
-                  >
-                  <?= $channel->name ?>
-              </label>
-              <br />
-          </li>
-      <?php endforeach; ?>
-    <?php endif; ?>
-</ul>
+<div class="lbry-meta-checkbox-wrapper">
+    <label class="lbry-meta-label">
+        <input type="checkbox" class="lbry-meta-checkbox" name="<?= LBRY_WILL_PUBLISH ?>" value="true"
+        <?php
+        if ($will_publish === 'true' || $will_publish === '') {
+            echo 'checked';
+        }
+        ?>
+        >
+        Sync this post on channel:
+    </label>
+</div>
+<select class="lbry-meta-select" name="<?= LBRY_POST_CHANNEL ?>">
+     <?php foreach ($channels as $index=>$channel): ?>
+         <option value="<?= $channel->claim_id ?>"
+             <?php
+                if ($cur_channel) {
+                    if ($cur_channel === $channel->claim_id) {
+                        echo 'selected';
+                    }
+                } elseif ($index === 0) {
+                    echo 'selected';
+                }
+             ?>
+             >
+             <?= $channel->name ?>
+         </option>
+     <?php endforeach; ?>
+</select>

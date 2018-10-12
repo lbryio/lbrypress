@@ -48,6 +48,7 @@ class LBRY_Network
      */
     public function add_meta_boxes()
     {
+        // TODO: Support post types based on user selection
         add_meta_box(
             'lbry-network-publishing',      // Unique ID
             'LBRY Network',                 // Title
@@ -60,6 +61,9 @@ class LBRY_Network
 
     /**
      * Handles saving the post meta that is relative to publishing to the LBRY Network
+     * @param  int      $post_id    The ID of the post we are saving
+     * @param  WP_Post  $post       The Post Object we are saving
+     * @return int  Returns post_id if user cannot edit post
      */
     public function save_post_meta($post_id, $post)
     {
@@ -74,23 +78,30 @@ class LBRY_Network
             return $post_id;
         }
 
-        $meta_key = 'lbry_channels';
-        $new_channels = (isset($_POST[$meta_key]) ? $_POST[$meta_key] : null);
-        $cur_channels = get_post_meta($post_id, $meta_key);
+        $will_publish = (isset($_POST[LBRY_WILL_PUBLISH]) ? $_POST[LBRY_WILL_PUBLISH] : false);
+        $new_channel = (isset($_POST[LBRY_POST_CHANNEL]) ? $_POST[LBRY_POST_CHANNEL] : null);
+        $cur_channel = get_post_meta($post_id, LBRY_POST_CHANNEL, true);
 
-        // COMBAK: Make this a bit more efficent if they have lots of channels
-        // Start with clean meta, then add new channels if there are any
-        delete_post_meta($post_id, $meta_key);
-        if ($new_channels) {
-            foreach ($new_channels as $channel) {
-                add_post_meta($post_id, $meta_key, $channel);
-            }
+        // Update meta acordingly
+        if (!$will_publish) {
+            update_post_meta($post_id, LBRY_WILL_PUBLISH, 'false');
+        } else {
+            update_post_meta($post_id, LBRY_WILL_PUBLISH, 'true');
+        }
+        if ($new_channel !== $cur_channel) {
+            update_post_meta($post_id, LBRY_POST_CHANNEL, $new_channel);
         }
 
-        // Publish the post on the LBRY Network
-        $this->publisher->publish($post, $new_channels);
+        if ($will_publish) {
+            // Publish the post on the LBRY Network
+            $this->publisher->publish($post, get_post_meta($post_id, LBRY_POST_CHANNEL, true));
+        }
     }
 
+    /**
+     * Returns the HTML for the LBRY Meta Box
+     * @param  [type] $post [description]
+     */
     public function meta_box_html($post)
     {
         require_once(LBRY_ABSPATH . 'templates/meta_box.php');
