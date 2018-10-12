@@ -2,14 +2,12 @@
 $LBRY = LBRY();
 $wallet_balance = $LBRY->daemon->wallet_balance();
 $channel_list = $LBRY->daemon->channel_list();
+// TODO: Make this page look cleaner
 ?>
 <div class="wrap">
-
     <h1><?= esc_html(get_admin_page_title()); ?></h1>
-
     <h2>Your wallet amount:</h2>
     <code><?= number_format($wallet_balance, 2, '.', ','); ?></code>
-
     <form action="options.php" method="post">
         <?php
         settings_fields(LBRY_SETTINGS_GROUP);
@@ -17,7 +15,6 @@ $channel_list = $LBRY->daemon->channel_list();
         submit_button('Save Settings');
         ?>
     </form>
-
     <h2>Your Publishable Channels</h2>
     <?php if ($channel_list): ?>
         <ul class="lbry-channel-list">
@@ -28,7 +25,6 @@ $channel_list = $LBRY->daemon->channel_list();
     <?php else: ?>
         <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
     <?php endif; ?>
-
     <h2>Add a new channel to publish to:</h2>
     <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
         <?php wp_nonce_field('lbry_add_channel', '_lbrynonce'); ?>

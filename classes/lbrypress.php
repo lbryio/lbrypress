@@ -39,6 +39,11 @@ class LBRYPress
     public $notice = null;
 
     /**
+     * The Library Network Object
+     */
+    public $network = null;
+
+    /**
      * Main LBRYPress Instance.
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
@@ -96,6 +101,8 @@ class LBRYPress
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
+        $this->define('LBRY_WILL_PUBLISH', 'lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
+        $this->define('LBRY_POST_CHANNEL', 'lbry_channel'); // The meta key for which channel to publish
         $this->define('LBRY_AVAILABLE_LICENSES', array(
             'mit' => 'MIT',
             'license2' => 'License 2',
@@ -123,7 +130,6 @@ class LBRYPress
     {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
-        $this->notice = new LBRY_Admin_Notice();
     }
 
     /**
@@ -137,6 +143,8 @@ class LBRYPress
         // Admin request
         if (is_admin()) {
             $this->admin = new LBRY_Admin();
+            $this->notice = new LBRY_Admin_Notice();
+            $this->network = new LBRY_Network();
         } else {
             $this->speech->maybe_rewrite_urls();
         }
@@ -176,8 +184,6 @@ class LBRYPress
         //     }
         // }
         // update_option(LBRY_SETTINGS, $new_settings);
-
-        error_log('Activated');
     }
 
     /**
@@ -186,5 +192,20 @@ class LBRYPress
     public function deactivate()
     {
         error_log('Deactivated');
+    }
+
+    /*
+     * Utility Functions
+     */
+    public static function channel_name_comp($a, $b)
+    {
+        if ($a->name === $b->name) {
+            return 0;
+        }
+
+        if ($b->name == '(none / unattributed)') {
+            return -1;
+        }
+        return strnatcasecmp($a->name, $b->name);
     }
 }
