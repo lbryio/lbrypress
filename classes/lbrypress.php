@@ -108,6 +108,7 @@ class LBRYPress
             'license2' => 'License 2',
             'license3' => 'License 3'
         ));
+        $this->define('LBRY_MIN_BALANCE', 20);
     }
 
     /**
@@ -191,6 +192,8 @@ class LBRYPress
      */
     public function deactivate()
     {
+        // Deactivate Wallet Balance cron job
+        $this->admin->wallet_balance_deactivate();
         error_log('Deactivated');
     }
 

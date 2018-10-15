@@ -17,6 +17,31 @@ class LBRY_Admin
         add_action('admin_menu', array($this, 'create_options_page'));
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
+
+        add_filter('cron_schedules', 'lbry_add_cron_interval');
+
+        // function lbry_add_cron_interval($schedules)
+        // {
+        //     $schedules['five_seconds'] = array(
+        //         'interval' => 5,
+        //         'display'  => esc_html__('Every Five Seconds'),
+        //     );
+        //
+        //     return $schedules;
+        // }
+
+        // if (! wp_next_scheduled('lbry_wallet_balance_hook')) {
+        //     error_log('scheduling');
+        //     wp_schedule_event(time(), 'five_seconds', 'lbry_wallet_balance_hook');
+        // }
+
+        add_action('lbry_wallet_balance_hook', array($this, 'wallet_balance_cron'));
+
+
+
+        error_log(print_r(_get_cron_array(), true));
+        do_action('lbry_wallet_balance_hook', array(LBRY()));
+        error_log('next: ' . wp_next_scheduled('lbry_wallet_balance_hook'));
     }
 
     /**
@@ -203,5 +228,22 @@ class LBRY_Admin
 
         wp_safe_redirect($redirect_url);
         exit();
+    }
+
+    public static function wallet_balance_cron($lbry)
+    {
+        $balance = 2; // LBRY()->daemon->wallet_balance();
+        //
+        if ($balance < 20000) {
+            $lbry->notice->set_notice('error', 'Your account balance is low, please add LBC to your account to continue publishing to the LBRY Network', true);
+        }
+        error_log('Balance: ' . $balance);
+    }
+
+    public function wallet_balance_deactivate()
+    {
+        $timestamp = wp_next_scheduled('lbry_wallet_balance_hook');
+        wp_unschedule_event($timestamp, 'lbry_wallet_balance_hook');
+        error_log('Disabled: ' . $timestamp);
     }
 }
