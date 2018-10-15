@@ -18,7 +18,7 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
 
-        add_filter('cron_schedules', 'lbry_add_cron_interval');
+        // add_filter('cron_schedules', 'lbry_add_cron_interval');
 
         // function lbry_add_cron_interval($schedules)
         // {
@@ -40,7 +40,7 @@ class LBRY_Admin
 
 
         error_log(print_r(_get_cron_array(), true));
-        do_action('lbry_wallet_balance_hook', array(LBRY()));
+        // do_action('lbry_wallet_balance_hook', array(LBRY()));
         error_log('next: ' . wp_next_scheduled('lbry_wallet_balance_hook'));
     }
 
