@@ -108,7 +108,7 @@ class LBRYPress
             'license2' => 'License 2',
             'license3' => 'License 3'
         ));
-        $this->define('LBRY_MIN_BALANCE', 20);
+        $this->define('LBRY_MIN_BALANCE', 2000);
     }
 
     /**
@@ -131,15 +131,6 @@ class LBRYPress
     {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
-    }
-
-    /**
-     * Set up all hooks and actions necessary for the plugin to run
-     */
-    private function init_hooks()
-    {
-        register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
-        register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
 
         // Admin request
         if (is_admin()) {
@@ -149,6 +140,15 @@ class LBRYPress
         } else {
             $this->speech->maybe_rewrite_urls();
         }
+    }
+
+    /**
+     * Set up all hooks and actions necessary for the plugin to run
+     */
+    private function init_hooks()
+    {
+        register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
+        register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
     }
 
     /**
