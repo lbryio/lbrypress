@@ -16,6 +16,7 @@ class LBRY_Admin
     {
         add_action('admin_menu', array($this, 'create_options_page'));
         add_action('admin_init', array($this, 'page_init'));
+        add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
     }
 
@@ -203,5 +204,28 @@ class LBRY_Admin
 
         wp_safe_redirect($redirect_url);
         exit();
+    }
+
+    /**
+     * Checks at most once an hour to see if the wallet balance is too low
+     */
+    // COMBAK: Check user permissions possibly
+    public static function wallet_balance_warning()
+    {
+        // See if we've checked in the past two hours
+        if (!get_transient('lbry_wallet_check')) {
+            $balance = LBRY()->daemon->wallet_balance();
+            if ($balance < LBRY_MIN_BALANCE) {
+                // If LBRY Balance is low, send email, but only once per day
+                if (!get_transient('lbry_wallet_warning_email')) {
+                    $email = get_option('admin_email');
+                    $subject = 'Your LBRYPress Wallet Balance is Low!';
+                    $message = "You LBRY Wallet for your wordpress installation at " . site_url() . " is running very low.\r\n\r\nYou currently have " . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
+                    wp_mail($email, $subject, $message);
+                    set_transient('lbry_wallet_warning_email', true, DAY_IN_SECONDS);
+                }
+            }
+            set_transient('lbry_wallet_check', true, 2 * HOUR_IN_SECONDS);
+        }
     }
 }
