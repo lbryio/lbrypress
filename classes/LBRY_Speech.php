@@ -36,7 +36,7 @@ class LBRY_Speech
     /**
      * Uploads assets to the speech server
      */
-    public function upload_assets()
+    public function upload_assets($post_id)
     {
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -44,6 +44,8 @@ class LBRY_Speech
         if (!$speech_url || $speech_url === '') {
             return;
         }
+
+        
 
         // TODO: Find assets, upload them to the Spee.ch Server
     }

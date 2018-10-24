@@ -7,6 +7,17 @@
 
 class LBRY_Speech_Parser
 {
+
+    /**
+     * Relative url
+     * @param   string  $url a full url
+     * @return  string  protocol relative url
+     */
+    protected function relative_url($url)
+    {
+        return substr($url, strpos($url, '//'));
+    }
+
     public function rewrite($html)
     {
         // TODO: Completely fix this, as its super slow. Looking at cdn_enabler for ideas
