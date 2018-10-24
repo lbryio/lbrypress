@@ -29,7 +29,7 @@ class LBRY_Admin_Notice
     /**
      * Sets transients for admin errors
      */
-    // TODO: Make sure we only set one transient at a time
+    // TODO: Make sure we only set one transient at a time per error
     public function set_notice($status = 'error', $message = 'Something went wrong', $is_dismissible = false)
     {
         $notice = array(
