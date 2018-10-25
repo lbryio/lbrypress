@@ -108,7 +108,7 @@ class LBRYPress
             'license2' => 'License 2',
             'license3' => 'License 3'
         ));
-        $this->define('LBRY_MIN_BALANCE', 20);
+        $this->define('LBRY_MIN_BALANCE', 2000);
     }
 
     /**
@@ -138,7 +138,7 @@ class LBRYPress
             $this->notice = new LBRY_Admin_Notice();
             $this->network = new LBRY_Network();
         } else {
-            $this->speech->maybe_rewrite_urls();
+            // $this->speech->maybe_rewrite_urls();
         }
     }
 

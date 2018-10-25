@@ -115,7 +115,7 @@ class LBRY_Daemon
         $this->check_for_errors($result);
         return $result;
     }
-
+    
     /**
      * Sends a cURL request to the LBRY Daemon
      * @param  string $method The method to call on the LBRY API
