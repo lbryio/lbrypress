@@ -18,7 +18,7 @@ class LBRY_Speech
     public function __construct()
     {
         $this->parser = new LBRY_Speech_Parser();
-        add_action('save_post', array($this, 'upload_attachments'));
+        add_action('save_post', array($this, 'upload_media'));
     }
 
     /**
@@ -40,7 +40,7 @@ class LBRY_Speech
      * @return bool             True if successful, false if not or if no Speech URL available
      */
     // TODO: set up error reporting
-    public function upload_attachments($post_id)
+    public function upload_media($post_id)
     {
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -49,30 +49,30 @@ class LBRY_Speech
             return false;
         }
 
-        $attachments = $this->find_attachments($post_id);
+        $all_media = $this->find_media($post_id);
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
-        if ($attachments) {
-            foreach ($attachments as $attachment) {
-                error_log(print_r($attachment, true));
+        if ($all_media) {
+            // error_log(print_r($all_media, true));
+            foreach ($all_media as $media) {
                 // TODO: set post meta to see if already uploaded
 
 
                 // Create a CURLFile object to pass our attachments to the spee.ch instance
-                $file_url = get_attached_file($attachment->ID);
-                $file_name = wp_basename($file_url);
-                $file_type = $attachment->post_mime_type;
-                $cfile = new CURLFile($file_url, $file_type, $file_name);
-
-                $params = array(
-                    'name' => $attachment->post_name,
-                    'file' => $cfile,
-                    'title' => $attachment->post_title,
-                    'type' => $file_type
-                );
-
-                $result = $this->request('publish', $params);
-                error_log(print_r($result, true));
+                // $file_url = get_attached_file($attachment->ID);
+                // $file_name = wp_basename($file_url);
+                // $file_type = $attachment->post_mime_type;
+                // $cfile = new CURLFile($file_url, $file_type, $file_name);
+                //
+                // $params = array(
+                //     'name' => $attachment->post_name,
+                //     'file' => $cfile,
+                //     'title' => $attachment->post_title,
+                //     'type' => $file_type
+                // );
+                //
+                // $result = $this->request('publish', $params);
+                // error_log(print_r($result, true));
 
                 // TODO: Make sure to warn if image name is already taken on channel
             }
@@ -82,24 +82,34 @@ class LBRY_Speech
     /**
      * Finds all media attached to a post
      * @param  int $post_id     The post to search
-     * @return array            An array of WP_Post Objects, or false if none found
+     * @return array            An array of Speech Media Objects
      */
-    protected function find_attachments($post_id)
+    protected function find_media($post_id)
     {
-        // Get all attachments
-        $attachments = get_posts(array(
-            'post_type' => 'attachment',
-            'numberposts' => -1,
-            'post_status' => 'any',
-            'post_parent' => $post_id,
-        ));
+        // Get content and put into a DOMDocument
+        $content = apply_filters('the_content', get_post_field('post_content', $post_id));
+        $DOM = new DOMDocument();
+        // Hide HTML5 Tag warnings
+        libxml_use_internal_errors(true);
+        $DOM->loadHTML($content);
 
-        // Return attachments arary
-        if ($attachments) {
-            return $attachments;
-        } else {
-            return false;
+        $images = $DOM->getElementsByTagName('img');
+        $videos = $DOM->getElementsByTagName('video');
+
+        // Get each image attribute
+        foreach ($images as $image) {
+            error_log($image->getAttribute('src'));
         }
+
+        // Parse video tags based on wordpress output for local embedds
+        // Because video tag is HTML5, treat it like an XML node
+        foreach ($videos as $video) {
+            $source = $video->getElementsByTagName('source');
+            $src = $source[0]->attributes->getNamedItem('src')->value;
+            error_log($src);
+        }
+
+        return;
     }
 
     /**
