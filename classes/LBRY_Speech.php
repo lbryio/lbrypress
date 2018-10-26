@@ -53,26 +53,19 @@ class LBRY_Speech
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
-            // error_log(print_r($all_media, true));
+            error_log(print_r($all_media, true));
             foreach ($all_media as $media) {
                 // TODO: set post meta to see if already uploaded
 
+                $params = array(
+                    'name'  => $media->name,
+                    'file'  => $media->file,
+                    'title' => $media->title,
+                    'type'  => $media->type
+                );
 
-                // Create a CURLFile object to pass our attachments to the spee.ch instance
-                // $file_url = get_attached_file($attachment->ID);
-                // $file_name = wp_basename($file_url);
-                // $file_type = $attachment->post_mime_type;
-                // $cfile = new CURLFile($file_url, $file_type, $file_name);
-                //
-                // $params = array(
-                //     'name' => $attachment->post_name,
-                //     'file' => $cfile,
-                //     'title' => $attachment->post_title,
-                //     'type' => $file_type
-                // );
-                //
-                // $result = $this->request('publish', $params);
-                // error_log(print_r($result, true));
+                $result = $this->request('publish', $params);
+                error_log(print_r($result, true));
 
                 // TODO: Make sure to warn if image name is already taken on channel
             }
@@ -86,6 +79,8 @@ class LBRY_Speech
      */
     protected function find_media($post_id)
     {
+        $all_media = array();
+
         // Get content and put into a DOMDocument
         $content = apply_filters('the_content', get_post_field('post_content', $post_id));
         $DOM = new DOMDocument();
@@ -98,7 +93,10 @@ class LBRY_Speech
 
         // Get each image attribute
         foreach ($images as $image) {
-            error_log($image->getAttribute('src'));
+            $src = $image->getAttribute('src');
+            if ($this->is_local($src)) {
+                $all_media[] = new LBRY_Speech_Media($src);
+            }
         }
 
         // Parse video tags based on wordpress output for local embedds
@@ -106,10 +104,26 @@ class LBRY_Speech
         foreach ($videos as $video) {
             $source = $video->getElementsByTagName('source');
             $src = $source[0]->attributes->getNamedItem('src')->value;
-            error_log($src);
+            if ($this->is_local($src)) {
+                $all_media[] = new LBRY_Speech_Media($src);
+            }
         }
 
-        return;
+        return $all_media;
+    }
+
+    /**
+     * Checks to see if a url is local to this installation
+     * @param  string   $url
+     * @return boolean
+     */
+    private function is_local($url)
+    {
+        if (strpos($url, home_url()) !== false) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
