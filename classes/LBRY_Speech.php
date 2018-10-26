@@ -56,14 +56,14 @@ class LBRY_Speech
                 error_log(print_r($attachment, true));
                 // TODO: set post meta to see if already uploaded
 
-                $file_url = $attachment->guid;
-                $file_url = str_replace(site_url(), '', $file_url);
-                $cfile = curl_file_create($file_url, $attachment->post_mime_type, $attachment->post_name);
+                $file_url = get_attached_file($attachment->ID);
+                $cfile = new CURLFile($file_url, $attachment->post_mime_type, $attachment->post_name . '.jpg');
 
                 $params = array(
                     'name' => $attachment->post_name,
                     'file' => $cfile,
-                    'title' => $attachment->post_title
+                    'title' => $attachment->post_title,
+                    'type' => $attachment->post_mime_type
                 );
 
                 $result = $this->request('publish', $params);
@@ -97,8 +97,8 @@ class LBRY_Speech
 
     /**
      * Sends a cURL request to the Speech URL
-     * @param  string $method The method to call on the LBRY API
-     * @param  array  $params The Parameters to send the LBRY API Call
+     * @param  string $method The method to call on the Speech API
+     * @param  array  $params The Parameters to send the Speech API Call
      * @return string The cURL response
      */
     private function request($method, $params = array())

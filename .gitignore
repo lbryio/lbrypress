@@ -8,3 +8,6 @@
 tmp/*
 
 !*.gitkeep
+
+#Ignore config file
+lbry_config.php
