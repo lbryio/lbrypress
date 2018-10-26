@@ -59,6 +59,9 @@ class LBRY_Speech
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
             foreach ($all_media as $media) {
+                //// TODO: Check if media type is accepted
+                $meta = get_post_meta($media->id, '_wp_attachment_metadata', true);
+                error_log(print_r($meta, true));
                 if (! get_post_meta($media->id, 'lbry_speech_uploaded')) {
                     $params = array(
                         'name'  => $media->name,
@@ -75,13 +78,12 @@ class LBRY_Speech
                     $result = $this->request('publish', $params);
                     error_log(print_r($result, true));
 
+                    // TODO: Make sure to warn if image name is already taken on channel
                     if ($result->success) {
                         update_post_meta($media->id, 'lbry_speech_uploaded', true);
                         update_post_meta($media->id, 'lbry_speech_url', $result->data->serveUrl);
                     }
                 }
-
-                // TODO: Make sure to warn if image name is already taken on channel
             }
         }
     }
@@ -110,6 +112,7 @@ class LBRY_Speech
 
         // Get each image attribute
         foreach ($images as $image) {
+            // error_log(print_r(get_intermediate_image_sizes(), true));
             $src = $image->getAttribute('src');
             if ($this->is_local($src)) {
                 $all_media[] = new LBRY_Speech_Media($src);
@@ -128,6 +131,8 @@ class LBRY_Speech
 
         return $all_media;
     }
+
+
 
     /**
      * Checks to see if a url is local to this installation
