@@ -51,23 +51,30 @@ class LBRY_Speech
 
         $attachments = $this->find_attachments($post_id);
 
+        // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($attachments) {
             foreach ($attachments as $attachment) {
                 error_log(print_r($attachment, true));
                 // TODO: set post meta to see if already uploaded
 
+
+                // Create a CURLFile object to pass our attachments to the spee.ch instance
                 $file_url = get_attached_file($attachment->ID);
-                $cfile = new CURLFile($file_url, $attachment->post_mime_type, $attachment->post_name . '.jpg');
+                $file_name = wp_basename($file_url);
+                $file_type = $attachment->post_mime_type;
+                $cfile = new CURLFile($file_url, $file_type, $file_name);
 
                 $params = array(
                     'name' => $attachment->post_name,
                     'file' => $cfile,
                     'title' => $attachment->post_title,
-                    'type' => $attachment->post_mime_type
+                    'type' => $file_type
                 );
 
                 $result = $this->request('publish', $params);
                 error_log(print_r($result, true));
+
+                // TODO: Make sure to warn if image name is already taken on channel
             }
         }
     }
