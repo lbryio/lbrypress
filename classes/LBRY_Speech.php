@@ -18,7 +18,7 @@ class LBRY_Speech
     public function __construct()
     {
         $this->parser = new LBRY_Speech_Parser();
-        add_action('save_post', array($this, 'upload_media'));
+        add_action('save_post', array($this, 'upload_media'), 10, 2);
     }
 
     /**
@@ -40,8 +40,13 @@ class LBRY_Speech
      * @return bool             True if successful, false if not or if no Speech URL available
      */
     // TODO: set up error reporting
-    public function upload_media($post_id)
+    public function upload_media($post_id, $post)
     {
+        // Only check post_type of Post
+        if ('post' !== $post->post_type) {
+            return;
+        }
+
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
         // Die if we don't have a spee.ch url
@@ -53,24 +58,28 @@ class LBRY_Speech
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
-            error_log(print_r($all_media, true));
             foreach ($all_media as $media) {
-                // TODO: set post meta to see if already uploaded
+                if (! get_post_meta($media->id, 'lbry_speech_uploaded')) {
+                    $params = array(
+                        'name'  => $media->name,
+                        'file'  => $media->file,
+                        'title' => $media->title,
+                        'type'  => $media->type
+                    );
 
-                $params = array(
-                    'name'  => $media->name,
-                    'file'  => $media->file,
-                    'title' => $media->title,
-                    'type'  => $media->type
-                );
+                    if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
+                        $params['channelName'] = LBRY_SPEECH_CHANNEL;
+                        $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
+                    }
 
-                if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
-                    $params['channelName'] = LBRY_SPEECH_CHANNEL;
-                    $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
+                    $result = $this->request('publish', $params);
+                    error_log(print_r($result, true));
+
+                    if ($result->success) {
+                        update_post_meta($media->id, 'lbry_speech_uploaded', true);
+                        update_post_meta($media->id, 'lbry_speech_url', $result->data->serveUrl);
+                    }
                 }
-
-                $result = $this->request('publish', $params);
-                error_log(print_r($result, true));
 
                 // TODO: Make sure to warn if image name is already taken on channel
             }
@@ -88,6 +97,9 @@ class LBRY_Speech
 
         // Get content and put into a DOMDocument
         $content = apply_filters('the_content', get_post_field('post_content', $post_id));
+        if (!$content) {
+            return $all_media;
+        }
         $DOM = new DOMDocument();
         // Hide HTML5 Tag warnings
         libxml_use_internal_errors(true);
@@ -147,8 +159,6 @@ class LBRY_Speech
         }
 
         $address = $speech_url . '/api/claim/' . $method;
-
-        error_log(print_r($params, true));
 
         // Send it via curl
         $ch = curl_init();
