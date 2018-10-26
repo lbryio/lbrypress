@@ -64,6 +64,11 @@ class LBRY_Speech
                     'type'  => $media->type
                 );
 
+                if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
+                    $params['channelName'] = LBRY_SPEECH_CHANNEL;
+                    $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
+                }
+
                 $result = $this->request('publish', $params);
                 error_log(print_r($result, true));
 

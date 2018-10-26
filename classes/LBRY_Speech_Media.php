@@ -9,6 +9,8 @@
 
 class LBRY_Speech_Media
 {
+    public $id;
+
     public $name;
 
     public $file;
@@ -32,7 +34,6 @@ class LBRY_Speech_Media
         $default = array(
             'nsfw'          => null,
             'license'       => null,
-            'title'         => null,
             'description'   => null,
             'thumbnail'     => null
         );
@@ -43,17 +44,46 @@ class LBRY_Speech_Media
             $this->{$key} = $value;
         }
 
-        // TODO: Name can't have extension in it.
-        // TODO: Get attachment ID... so we can mark postmeta when needed.
-        // Get name, file, and type from the URL
-        // First, strip of any query params
-        $url = strtok($url, '?');
-        $path = ABSPATH . str_replace(home_url(), '', $url);
-        error_log($path);
-        $type = mime_content_type($path);
-        $name = wp_basename($url);
-        $this->name = $name;
-        $this->file = new CURLFile($path, $type, $name);
+        // Get attachment ID, name, file, and type from the URL
+        $url = strtok($url, '?'); // Clean up query params first
+        $id = $this->rigid_attachment_url_to_postid($url);
+        $attachment = get_post($id);
+        $path = get_attached_file($id);
+        $type = $attachment->post_mime_type;
+        $filename = wp_basename($path);
+
+        $this->id = $id;
+        // COMBAK: Probably wont need this underscore check with Daemon V3
+        $this->name = str_replace('_', '-', $attachment->post_name);
+        $this->file = new CURLFile($path, $type, $filename);
         $this->type = $type;
+        $this->title = $attachment->post_title;
+    }
+
+    /**
+     * Checks for image crop sizes and filters out query params
+     * Courtesy of this post: http://bordoni.me/get-attachment-id-by-image-url/
+     * @param  string   $url    The url of the attachment you want an ID for
+     * @return int              The found post_id
+     */
+    private function rigid_attachment_url_to_postid($url)
+    {
+        $post_id = attachment_url_to_postid($url);
+
+        if (! $post_id) {
+            $dir = wp_upload_dir();
+            $path = $url;
+
+            if (0 === strpos($path, $dir['baseurl'] . '/')) {
+                $path = substr($path, strlen($dir['baseurl'] . '/'));
+            }
+
+            if (preg_match('/^(.*)(\-\d*x\d*)(\.\w{1,})/i', $path, $matches)) {
+                $url = $dir['baseurl'] . '/' . $matches[1] . $matches[3];
+                $post_id = attachment_url_to_postid($url);
+            }
+        }
+
+        return (int) $post_id;
     }
 }
