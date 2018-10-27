@@ -47,6 +47,8 @@ class LBRY_Speech
             return;
         }
 
+        error_log('======================== START =====================');
+
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
         // Die if we don't have a spee.ch url
@@ -58,32 +60,34 @@ class LBRY_Speech
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
+            error_log(print_r($all_media, true));
             foreach ($all_media as $media) {
-                //// TODO: Check if media type is accepted
-                // $meta = get_post_meta($media->id, '_wp_attachment_metadata', true);
-                error_log(print_r($media, true));
-                // if (! get_post_meta($media->id, 'lbry_speech_uploaded')) {
-                //     $params = array(
-                //         'name'  => $media->name,
-                //         'file'  => $media->file,
-                //         'title' => $media->title,
-                //         'type'  => $media->type
-                //     );
-                //
-                //     if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
-                //         $params['channelName'] = LBRY_SPEECH_CHANNEL;
-                //         $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
-                //     }
-                //
-                //     $result = $this->request('publish', $params);
-                //     error_log(print_r($result, true));
-                //
-                //     // TODO: Make sure to warn if image name is already taken on channel
-                //     if ($result->success) {
-                //         update_post_meta($media->id, 'lbry_speech_uploaded', true);
-                //         update_post_meta($media->id, 'lbry_speech_url', $result->data->serveUrl);
-                //     }
-                // }
+                $params = array(
+                        'name'  => $media->name,
+                        'file'  => $media->file,
+                        'title' => $media->title,
+                        'type'  => $media->type
+                    );
+
+                if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
+                    $params['channelName'] = LBRY_SPEECH_CHANNEL;
+                    $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
+                }
+
+                $result = $this->request('publish', $params);
+                error_log(print_r($result, true));
+
+                // TODO: Handle if image is already taken on channel
+                if ($result && $result->success) {
+                    $meta = wp_get_attachment_metadata($media->id);
+                    if ($media->image_size) {
+                        $meta['sizes'][$media->image_size]['speech_asset_url'] =  $result->data->serveUrl;
+                    } else {
+                        $meta['speech_asset_url'] = $result->data->serveUrl;
+                    }
+                    wp_update_attachment_metadata($media->id, $meta);
+                    error_log(print_r($meta, true));
+                }
             }
         }
     }
@@ -95,9 +99,8 @@ class LBRY_Speech
      */
     protected function find_media($post_id)
     {
-        // TODO: Check wp_make_content_images_responsive for cannon way to scrub images & attachments
-        // https://developer.wordpress.org/reference/functions/wp_make_content_images_responsive/
         $all_media = array();
+
 
         // Get content and put into a DOMDocument
         $content = get_post_field('post_content', $post_id);
@@ -105,41 +108,99 @@ class LBRY_Speech
             return $all_media;
         }
 
+        // Find all images
         preg_match_all('/<img [^>]+>/', $content, $images);
 
         // Only MP4 videos for now
         preg_match_all('/\[video.*mp4=".*".*\]/', $content, $videos);
 
+        // Check to make sure we have results
+        $images  = empty($images[0]) ? array() : $images[0];
+        $videos  = empty($videos[0]) ? array() : $videos[0];
+
         error_log(print_r($images, true));
         error_log(print_r($videos, true));
 
+        // TODO: only create media objects if hasn't been uploaded. IE check meta here
         // Throw each image into a media object
         foreach ($images as $image) {
-
+            $attachment_id = null;
             // Looks for wp image class first, if not, pull id from source
-            if (preg_match('/wp-image-([0-9]+)/i', $image[0], $class_id)) {
+            if (preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
                 $attachment_id = absint($class_id[1]);
-            } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image[0], $src)) {
+                error_log('found with wp-image: ' . $attachment_id);
+            } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image, $src) && $this->is_local($src[1])) {
                 $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
+                error_log('found with url: ' . $attachment_id);
             }
 
             if ($attachment_id) {
-                $all_media[] = new LBRY_Speech_Media($attachment_id, array(), true);
+                // Create main image media object
+                $meta = wp_get_attachment_metadata($attachment_id);
+
+                // If we don't have meta, get out because none of this will work
+                if (!$meta) {
+                    break;
+                }
+
+                if (!$this->is_published($meta)) {
+                    $all_media[] = new LBRY_Speech_Media($attachment_id);
+                }
+
+                // COMBAK: find a way to make this more efficient?
+                // Create a media object for each image size
+                // Get images sizes for this attachment, as not all image sizes implemented
+                $image_sizes = wp_get_attachment_metadata($attachment_id)['sizes'];
+
+                foreach ($image_sizes as $size => $meta) {
+                    if (!$this->is_published($meta)) {
+                        $all_media[] = new LBRY_Speech_Media($attachment_id, array('image_size' => $size));
+                    }
+                }
             }
         }
 
         // Parse video tags based on wordpress shortcode for local embedds
         foreach ($videos as $video) {
-            if (preg_match('/mp4="((?:https?:)?\/\/[^"]+)"/', $video[0], $src)) {
+            $attachment_id = null;
+            if (preg_match('/mp4="((?:https?:)?\/\/[^"]+)"/', $video, $src) && $this->is_local($src[1])) {
                 $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
 
                 if ($attachment_id) {
-                    $all_media[] = new LBRY_Speech_Media($attachment_id);
+                    $meta = wp_get_attachment_metadata($attachment_id);
+
+                    if (!$this->is_published($meta)) {
+                        $all_media[] = new LBRY_Speech_Media($attachment_id);
+                    }
                 }
             }
         }
 
         return $all_media;
+    }
+
+    /**
+     * Checks to see if a url is local to this installation
+     * @param  string   $url
+     * @return boolean
+     */
+    private function is_local($url)
+    {
+        if (strpos($url, home_url()) !== false) {
+            return true;
+        }
+    }
+
+    /**
+     * Checks array to see if a spee.ch url exists
+     */
+    private function is_published($meta)
+    {
+        if (key_exists('speech_asset_url', $meta) && $meta['speech_asset_url'] !== '') {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -27,9 +27,9 @@ class LBRY_Speech_Media
 
     public $thumbnail;
 
-    private $is_image = false;
+    public $image_size = false;
 
-    public function __construct(int $attachment_id, $args = array(), bool $is_image = false)
+    public function __construct(int $attachment_id, $args = array())
     {
 
         // Set supplied arguments
@@ -37,7 +37,8 @@ class LBRY_Speech_Media
             'nsfw'          => null,
             'license'       => null,
             'description'   => null,
-            'thumbnail'     => null
+            'thumbnail'     => null,
+            'image_size'    => false,
         );
 
         $settings = array_merge($default, array_intersect_key($args, $default));
@@ -46,35 +47,33 @@ class LBRY_Speech_Media
             $this->{$key} = $value;
         }
 
-        // Flag as image if it is one
-        if ($is_image) {
-            $this->is_image = true;
+
+        // Get attachment ID, name, file, and type from the URL
+        $this->id = $attachment_id;
+
+
+        $path = get_attached_file($this->id);
+
+        // Apply data dependent on whether this is an image 'size' or not
+        if ($this->image_size) {
+            $meta = wp_get_attachment_metadata($this->id)['sizes'][$this->image_size];
+            $pathinfo = pathinfo($meta['file']);
+            $ext = '.' . $pathinfo['extension'];
+            $new_ext = '-' . $meta['width'] . 'x' . $meta['height'] . $ext;
+            $path = str_replace($ext, $new_ext, $path);
+            $filename = $pathinfo['basename'];
+            // COMBAK: Probably wont need this underscore check with Daemon V3
+            $this->name = str_replace('_', '-', $pathinfo['filename']);
+            $this->type = $meta['mime-type'];
+            $this->title = $pathinfo['filename'];
+        } else {
+            $attachment = get_post($this->id);
+            $filename = wp_basename($path);
+            $this->name = str_replace('_', '-', $attachment->post_name);
+            $this->type = $attachment->post_mime_type;
+            $this->title = $attachment->post_title;
         }
 
-        
-
-        // // Get attachment ID, name, file, and type from the URL
-        // $url = strtok($url, '?'); // Clean up query params first
-        // $id = $this->rigid_attachment_url_to_postid($url);
-        $meta = wp_get_attachment_metadata($attachment_id);
-        error_log(print_r($meta, true));
-        $attachment = get_post($id);
-        $path = get_attached_file($id);
-        // $type = $attachment->post_mime_type;
-        // $filename = wp_basename($path);
-        //
-        // $this->id = $id;
-        // // COMBAK: Probably wont need this underscore check with Daemon V3
-        // $this->name = str_replace('_', '-', $attachment->post_name);
-        // $this->file = new CURLFile($path, $type, $filename);
-        // $this->type = $type;
-        // $this->title = $attachment->post_title;
-    }
-
-
-
-    public function is_image()
-    {
-        return $this->is_image;
+        $this->file = new CURLFile($path, $this->type, $filename);
     }
 }
