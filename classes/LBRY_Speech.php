@@ -17,8 +17,12 @@ class LBRY_Speech
 
     public function __construct()
     {
-        $this->parser = new LBRY_Speech_Parser();
         add_action('save_post', array($this, 'upload_media'), 10, 2);
+
+        if (!is_admin()) {
+            $this->parser = new LBRY_Speech_Parser();
+            add_filter('wp_calculate_image_srcset', array($this->parser, 'speech_image_srcset'), 10, 5);
+        }
     }
 
     /**
@@ -47,7 +51,7 @@ class LBRY_Speech
             return;
         }
 
-        error_log('======================== START =====================');
+        // error_log('======================== START =====================');
 
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -60,7 +64,7 @@ class LBRY_Speech
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
-            error_log(print_r($all_media, true));
+            // error_log(print_r($all_media, true));
             foreach ($all_media as $media) {
                 $params = array(
                         'name'  => $media->name,
@@ -93,7 +97,7 @@ class LBRY_Speech
                         $meta['speech_asset_url'] = $result->data->serveUrl;
                     }
                     wp_update_attachment_metadata($media->id, $meta);
-                    error_log(print_r($meta, true));
+                    // error_log(print_r($meta, true));
                 }
             }
         }
@@ -125,8 +129,8 @@ class LBRY_Speech
         $images  = empty($images[0]) ? array() : $images[0];
         $videos  = empty($videos[0]) ? array() : $videos[0];
 
-        error_log(print_r($images, true));
-        error_log(print_r($videos, true));
+        // error_log(print_r($images, true));
+        // error_log(print_r($videos, true));
 
         // TODO: only create media objects if hasn't been uploaded. IE check meta here
         // Throw each image into a media object
@@ -135,10 +139,10 @@ class LBRY_Speech
             // Looks for wp image class first, if not, pull id from source
             if (preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
                 $attachment_id = absint($class_id[1]);
-                error_log('found with wp-image: ' . $attachment_id);
+            // error_log('found with wp-image: ' . $attachment_id);
             } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image, $src) && $this->is_local($src[1])) {
                 $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
-                error_log('found with url: ' . $attachment_id);
+                // error_log('found with url: ' . $attachment_id);
             }
 
             if ($attachment_id) {
@@ -267,7 +271,6 @@ class LBRY_Speech
         curl_setopt($ch, CURLOPT_HEADER, false);
 
         $result = curl_exec($ch);
-
         $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
         if ($response_code != '200') {
