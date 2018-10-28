@@ -74,8 +74,15 @@ class LBRY_Speech
                     $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
                 }
 
+                try {
+                    $result = $this->request('publish', $params);
+                } catch (\Exception $e) {
+                    error_log('Failed to upload asset with ID ' . $media->id . ' to supplied speech URL.');
+                    error_log($e->getMessage());
+                    continue;
+                }
+
                 $result = $this->request('publish', $params);
-                error_log(print_r($result, true));
 
                 // TODO: Handle if image is already taken on channel
                 if ($result && $result->success) {
@@ -260,6 +267,13 @@ class LBRY_Speech
         curl_setopt($ch, CURLOPT_HEADER, false);
 
         $result = curl_exec($ch);
+
+        $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+
+        if ($response_code != '200') {
+            throw new \Exception("Speech URL Connection Issue | Code: " . $response_code, 1);
+        }
+
         curl_close($ch);
         return json_decode($result);
     }
