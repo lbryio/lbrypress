@@ -9,10 +9,18 @@ class LBRY_Daemon
 {
     private $address = 'localhost:5279';
 
+    private $logger = null;
+
     /**
      * LBRY Daemon Object constructor
      */
     public function __construct()
+    {
+        $this->logger = new LBRY_Daemon_Logger();
+        $this->init();
+    }
+
+    public function init()
     {
     }
 
@@ -23,8 +31,14 @@ class LBRY_Daemon
      */
     public function wallet_unused_address()
     {
-        $result = $this->request('wallet_unused_address');
-        return $result->result;
+        try {
+            $result = $this->request('wallet_unused_address');
+            return $result->result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('wallet_unused_address error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting unused wallet address.');
+            return;
+        }
     }
 
     /**
@@ -35,8 +49,14 @@ class LBRY_Daemon
      */
     public function wallet_balance()
     {
-        $result = $this->request('wallet_balance');
-        return $result->result;
+        try {
+            $result = $this->request('wallet_balance');
+            return $result->result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting wallet address.');
+            return;
+        }
     }
 
     /**
@@ -45,8 +65,14 @@ class LBRY_Daemon
      */
     public function channel_list()
     {
-        $result = $this->request('channel_list')->result;
-        return empty($result) ? null : $result;
+        try {
+            $result = $this->request('channel_list')->result;
+            return empty($result) ? null : $result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue retrieving channel list.');
+            return;
+        }
     }
 
     /**
@@ -69,15 +95,20 @@ class LBRY_Daemon
 
         $channel_name = '@' . $channel_name;
 
-        $result = $this->request(
-            'channel_new',
-            array(
-                'channel_name' => $channel_name,
-                'amount' => floatval($bid_amount)
-            )
-        );
-        $this->check_for_errors($result);
-        return $result->result;
+        try {
+            $result = $this->request(
+                'channel_new',
+                array(
+                    'channel_name' => $channel_name,
+                    'amount' => floatval($bid_amount)
+                )
+            );
+            return $result->result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue creating new channel.');
+            return;
+        }
     }
 
     /**
@@ -107,15 +138,19 @@ class LBRY_Daemon
         }
 
         // TODO: Bring thumbnails into the mix
-        $result = $this->request(
-            'publish',
-            $args
-        );
-
-        $this->check_for_errors($result);
-        return $result;
+        try {
+            $result = $this->request(
+                'publish',
+                $args
+            );
+            return $result->result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('wallet_unused_address error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
+            return;
+        }
     }
-    
+
     /**
      * Sends a cURL request to the LBRY Daemon
      * @param  string $method The method to call on the LBRY API
@@ -143,8 +178,18 @@ class LBRY_Daemon
         curl_setopt($ch, CURLOPT_HEADER, 0);
 
         $result = curl_exec($ch);
+        $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         curl_close($ch);
-        return json_decode($result);
+
+        if ($response_code != '200') {
+            $this->logger->log("Damon Connection Issue", "Daemon connection returned response code $response_code");
+            throw new LBRYDaemonException("Daemon Connection Issue", $response_code);
+        }
+
+
+        $result = json_decode($result);
+        $this->check_for_errors($result);
+        return $result;
     }
 
     /**
@@ -154,7 +199,10 @@ class LBRY_Daemon
     private function check_for_errors($response)
     {
         if (property_exists($response, 'error')) {
-            throw new \Exception($response->error->message, $response->error->code);
+            $message = $response->error->message;
+            $code = $response->error->code;
+            $this->logger->log("Daemon error code $code", $message);
+            throw new LBRYDaemonException($message, $code);
         }
     }
 
@@ -162,31 +210,39 @@ class LBRY_Daemon
     * Temporary placeholder function for daemon. Not currently in use.
     * @return [type] [description]
     */
-    private function download_daemon()
+    // private function download_daemon()
+    // {
+    //     $output_filename = "lbrydaemon";
+    //
+    //     // HACK: Shouldn't just directly download, need to know OS, etc
+    //     // TODO: Make sure we are only installing if not there or corrupted
+    //     $host = "http://build.lbry.io/daemon/build-6788_commit-5099e19_branch-lbryum-refactor/mac/lbrynet";
+    //     $fp = fopen(LBRY_URI . '/' . $output_filename, 'w+');
+    //     $ch = curl_init();
+    //     curl_setopt($ch, CURLOPT_URL, $host);
+    //     curl_setopt($ch, CURLOPT_VERBOSE, 1);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    //     curl_setopt($ch, CURLOPT_FILE, $fp);
+    //     curl_setopt($ch, CURLOPT_AUTOREFERER, false);
+    //     curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+    //     curl_setopt($ch, CURLOPT_HEADER, 0);
+    //
+    //     $result = curl_exec($ch);
+    //     curl_close($ch);
+    //     fclose($fp);
+    //
+    //     $filepath = LBRY_URI . '/' . $output_filename;
+    //
+    //     `chmod +x  {$filepath}`;
+    //     error_log(`{$filepath} status`);
+    //     `{$filepath} start &`;
+    // }
+}
+
+class LBRYDaemonException extends Exception
+{
+    public function __contstruct($message = '', $code = 0, Exception $previous = null)
     {
-        $output_filename = "lbrydaemon";
-
-        // HACK: Shouldn't just directly download, need to know OS, etc
-        // TODO: Make sure we are only installing if not there or corrupted
-        $host = "http://build.lbry.io/daemon/build-6788_commit-5099e19_branch-lbryum-refactor/mac/lbrynet";
-        $fp = fopen(LBRY_URI . '/' . $output_filename, 'w+');
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $host);
-        curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-
-        $result = curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
-
-        $filepath = LBRY_URI . '/' . $output_filename;
-
-        `chmod +x  {$filepath}`;
-        error_log(`{$filepath} status`);
-        `{$filepath} start &`;
+        parent::__construct($message, $code, $previous);
     }
 }

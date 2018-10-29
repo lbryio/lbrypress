@@ -52,7 +52,7 @@ class LBRY_Speech
             return;
         }
 
-        // error_log('======================== START =====================');
+        error_log('======================== START =====================');
 
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -132,8 +132,8 @@ class LBRY_Speech
         $images  = empty($images[0]) ? array() : $images[0];
         $videos  = empty($videos[0]) ? array() : $videos[0];
 
-        // error_log(print_r($images, true));
-        // error_log(print_r($videos, true));
+        error_log(print_r($images, true));
+        error_log(print_r($videos, true));
 
         // TODO: only create media objects if hasn't been uploaded. IE check meta here
         // Throw each image into a media object
@@ -142,15 +142,17 @@ class LBRY_Speech
             // Looks for wp image class first, if not, pull id from source
             if (preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
                 $attachment_id = absint($class_id[1]);
-            // error_log('found with wp-image: ' . $attachment_id);
+                error_log('found with wp-image: ' . $attachment_id);
             } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image, $src) && $this->is_local($src[1])) {
                 $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
-                // error_log('found with url: ' . $attachment_id);
+                error_log('found with url: ' . $attachment_id);
             }
 
             if ($attachment_id) {
                 // Create main image media object
                 $meta = wp_get_attachment_metadata($attachment_id);
+
+                error_log(print_r($meta, true));
 
                 // If we don't have meta, get out because none of this will work
                 if (!$meta) {
