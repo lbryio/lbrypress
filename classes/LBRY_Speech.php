@@ -22,6 +22,7 @@ class LBRY_Speech
         if (!is_admin()) {
             $this->parser = new LBRY_Speech_Parser();
             add_filter('wp_calculate_image_srcset', array($this->parser, 'speech_image_srcset'), 10, 5);
+            add_filter('the_content', array($this->parser, 'replace_urls_with_speech'));
         }
     }
 
@@ -73,6 +74,8 @@ class LBRY_Speech
                         'type'  => $media->type
                     );
 
+                // Pull Channel and Password from config file for now
+                // COMBAK: This will change in the future
                 if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
                     $params['channelName'] = LBRY_SPEECH_CHANNEL;
                     $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
@@ -97,7 +100,7 @@ class LBRY_Speech
                         $meta['speech_asset_url'] = $result->data->serveUrl;
                     }
                     wp_update_attachment_metadata($media->id, $meta);
-                    // error_log(print_r($meta, true));
+                    error_log(print_r($meta, true));
                 }
             }
         }
