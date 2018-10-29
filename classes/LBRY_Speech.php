@@ -52,7 +52,7 @@ class LBRY_Speech
             return;
         }
 
-        error_log('======================== START =====================');
+        // error_log('======================== START =====================');
 
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -66,6 +66,10 @@ class LBRY_Speech
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
             // error_log(print_r($all_media, true));
+
+            $requests = array();
+
+            // Build all the Curl Requests
             foreach ($all_media as $media) {
                 $params = array(
                         'name'  => $media->name,
@@ -81,26 +85,71 @@ class LBRY_Speech
                     $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
                 }
 
+                $ch = $this->build_request('publish', $params);
+                $requests[] = array(
+                    'request' => $ch,
+                    'media' => $media
+                );
+            }
+
+            // Init the curl multi handle
+            $mh = curl_multi_init();
+
+            // Add each request to the multi handle
+            foreach ($requests as $request) {
+                curl_multi_add_handle($mh, $request['request']);
+            }
+
+            // error_log(print_r($requests, true));
+
+            // Execute all requests simultaneously
+            $running = null;
+            do {
+                curl_multi_exec($mh, $running);
+            } while ($running);
+
+            // Close the handles
+            foreach ($requests as $request) {
+                curl_multi_remove_handle($mh, $request['request']);
+            }
+            curl_multi_close($mh);
+
+            // Run through responses, and upload meta as necessary
+            foreach ($requests as $request) {
+                $result = json_decode(curl_multi_getcontent($request['request']));
+                $media = $request['media'];
+                $response_code = curl_getinfo($request['request'], CURLINFO_RESPONSE_CODE);
+
+                // error_log(print_r($result, true));
+
                 try {
-                    $result = $this->request('publish', $params);
-                } catch (\Exception $e) {
-                    error_log('Failed to upload asset with ID ' . $media->id . ' to supplied speech URL.');
-                    error_log($e->getMessage());
-                    continue;
-                }
-
-                $result = $this->request('publish', $params);
-
-                // TODO: Handle if image is already taken on channel
-                if ($result && $result->success) {
-                    $meta = wp_get_attachment_metadata($media->id);
-                    if ($media->image_size) {
-                        $meta['sizes'][$media->image_size]['speech_asset_url'] =  $result->data->serveUrl;
-                    } else {
-                        $meta['speech_asset_url'] = $result->data->serveUrl;
+                    // check we got a success code
+                    if ($response_code != '200') {
+                        if (!empty($result) && !$result->success && $result->message) {
+                            throw new \Exception("API Issue with message: " . $result->message);
+                        } else {
+                            throw new \Exception("Speech URL Connection Issue | Code: " . $response_code, 1);
+                        }
                     }
-                    wp_update_attachment_metadata($media->id, $meta);
-                    error_log(print_r($meta, true));
+
+                    // Update image meta
+                    if ($result && $result->success) {
+                        // error_log(print_r($result, true));
+                        $meta = wp_get_attachment_metadata($media->id);
+                        if ($media->image_size) {
+                            $meta['sizes'][$media->image_size]['speech_asset_url'] =  $result->data->serveUrl;
+                        } else {
+                            $meta['speech_asset_url'] = $result->data->serveUrl;
+                        }
+                        wp_update_attachment_metadata($media->id, $meta);
+                    // error_log(print_r($meta, true));
+                    } else { // Something unhandled happened here
+                        throw new \Exception("Unknown Speech Upload issue for asset");
+                    }
+                } catch (\Exception $e) {
+                    $image_size = $media->image_size ? $media->image_size : 'full';
+                    error_log('Failed to upload asset with ID ' . $media->id . ' for size ' . $size . ' to supplied speech URL.');
+                    error_log($e->getMessage());
                 }
             }
         }
@@ -132,8 +181,8 @@ class LBRY_Speech
         $images  = empty($images[0]) ? array() : $images[0];
         $videos  = empty($videos[0]) ? array() : $videos[0];
 
-        error_log(print_r($images, true));
-        error_log(print_r($videos, true));
+        // error_log(print_r($images, true));
+        // error_log(print_r($videos, true));
 
         // TODO: only create media objects if hasn't been uploaded. IE check meta here
         // Throw each image into a media object
@@ -142,17 +191,17 @@ class LBRY_Speech
             // Looks for wp image class first, if not, pull id from source
             if (preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
                 $attachment_id = absint($class_id[1]);
-                error_log('found with wp-image: ' . $attachment_id);
+            // error_log('found with wp-image: ' . $attachment_id);
             } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image, $src) && $this->is_local($src[1])) {
                 $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
-                error_log('found with url: ' . $attachment_id);
+                // error_log('found with url: ' . $attachment_id);
             }
 
             if ($attachment_id) {
                 // Create main image media object
                 $meta = wp_get_attachment_metadata($attachment_id);
 
-                error_log(print_r($meta, true));
+                // error_log(print_r($meta, true));
 
                 // If we don't have meta, get out because none of this will work
                 if (!$meta) {
@@ -248,18 +297,18 @@ class LBRY_Speech
     }
 
     /**
-     * Sends a cURL request to the Speech URL
+     * Builds a cURL request to the Speech URL
      * @param  string $method The method to call on the Speech API
      * @param  array  $params The Parameters to send the Speech API Call
-     * @return string The cURL response
+     * @return string The cURL object pointer
      */
-    private function request($method, $params = array())
+    private function build_request($method, $params = array())
     {
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
         // Die if no URL
         if (!$speech_url) {
-            return;
+            return false;
         }
 
         $address = $speech_url . '/api/claim/' . $method;
@@ -275,14 +324,6 @@ class LBRY_Speech
         curl_setopt($ch, CURLOPT_SAFE_UPLOAD, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
 
-        $result = curl_exec($ch);
-        $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-
-        if ($response_code != '200') {
-            throw new \Exception("Speech URL Connection Issue | Code: " . $response_code, 1);
-        }
-
-        curl_close($ch);
-        return json_decode($result);
+        return $ch;
     }
 }
