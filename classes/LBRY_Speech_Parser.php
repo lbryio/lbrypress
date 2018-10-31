@@ -8,16 +8,12 @@
 class LBRY_Speech_Parser
 {
     /**
-     * [speech_image_srcset description]
-     * @param [type] $sources       [description]
-     * @param [type] $size_array    [description]
-     * @param [type] $image_src     [description]
-     * @param [type] $image_meta    [description]
-     * @param [type] $attachment_id [description]
+     * Replace img srcset attributes with Spee.ch urls
+     * Check https://developer.wordpress.org/reference/functions/wp_calculate_image_srcset/ hook for details
      */
     public function replace_image_srcset($sources, $size_array, $image_src, $image_meta, $attachment_id)
     {
-        $time_start = microtime(true);
+        // $time_start = microtime(true);
 
         $new_sources = $sources;
         $sizes = $image_meta['sizes'];
@@ -30,65 +26,19 @@ class LBRY_Speech_Parser
             }
         }
 
-        $time_end = microtime(true);
-
-        $time = ($time_end - $time_start) * 1000;
+        // $time_end = microtime(true);
+        // $time = ($time_end - $time_start) * 1000;
         // error_log("srcset in $time milliseconds");
         return $new_sources;
     }
 
     /**
-     * [replace_urls_with_speech description]
-     * @param  [type] $content [description]
-     * @return [type]          [description]
-     */
-    public function replace_urls_with_speech($content)
-    {
-        $new_content = $content;
-
-        $assets = array();
-
-        // Get Images
-        $images = $this->scrape_images($content);
-        error_log(print_r($images, true));
-        foreach ($images as $image) {
-            if ($src = $this->get_src_from_image_tag($image)) {
-                $assets[] = $src;
-            }
-        }
-
-        // Get Videos
-        $videos = $this->scrape_videos($content);
-        error_log(print_r($videos, true));
-        foreach ($videos as $video) {
-            if ($src = $this->get_src_from_video_tag($video)) {
-                $assets[] = $src;
-            }
-        }
-
-        // Replace with Speech Urls
-        error_log(print_r($assets, true));
-        foreach ($assets as $asset) {
-            $id = $this->rigid_attachment_url_to_postid($asset);
-            $meta = wp_get_attachment_metadata($id);
-
-            if ($meta && LBRY()->speech->is_published($meta) && $speech_url = $this->find_speech_url_by_file_url($meta, $asset)) {
-                $new_content = str_replace($asset, $speech_url, $new_content);
-            }
-        }
-
-        return $new_content;
-    }
-
-    /**
-     * [replace_attachment_image_src description]
-     * @param  [type] $image         [description]
-     * @param  [type] $attachment_id [description]
-     * @param  [type] $size          [description]
-     * @return [type]                [description]
-     */
+    * Replaces the output of the 'wp_get_attachment_image_src' function
+    * Check https://developer.wordpress.org/reference/functions/wp_get_attachment_image_src/ for details
+    */
     public function replace_attachment_image_src($image, $attachment_id, $size)
     {
+        // $time_start = microtime(true);
         if (!$image) {
             return $image;
         }
@@ -106,19 +56,22 @@ class LBRY_Speech_Parser
         if (is_string($size)) {
             switch ($size) {
                 case 'full':
-                    $new_image[0] = $image_meta['speech_asset_url'];
-                    break;
+                $new_image[0] = $image_meta['speech_asset_url'];
+                break;
                 case 'post-thumbnail':
-                    if (LBRY()->speech->is_published($sizes['thumbnail'])) {
-                        $new_image[0] = $sizes['thumbnail']['speech_asset_url'];
-                    }
-                    break;
+                if (LBRY()->speech->is_published($sizes['thumbnail'])) {
+                    $new_image[0] = $sizes['thumbnail']['speech_asset_url'];
+                }
+                break;
                 default:
-                    if (key_exists($size, $sizes) && LBRY()->speech->is_published($sizes[$size])) {
-                        $new_image[0] = $sizes[$size]['speech_asset_url'];
-                    }
-                    break;
+                if (key_exists($size, $sizes) && LBRY()->speech->is_published($sizes[$size])) {
+                    $new_image[0] = $sizes[$size]['speech_asset_url'];
+                }
+                break;
             }
+            // $time_end = microtime(true);
+            // $time = ($time_end - $time_start) * 1000;
+            // error_log("attachment image source in $time milliseconds");
             return $new_image;
         }
 
@@ -130,6 +83,52 @@ class LBRY_Speech_Parser
 
         return $new_image;
     }
+
+    /**
+     * Scrape content for urls that have a speech equivalent and replace
+     * @param  string   $content    The content to scrape
+     * @return string               The content with Spee.ch urls replaced
+     */
+    // COMBAK: Need to make this a bit faster. Sitting between 100 and 300ms currently
+    public function replace_urls_with_speech($content)
+    {
+        // $time_start = microtime(true);
+        $new_content = $content;
+
+        $assets = array();
+
+        // Get Images
+        $images = $this->scrape_images($content);
+        foreach ($images as $image) {
+            if ($src = $this->get_src_from_image_tag($image)) {
+                $assets[] = $src;
+            }
+        }
+
+        // Get Videos
+        $videos = $this->scrape_videos($content);
+        foreach ($videos as $video) {
+            if ($src = $this->get_src_from_video_tag($video)) {
+                $assets[] = $src;
+            }
+        }
+
+        // Replace with Speech Urls
+        foreach ($assets as $asset) {
+            $id = $this->rigid_attachment_url_to_postid($asset);
+            $meta = wp_get_attachment_metadata($id);
+
+            if ($meta && LBRY()->speech->is_published($meta) && $speech_url = $this->find_speech_url_by_file_url($meta, $asset)) {
+                $new_content = str_replace($asset, $speech_url, $new_content);
+            }
+        }
+
+        // $time_end = microtime(true);
+        // $time = ($time_end - $time_start) * 1000;
+        // error_log("replace content urls in $time milliseconds");
+        return $new_content;
+    }
+
 
     /**
      * Scrapes all image tags from content
