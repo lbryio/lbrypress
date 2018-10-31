@@ -6,5 +6,9 @@
 .DS_Store
 
 tmp/*
+logs/*
 
 !*.gitkeep
+
+#Ignore config file
+lbry_config.php

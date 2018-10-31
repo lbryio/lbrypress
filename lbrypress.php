@@ -70,6 +70,9 @@ function LBRY()
         if (! class_exists('LBRYPress')) {
             require_once(dirname(__FILE__) . '/classes/LBRYPress.php');
         }
+        // Bring in configuration requirements
+        // HACK: Will probably be getting rid of configuration once we sort out Spee.ch Implementation
+        require_once(dirname(__FILE__) . '/lbry_config.php');
         return LBRYPress::instance();
     } else {
         add_action('admin_notices', 'lbry_requirements_error');
