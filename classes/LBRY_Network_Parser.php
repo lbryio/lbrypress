@@ -18,7 +18,7 @@ class LBRY_Network_Parser
         // COMBAK: Composer is not safe in a wordpress environment. May have to write our own package.
         require_once LBRY_ABSPATH . 'vendor/autoload.php';
         $this->converter = new HtmlConverter(array(
-            'strip_tags' => true
+            'strip_tags' => false
         ));
     }
 

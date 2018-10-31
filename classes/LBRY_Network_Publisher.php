@@ -33,12 +33,11 @@ class LBRY_Network_Publisher
         $write_status = $file && fwrite($file, $converted);
         fclose($file);
 
-        // TODO: Catch relative exceptions if necessary
         try {
             // If everything went well with the conversion, carry on
             if ($write_status) {
-                $featured_image = get_the_post_thumbnail($post);
-
+                $featured_id = get_post_thumbnail_id($post);
+                $featured_image = wp_get_attachment_image_src($featured_id, 'medium');
                 $name = $post->post_name;
                 $bid = floatval(get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH]);
                 $title = $post->post_title;
@@ -46,14 +45,15 @@ class LBRY_Network_Publisher
                 $license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
                 // TODO: See if we can grab from yoast or a default?
                 $description = $post->post_title;
-                // TODO: Bring thumbnails into the mix
-                // $thumbnail = $featured_image ? $featured_image : null;
+                $thumbnail = $featured_image[0] ? $featured_image[0] : false;
 
-                LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel);
+                LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel, $thumbnail);
             }
+        } catch (Exception $e) {
+            error_log('Issue publishing post ' . $post->ID . ' to LBRY: ' .  $e->getMessage());
         } finally {
             // Delete the temporary markdown file
-            unlink($filepath);
+            // unlink($filepath);
         }
     }
 }
