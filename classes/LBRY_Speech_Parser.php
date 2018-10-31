@@ -26,10 +26,10 @@ class LBRY_Speech_Parser
         $new_sources = $sources;
         $sizes = $image_meta['sizes'];
 
-        error_log(print_r($image_meta, true));
+        // error_log(print_r($image_meta, true));
 
         foreach ($sources as $width => $source) {
-            $speech_url = $this->find_speech_url($sizes, $width);
+            $speech_url = $this->find_speech_url_by_width($sizes, $width);
 
             if ($speech_url) {
                 $new_sources[$width]['url'] = $speech_url;
@@ -39,7 +39,7 @@ class LBRY_Speech_Parser
         $time_end = microtime(true);
 
         $time = ($time_end - $time_start) * 1000;
-        error_log("srcset in $time milliseconds");
+        // error_log("srcset in $time milliseconds");
         return $new_sources;
     }
 
@@ -60,9 +60,10 @@ class LBRY_Speech_Parser
         //         $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
         //     }
         //
-        //     // Look for size class
-        //     if (!preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
-        //     }
+        //     // // Look for size class, if not continue
+        //     // if (!preg_match('/ size-([\w-_]+) /i', $image, $size_class)) {
+        //     //     continue;
+        //     // }
         //
         //     if ($attachment_id) {
         //         // Create main image media object
@@ -94,13 +95,39 @@ class LBRY_Speech_Parser
         return $content;
     }
 
+    public function replace_attachment_image_src($image, $attachment_id, $size)
+    {
+        // TODO: Need to come back to this. 
+        // if (!$image) {
+        //     return;
+        // }
+        //
+        // $new_image = $image;
+        // $sizes = $image_meta['sizes'];
+        //
+        // // If we have a given size, then use that immediately
+        // if (is_string($size)) {
+        //
+        //     if ($size == 'full') {
+        //
+        //     }
+        //     $new_image[0] = $sizes[$size]['speech_asset_url'];
+        //     return $image;
+        // }
+        //
+        // // Otherwise, we can find it by the url provided
+        // $new_image[0] = $this->find_speech_url_by_file_url($sizes, $image[0]);
+
+        return $image;
+    }
+
     /**
      * [find_speech_url description]
      * @param  [type] $sizes [description]
      * @param  [type] $width [description]
      * @return [type]        [description]
      */
-    private function find_speech_url($sizes, $width)
+    private function find_speech_url_by_width($sizes, $width)
     {
         foreach ($sizes as $key => $size) {
             if ($size['width'] == $width && key_exists('speech_asset_url', $size)) {
@@ -109,6 +136,11 @@ class LBRY_Speech_Parser
         }
 
         return false;
+    }
+
+    private function find_speech_url_by_file_name($sizes, $url)
+    {
+        for
     }
 
     private function microtime_float()

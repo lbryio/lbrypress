@@ -22,6 +22,8 @@ class LBRY_Speech
         if (!is_admin()) {
             $this->parser = new LBRY_Speech_Parser();
             add_filter('wp_calculate_image_srcset', array($this->parser, 'speech_image_srcset'), 10, 5);
+            // Core filter for lots of image source calls
+            add_filter('wp_get_attachment_image_src', array($this->parser, 'replace_attachment_image_src'), 10, 3);
             add_filter('the_content', array($this->parser, 'replace_urls_with_speech'));
         }
     }
