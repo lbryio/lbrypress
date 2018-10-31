@@ -17,27 +17,17 @@ class LBRY_Speech
 
     public function __construct()
     {
-        add_action('save_post', array($this, 'upload_media'), 10, 2);
+        $this->parser = new LBRY_Speech_Parser();
 
-        if (!is_admin()) {
-            $this->parser = new LBRY_Speech_Parser();
-            add_filter('wp_calculate_image_srcset', array($this->parser, 'speech_image_srcset'), 10, 5);
+        if (is_admin()) {
+            add_action('save_post', array($this, 'upload_media'), 10, 2);
+        } else {
+            // Replace the image srcsets
+            add_filter('wp_calculate_image_srcset', array($this->parser, 'replace_image_srcset'), 10, 5);
             // Core filter for lots of image source calls
             add_filter('wp_get_attachment_image_src', array($this->parser, 'replace_attachment_image_src'), 10, 3);
+            // Replace any left over urls with speech urls
             add_filter('the_content', array($this->parser, 'replace_urls_with_speech'));
-        }
-    }
-
-    /**
-     * Checks to see if we need to rewrite URLS, does if necessary
-     */
-
-    public function maybe_rewrite_urls()
-    {
-        // See if we have a Spee.ch URL and if we are on the front-end
-        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
-        if ($speech_url != '' && !is_admin()) {
-            ob_start(array($this->parser, 'rewrite'));
         }
     }
 
@@ -46,15 +36,12 @@ class LBRY_Speech
      * @param  int $post_id     The ID of the post to
      * @return bool             True if successful, false if not or if no Speech URL available
      */
-    // TODO: set up error reporting
     public function upload_media($post_id, $post)
     {
         // Only check post_type of Post
         if ('post' !== $post->post_type) {
-            return;
+            return false;
         }
-
-        // error_log('======================== START =====================');
 
         $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
 
@@ -67,8 +54,6 @@ class LBRY_Speech
 
         // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
         if ($all_media) {
-            // error_log(print_r($all_media, true));
-
             $requests = array();
 
             // Build all the Curl Requests
@@ -102,8 +87,6 @@ class LBRY_Speech
                 curl_multi_add_handle($mh, $request['request']);
             }
 
-            // error_log(print_r($requests, true));
-
             // Execute all requests simultaneously
             $running = null;
             do {
@@ -122,8 +105,6 @@ class LBRY_Speech
                 $media = $request['media'];
                 $response_code = curl_getinfo($request['request'], CURLINFO_RESPONSE_CODE);
 
-                // error_log(print_r($result, true));
-
                 try {
                     // check we got a success code
                     if ($response_code != '200') {
@@ -136,7 +117,6 @@ class LBRY_Speech
 
                     // Update image meta
                     if ($result && $result->success) {
-                        // error_log(print_r($result, true));
                         $meta = wp_get_attachment_metadata($media->id);
                         if ($media->image_size) {
                             $meta['sizes'][$media->image_size]['speech_asset_url'] =  $result->data->serveUrl;
@@ -144,13 +124,12 @@ class LBRY_Speech
                             $meta['speech_asset_url'] = $result->data->serveUrl;
                         }
                         wp_update_attachment_metadata($media->id, $meta);
-                    // error_log(print_r($meta, true));
                     } else { // Something unhandled happened here
                         throw new \Exception("Unknown Speech Upload issue for asset");
                     }
                 } catch (\Exception $e) {
                     $image_size = $media->image_size ? $media->image_size : 'full';
-                    error_log('Failed to upload asset with ID ' . $media->id . ' for size ' . $size . ' to supplied speech URL.');
+                    error_log('Failed to upload asset with ID ' . $media->id . ' for size ' . $image_size . ' to supplied speech URL.');
                     error_log($e->getMessage());
                 }
             }
@@ -162,10 +141,9 @@ class LBRY_Speech
      * @param  int $post_id     The post to search
      * @return array            An array of Speech Media Objects
      */
-    protected function find_media($post_id)
+    private function find_media($post_id)
     {
         $all_media = array();
-
 
         // Get content and put into a DOMDocument
         $content = get_post_field('post_content', $post_id);
@@ -173,73 +151,63 @@ class LBRY_Speech
             return $all_media;
         }
 
-        // Find all images
-        preg_match_all('/<img [^>]+>/', $content, $images);
+        $images = $this->parser->scrape_images($content);
 
-        // Only MP4 videos for now
-        preg_match_all('/\[video.*mp4=".*".*\]/', $content, $videos);
-
-        // Check to make sure we have results
-        $images  = empty($images[0]) ? array() : $images[0];
-        $videos  = empty($videos[0]) ? array() : $videos[0];
-
-        // error_log(print_r($images, true));
-        // error_log(print_r($videos, true));
-
-        // TODO: only create media objects if hasn't been uploaded. IE check meta here
-        // Throw each image into a media object
+        // Get all the image ID's
+        $image_ids = array();
         foreach ($images as $image) {
-            $attachment_id = null;
-            // Looks for wp image class first, if not, pull id from source
-            if (preg_match('/wp-image-([0-9]+)/i', $image, $class_id)) {
-                $attachment_id = absint($class_id[1]);
-            // error_log('found with wp-image: ' . $attachment_id);
-            } elseif (preg_match('/src="((?:https?:)?\/\/[^"]+)"/', $image, $src) && $this->is_local($src[1])) {
-                $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
-                // error_log('found with url: ' . $attachment_id);
+            $new_id = $this->parser->get_attachment_id_from_tag('image', $image);
+            if ($new_id) {
+                $image_ids[] = $new_id;
+            }
+        }
+        // Don't forget the featured image
+        if ($featured_id = get_post_thumbnail_id($post_id)) {
+            $image_ids = array_merge($image_ids, array($featured_id));
+        }
+
+        // Throw each image into a media object
+        foreach ($image_ids as $attachment_id) {
+
+            // Create main image media object
+            $meta = wp_get_attachment_metadata($attachment_id);
+
+            // If we don't have meta, get out because none of this will work
+            if (!$meta) {
+                break;
             }
 
-            if ($attachment_id) {
-                // Create main image media object
-                $meta = wp_get_attachment_metadata($attachment_id);
+            if (!$this->is_published($meta)) {
+                $all_media[] = new LBRY_Speech_Media($attachment_id);
+            }
 
-                // error_log(print_r($meta, true));
+            // COMBAK: find a way to make this more efficient?
+            // Create a media object for each image size
+            // Get images sizes for this attachment, as not all image sizes implemented
+            $image_sizes = wp_get_attachment_metadata($attachment_id)['sizes'];
 
-                // If we don't have meta, get out because none of this will work
-                if (!$meta) {
-                    break;
-                }
-
+            foreach ($image_sizes as $size => $meta) {
                 if (!$this->is_published($meta)) {
-                    $all_media[] = new LBRY_Speech_Media($attachment_id);
-                }
-
-                // COMBAK: find a way to make this more efficient?
-                // Create a media object for each image size
-                // Get images sizes for this attachment, as not all image sizes implemented
-                $image_sizes = wp_get_attachment_metadata($attachment_id)['sizes'];
-
-                foreach ($image_sizes as $size => $meta) {
-                    if (!$this->is_published($meta)) {
-                        $all_media[] = new LBRY_Speech_Media($attachment_id, array('image_size' => $size));
-                    }
+                    $all_media[] = new LBRY_Speech_Media($attachment_id, array('image_size' => $size));
                 }
             }
         }
 
-        // Parse video tags based on wordpress shortcode for local embedds
+        $videos = $this->parser->scrape_videos($content);
+
+        $video_ids = array();
         foreach ($videos as $video) {
-            $attachment_id = null;
-            if (preg_match('/mp4="((?:https?:)?\/\/[^"]+)"/', $video, $src) && $this->is_local($src[1])) {
-                $attachment_id = $this->rigid_attachment_url_to_postid($src[1]);
+            $new_id = $this->parser->get_attachment_id_from_tag('mp4', $video);
+            if ($new_id) {
+                $video_ids[] = $new_id;
+            }
+        }
+        // Parse video tags based on wordpress shortcode for local embedds
+        foreach ($video_ids as $attachment_id) {
+            $meta = wp_get_attachment_metadata($attachment_id);
 
-                if ($attachment_id) {
-                    $meta = wp_get_attachment_metadata($attachment_id);
-
-                    if (!$this->is_published($meta)) {
-                        $all_media[] = new LBRY_Speech_Media($attachment_id);
-                    }
-                }
+            if (!$this->is_published($meta)) {
+                $all_media[] = new LBRY_Speech_Media($attachment_id);
             }
         }
 
@@ -247,21 +215,11 @@ class LBRY_Speech
     }
 
     /**
-     * Checks to see if a url is local to this installation
-     * @param  string   $url
-     * @return boolean
+     * Checks meta to see if a spee.ch url exists
+     * @param  array    $meta   An array of meta which would possibly contain a speech_asset_url
+     * @return boolean          Whether or not its published to speech
      */
-    private function is_local($url)
-    {
-        if (strpos($url, home_url()) !== false) {
-            return true;
-        }
-    }
-
-    /**
-     * Checks array to see if a spee.ch url exists
-     */
-    private function is_published($meta)
+    public function is_published($meta)
     {
         if (key_exists('speech_asset_url', $meta) && $meta['speech_asset_url'] !== '') {
             return true;
@@ -271,38 +229,10 @@ class LBRY_Speech
     }
 
     /**
-     * Checks for image crop sizes and filters out query params
-     * Courtesy of this post: http://bordoni.me/get-attachment-id-by-image-url/
-     * @param  string   $url    The url of the attachment you want an ID for
-     * @return int              The found post_id
-     */
-    private function rigid_attachment_url_to_postid($url)
-    {
-        $scrubbed_url = strtok($url, '?'); // Clean up query params first
-        $post_id = attachment_url_to_postid($scrubbed_url);
-
-        if (! $post_id) {
-            $dir = wp_upload_dir();
-            $path = $scrubbed_url;
-
-            if (0 === strpos($path, $dir['baseurl'] . '/')) {
-                $path = substr($path, strlen($dir['baseurl'] . '/'));
-            }
-
-            if (preg_match('/^(.*)(\-\d*x\d*)(\.\w{1,})/i', $path, $matches)) {
-                $url = $dir['baseurl'] . '/' . $matches[1] . $matches[3];
-                $post_id = attachment_url_to_postid($url);
-            }
-        }
-
-        return (int) $post_id;
-    }
-
-    /**
      * Builds a cURL request to the Speech URL
-     * @param  string $method The method to call on the Speech API
-     * @param  array  $params The Parameters to send the Speech API Call
-     * @return string The cURL object pointer
+     * @param  string   $method The method to call on the Speech API
+     * @param  array    $params The Parameters to send the Speech API Call
+     * @return string   The cURL object pointer
      */
     private function build_request($method, $params = array())
     {
