@@ -51,7 +51,7 @@ class LBRY_Speech
 
         $all_media = $this->find_media($post_id);
 
-        // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
+        // IDEA: Notify user if post save time will take a while
         if ($all_media) {
             $requests = array();
 

@@ -52,8 +52,8 @@ class LBRY_Network_Publisher
         } catch (Exception $e) {
             error_log('Issue publishing post ' . $post->ID . ' to LBRY: ' .  $e->getMessage());
         } finally {
-            // Delete the temporary markdown file
-            // unlink($filepath);
+            //Delete the temporary markdown file
+            unlink($filepath);
         }
     }
 }
