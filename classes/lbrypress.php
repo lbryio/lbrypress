@@ -151,6 +151,10 @@ class LBRYPress
     {
         register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
         register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
+
+        // Banner output for published posts
+        // NOTE: move this to its own class to reduce clutter?
+        add_action('the_content', array($this, 'published_on_lbry_banner'), 12, 1);
     }
 
     /**
@@ -196,6 +200,28 @@ class LBRYPress
     {
         // TODO: Stop the daemon
         error_log('Deactivated');
+    }
+
+    public function published_on_lbry_banner($content)
+    {
+        if (!is_single() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+
+        global $post;
+        if ($post->post_type != 'post') {
+            return $content;
+        }
+
+        if (!get_post_meta($post->ID, LBRY_WILL_PUBLISH, true)) {
+            return $content;
+        }
+
+        ob_start();
+        require(LBRY_ABSPATH . 'templates/published_on_lbry_banner.php');
+        $banner = ob_get_clean();
+
+        return $content .= $banner;
     }
 
     /*
