@@ -140,7 +140,7 @@ class LBRY_Daemon
         if ($thumbnail) {
             $args['thumbnail'] = $thumbnail;
         }
-        
+
         try {
             $result = $this->request(
                 'publish',
@@ -148,7 +148,7 @@ class LBRY_Daemon
             );
             return $result->result;
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('wallet_unused_address error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
             return;
         }

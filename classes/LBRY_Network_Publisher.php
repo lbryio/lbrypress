@@ -19,6 +19,7 @@ class LBRY_Network_Publisher
      * @param  int $post_id  The ID of the post we are publishing
      * @param  string $channel The Claim ID of the channel we are posting to
      */
+    // NOTE: This is currently sitting at about 150ms, mostly the post parsing
     public function publish($post, $channel)
     {
         // Leave if nothing to publish to
@@ -32,20 +33,32 @@ class LBRY_Network_Publisher
         $converted = LBRY()->network->parser->convert_to_markdown($post);
         $write_status = $file && fwrite($file, $converted);
         fclose($file);
+        $endtime = microtime(true);
 
         try {
             // If everything went well with the conversion, carry on
             if ($write_status) {
-                $featured_id = get_post_thumbnail_id($post);
-                $featured_image = wp_get_attachment_image_src($featured_id, 'medium');
                 $name = $post->post_name;
                 $bid = floatval(get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH]);
                 $title = $post->post_title;
                 $language = substr(get_locale(), 0, 2);
                 $license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
-                // TODO: See if we can grab from yoast or a default?
-                $description = $post->post_title;
+
+                // Setup featured image
+                $featured_id = get_post_thumbnail_id($post);
+                $featured_image = wp_get_attachment_image_src($featured_id, 'medium');
                 $thumbnail = $featured_image[0] ? $featured_image[0] : false;
+
+                // Build description using Yoast if installed and its used, excerpt/title otherwise
+                $description = false;
+                if (class_exists('WPSEO_META')) {
+                    $description = WPSEO_META::get_value('opengraph-description', $post->ID);
+                }
+                if (!$description) {
+                    $excerpt = get_the_excerpt($post);
+                    $description = $excerpt ? $excerpt : $title;
+                }
+                $description .= ' | Originally published at ' . get_permalink($post);
 
                 LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel, $thumbnail);
             }

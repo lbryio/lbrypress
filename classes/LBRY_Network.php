@@ -40,7 +40,7 @@ class LBRY_Network
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
 
         // Save the post meta on 'save_post' hook
-        add_action('save_post', array($this, 'save_post_meta'), 10, 2);
+        add_action('wp_insert_post', array($this, 'save_post_meta'), 11, 2);
     }
 
     /**
@@ -48,7 +48,7 @@ class LBRY_Network
      */
     public function add_meta_boxes()
     {
-        // TODO: Support post types based on user selection
+        // IDEA: Support post types based on user selection
         add_meta_box(
             'lbry-network-publishing',      // Unique ID
             'LBRY Network',                 // Title
@@ -67,6 +67,10 @@ class LBRY_Network
      */
     public function save_post_meta($post_id, $post)
     {
+        if ($post->post_type != 'post') {
+            return;
+        }
+
         // Verify the nonce before proceeding.
         if (!isset($_POST['_lbrynonce']) || !wp_verify_nonce($_POST['_lbrynonce'], 'lbry_publish_channels')) {
             return $post_id;
