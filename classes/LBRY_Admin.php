@@ -209,13 +209,13 @@ class LBRY_Admin
     /**
      * Checks at most once an hour to see if the wallet balance is too low
      */
-    // COMBAK: Check user permissions possibly
+    // IDEA: Check user permissions possibly
     public static function wallet_balance_warning()
     {
         // See if we've checked in the past two hours
         if (!get_transient('lbry_wallet_check')) {
             $balance = LBRY()->daemon->wallet_balance();
-            if ($balance < LBRY_MIN_BALANCE) {
+            if ($balance < get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH] * 20) {
                 // If LBRY Balance is low, send email, but only once per day
                 if (!get_transient('lbry_wallet_warning_email')) {
                     $email = get_option('admin_email');
