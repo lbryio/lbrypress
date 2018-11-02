@@ -21,14 +21,13 @@ class LBRY_Speech
 
         if (is_admin()) {
             add_action('save_post', array($this, 'upload_media'), 10, 2);
-        } else {
-            // Replace the image srcsets
-            add_filter('wp_calculate_image_srcset', array($this->parser, 'replace_image_srcset'), 10, 5);
-            // Core filter for lots of image source calls
-            add_filter('wp_get_attachment_image_src', array($this->parser, 'replace_attachment_image_src'), 10, 3);
-            // Replace any left over urls with speech urls
-            add_filter('the_content', array($this->parser, 'replace_urls_with_speech'));
         }
+        // Replace the image srcsets
+        add_filter('wp_calculate_image_srcset', array($this->parser, 'replace_image_srcset'), 10, 5);
+        // Core filter for lots of image source calls
+        add_filter('wp_get_attachment_image_src', array($this->parser, 'replace_attachment_image_src'), 10, 3);
+        // Replace any left over urls with speech urls
+        add_filter('the_content', array($this->parser, 'replace_urls_with_speech'));
     }
 
     /**
@@ -52,7 +51,7 @@ class LBRY_Speech
 
         $all_media = $this->find_media($post_id);
 
-        // IDEA: Notify user if post save time will take a while, may be a concern for request timeouts
+        // IDEA: Notify user if post save time will take a while
         if ($all_media) {
             $requests = array();
 

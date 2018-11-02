@@ -121,7 +121,7 @@ class LBRY_Daemon
      * @param  string $language    Two letter ISO Code of the language
      * @return string $channel     The Claim ID of the Channel
      */
-    public function publish($name, $bid, $filepath, $title, $description, $language, $channel)
+    public function publish($name, $bid, $filepath, $title, $description, $language, $channel, $thumbnail = false)
     {
         $args = array(
             'name' => $name,
@@ -137,7 +137,10 @@ class LBRY_Daemon
             $args['channel_id'] = $channel;
         }
 
-        // TODO: Bring thumbnails into the mix
+        if ($thumbnail) {
+            $args['thumbnail'] = $thumbnail;
+        }
+
         try {
             $result = $this->request(
                 'publish',
@@ -145,7 +148,7 @@ class LBRY_Daemon
             );
             return $result->result;
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('wallet_unused_address error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
             return;
         }

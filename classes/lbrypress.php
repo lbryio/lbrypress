@@ -104,11 +104,15 @@ class LBRYPress
         $this->define('LBRY_WILL_PUBLISH', 'lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
         $this->define('LBRY_POST_CHANNEL', 'lbry_channel'); // The meta key for which channel to publish
         $this->define('LBRY_AVAILABLE_LICENSES', array(
-            'mit' => 'MIT',
-            'license2' => 'License 2',
-            'license3' => 'License 3'
+            'Creative Commons Attribution 4.0 International' => 'Creative Commons Attribution 4.0 International',
+            'Creative Commons Attribution-ShareAlike 4.0 International' => 'Creative Commons Attribution-ShareAlike 4.0 International',
+            'Creative Commons Attribution-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NoDerivatives 4.0 International',
+            'Creative Commons Attribution-NonCommercial 4.0 International' => 'Creative Commons Attribution-NonCommercial 4.0 International',
+            'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International' => 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
+            'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International',
+            'Copyrighted' => 'Copyrighted',
+            'Public Domain' => 'Public Domain'
         ));
-        $this->define('LBRY_MIN_BALANCE', 2000);
     }
 
     /**
@@ -137,8 +141,6 @@ class LBRYPress
             $this->admin = new LBRY_Admin();
             $this->notice = new LBRY_Admin_Notice();
             $this->network = new LBRY_Network();
-        } else {
-            // $this->speech->maybe_rewrite_urls();
         }
     }
 
@@ -149,6 +151,10 @@ class LBRYPress
     {
         register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
         register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
+
+        // Banner output for published posts
+        // NOTE: move this to its own class to reduce clutter?
+        add_action('the_content', array($this, 'published_on_lbry_banner'), 12, 1);
     }
 
     /**
@@ -192,9 +198,30 @@ class LBRYPress
      */
     public function deactivate()
     {
-        // Deactivate Wallet Balance cron job
-        $this->admin->wallet_balance_deactivate();
+        // TODO: Stop the daemon
         error_log('Deactivated');
+    }
+
+    public function published_on_lbry_banner($content)
+    {
+        if (!is_single() || !in_the_loop() || !is_main_query()) {
+            return $content;
+        }
+
+        global $post;
+        if ($post->post_type != 'post') {
+            return $content;
+        }
+
+        if (!get_post_meta($post->ID, LBRY_WILL_PUBLISH, true)) {
+            return $content;
+        }
+
+        ob_start();
+        require(LBRY_ABSPATH . 'templates/published_on_lbry_banner.php');
+        $banner = ob_get_clean();
+
+        return $content .= $banner;
     }
 
     /*
