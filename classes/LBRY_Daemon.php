@@ -25,42 +25,60 @@ class LBRY_Daemon
     }
 
     /**
-     * Returns an unused wallet address
-     * https://lbryio.github.io/lbry/#wallet_unused_address
+     * Returns an unused address
+     * https://lbry.tech/api/sdk#address_unused
      * @return string Unused wallet address in base58
      */
     public function wallet_unused_address()
     {
         try {
-            $result = $this->request('wallet_unused_address');
+            $result = $this->request('address_unused');
             return $result->result;
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('wallet_unused_address error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting unused wallet address.');
+            $this->logger->log('address_unused error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting unused address.');
             return;
         }
     }
 
     /**
-     * Returns the balance of a current LBRY wallet
-     * https://lbryio.github.io/lbry/cli/#wallet_balance
+     * Returns an array of Address lists
+     * https://lbry.tech/api/sdk#address_list
+     * @return array Array of address lists linked to this account
+     */
+    public function address_list()
+    {
+        try {
+            $result = $this->request('address_list');
+            return $result->result;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting address list.');
+            return;
+        }
+    }
+
+    /**
+     * Returns the balance of a current LBRY account
+     * https://lbry.tech/api/sdk#account_balance
      * @param  string $address Wallet Address
      * @return float           Wallet Balance
      */
     public function wallet_balance()
     {
         try {
-            $result = $this->request('wallet_balance');
+            $result = $this->request('account_balance');
             return $result->result;
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting wallet address.');
+            $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting account balance.');
             return;
         }
     }
 
     /**
-     * https://lbryio.github.io/lbry/#channel_list
+     * Returns a list of channels for this account
+     * https://lbry.tech/api/sdk#channel_list
      * @return array claim dictionary or null if empty
      */
     public function channel_list()
@@ -76,7 +94,8 @@ class LBRY_Daemon
     }
 
     /**
-     * https://lbryio.github.io/lbry/#channel_new
+     * Create a claim for a new channel
+     * https://lbry.tech/api/sdk#channel_new
      * @return array dictionary containing result of the request
      */
     public function channel_new($channel_name, $bid_amount)
@@ -100,7 +119,7 @@ class LBRY_Daemon
                 'channel_new',
                 array(
                     'channel_name' => $channel_name,
-                    'amount' => floatval($bid_amount)
+                    'amount' => number_format(floatval($bid_amount), 2, '.', '')
                 )
             );
             return $result->result;
@@ -113,6 +132,7 @@ class LBRY_Daemon
 
     /**
      * Publishes a post to the LBRY Network
+     * https://lbry.tech/api/sdk#publish
      * @param  string $name        The slug for the post
      * @param  float  $bid         The amount of LBC to bid
      * @param  string $filepath    The path of the temporary content file
@@ -121,7 +141,7 @@ class LBRY_Daemon
      * @param  string $language    Two letter ISO Code of the language
      * @return string $channel     The Claim ID of the Channel
      */
-    public function publish($name, $bid, $filepath, $title, $description, $language, $channel, $thumbnail = false)
+    public function publish($name, $bid, $filepath, $title, $description, $language, $license, $channel, $thumbnail = false)
     {
         $args = array(
             'name' => $name,
@@ -130,6 +150,7 @@ class LBRY_Daemon
             'title' => $title,
             'description' => $description,
             'language' => $language,
+            'license' => $license,
         );
 
         // Make sure we aren't publishing to unattributed

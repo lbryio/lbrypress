@@ -116,11 +116,14 @@ class LBRY_Admin
     */
     public function wallet_callback()
     {
+        // Get first available address from Daemon
+        $address = LBRY()->daemon->address_list();
+        $address = is_array($address) && !empty($address) ? $address[0] : '';
         printf(
             '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" readonly />',
             LBRY_WALLET,
             LBRY_SETTINGS,
-            isset($this->options[LBRY_WALLET]) ? esc_attr($this->options[LBRY_WALLET]) : ''
+            $address
         );
     }
 
@@ -145,7 +148,8 @@ class LBRY_Admin
         // TODO: Maybe make this more elegant?
         $options = '';
         // Create options list, select current license
-        foreach (LBRY_AVAILABLE_LICENSES as $value => $name) {
+        //
+        foreach (LBRY()->licenses as $value => $name) {
             $selected = $this->options[LBRY_LICENSE] === $value;
 
             $options .= '<option value="' . $value . '"';

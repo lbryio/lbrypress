@@ -39,7 +39,7 @@ class LBRY_Network_Publisher
             // If everything went well with the conversion, carry on
             if ($write_status) {
                 $name = $post->post_name;
-                $bid = floatval(get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH]);
+                $bid = number_format(floatval(get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH]), 2, '.', '');
                 $title = $post->post_title;
                 $language = substr(get_locale(), 0, 2);
                 $license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
@@ -60,7 +60,8 @@ class LBRY_Network_Publisher
                 }
                 $description .= ' | Originally published at ' . get_permalink($post);
 
-                LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $channel, $thumbnail);
+                //TODO: Switch this to an array of args. This is getting out of hand.
+                LBRY()->daemon->publish($name, $bid, $filepath, $title, $description, $language, $license, $channel, $thumbnail);
             }
         } catch (Exception $e) {
             error_log('Issue publishing post ' . $post->ID . ' to LBRY: ' .  $e->getMessage());
