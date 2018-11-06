@@ -44,6 +44,20 @@ class LBRYPress
     public $network = null;
 
     /**
+     * The Licenses Available
+     */
+    public $licenses = array(
+        'Creative Commons Attribution 4.0 International' => 'Creative Commons Attribution 4.0 International',
+        'Creative Commons Attribution-ShareAlike 4.0 International' => 'Creative Commons Attribution-ShareAlike 4.0 International',
+        'Creative Commons Attribution-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NoDerivatives 4.0 International',
+        'Creative Commons Attribution-NonCommercial 4.0 International' => 'Creative Commons Attribution-NonCommercial 4.0 International',
+        'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International' => 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
+        'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International',
+        'Copyrighted' => 'Copyrighted',
+        'Public Domain' => 'Public Domain'
+    );
+
+    /**
      * Main LBRYPress Instance.
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
@@ -103,16 +117,6 @@ class LBRYPress
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
         $this->define('LBRY_WILL_PUBLISH', 'lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
         $this->define('LBRY_POST_CHANNEL', 'lbry_channel'); // The meta key for which channel to publish
-        $this->define('LBRY_AVAILABLE_LICENSES', array(
-            'Creative Commons Attribution 4.0 International' => 'Creative Commons Attribution 4.0 International',
-            'Creative Commons Attribution-ShareAlike 4.0 International' => 'Creative Commons Attribution-ShareAlike 4.0 International',
-            'Creative Commons Attribution-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NoDerivatives 4.0 International',
-            'Creative Commons Attribution-NonCommercial 4.0 International' => 'Creative Commons Attribution-NonCommercial 4.0 International',
-            'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International' => 'Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International',
-            'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International' => 'Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International',
-            'Copyrighted' => 'Copyrighted',
-            'Public Domain' => 'Public Domain'
-        ));
     }
 
     /**
@@ -166,15 +170,11 @@ class LBRYPress
 
         // Add options to the options table we need
         if (! get_option(LBRY_SETTINGS)) {
-            // Get a wallet address
-            // TODO: May have to rethink this based on how wallet address are linked to daemon
-            $wallet_address = $this->daemon->wallet_unused_address();
 
             // Default options
             $option_defaults = array(
-                LBRY_WALLET => $wallet_address,
                 LBRY_SPEECH => null,
-                LBRY_LICENSE => 'mit',
+                LBRY_LICENSE => $this->licenses[0],
                 LBRY_LBC_PUBLISH => 1
             );
 
@@ -199,7 +199,7 @@ class LBRYPress
     public function deactivate()
     {
         // TODO: Stop the daemon
-        error_log('Deactivated');
+        error_log('Deactivated LBRYPress');
     }
 
     public function published_on_lbry_banner($content)
