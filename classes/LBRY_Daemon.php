@@ -7,8 +7,16 @@
 
 class LBRY_Daemon
 {
+    /**
+     * The address of the Lbry Daemon
+     * @var string
+     */
     private $address = 'localhost:5279';
 
+    /**
+     * The Daemon Logger
+     * @var LBRY_Daemon_Logger
+     */
     private $logger = null;
 
     /**
@@ -17,17 +25,12 @@ class LBRY_Daemon
     public function __construct()
     {
         $this->logger = new LBRY_Daemon_Logger();
-        $this->init();
-    }
-
-    public function init()
-    {
     }
 
     /**
      * Returns an unused address
      * https://lbry.tech/api/sdk#address_unused
-     * @return string Unused wallet address in base58
+     * @return string   Unused wallet address in base58
      */
     public function wallet_unused_address()
     {
@@ -44,7 +47,7 @@ class LBRY_Daemon
     /**
      * Returns an array of Address lists
      * https://lbry.tech/api/sdk#address_list
-     * @return array Array of address lists linked to this account
+     * @return array    Array of address lists linked to this account
      */
     public function address_list()
     {
@@ -61,8 +64,8 @@ class LBRY_Daemon
     /**
      * Returns the balance of a current LBRY account
      * https://lbry.tech/api/sdk#account_balance
-     * @param  string $address Wallet Address
-     * @return float           Wallet Balance
+     * @param  string   $address    Wallet Address
+     * @return float                Wallet Balance
      */
     public function wallet_balance()
     {
@@ -79,7 +82,7 @@ class LBRY_Daemon
     /**
      * Returns a list of channels for this account
      * https://lbry.tech/api/sdk#channel_list
-     * @return array claim dictionary or null if empty
+     * @return array    claim dictionary or null if empty
      */
     public function channel_list()
     {
@@ -96,12 +99,11 @@ class LBRY_Daemon
     /**
      * Create a claim for a new channel
      * https://lbry.tech/api/sdk#channel_new
-     * @return array dictionary containing result of the request
+     * @return array    dictionary containing result of the request
      */
     public function channel_new($channel_name, $bid_amount)
     {
         // TODO: Sanitize channel name and bid
-
         // Make sure no @ sign, as we will add that
         if (strpos($channel_name, '@')) {
             throw new \Exception('Illegal character "@" in channel name', 1);
@@ -133,35 +135,15 @@ class LBRY_Daemon
     /**
      * Publishes a post to the LBRY Network
      * https://lbry.tech/api/sdk#publish
-     * @param  string $name        The slug for the post
-     * @param  float  $bid         The amount of LBC to bid
-     * @param  string $filepath    The path of the temporary content file
-     * @param  string $title       The Title of the post
-     * @param  string $description The Description of the Post
-     * @param  string $language    Two letter ISO Code of the language
-     * @return string $channel     The Claim ID of the Channel
+     * @param  array  $args        An array containing necessary data for publish post
+     *
+     *      Available params:
+     *      ['name', 'bid', 'file_path', 'title', 'description', 'language', 'license', 'channel_id', 'thumbnail']
+     *
+     * @return object $result
      */
-    public function publish($name, $bid, $filepath, $title, $description, $language, $license, $channel, $thumbnail = false)
+    public function publish($args)
     {
-        $args = array(
-            'name' => $name,
-            'bid' => $bid,
-            'file_path' => $filepath,
-            'title' => $title,
-            'description' => $description,
-            'language' => $language,
-            'license' => $license,
-        );
-
-        // Make sure we aren't publishing to unattributed
-        if ($channel != 'null') {
-            $args['channel_id'] = $channel;
-        }
-
-        if ($thumbnail) {
-            $args['thumbnail'] = $thumbnail;
-        }
-
         try {
             $result = $this->request(
                 'publish',
@@ -177,9 +159,9 @@ class LBRY_Daemon
 
     /**
      * Sends a cURL request to the LBRY Daemon
-     * @param  string $method The method to call on the LBRY API
-     * @param  array  $params The Parameters to send the LBRY API Call
-     * @return string The cURL response
+     * @param  string   $method     The method to call on the LBRY API
+     * @param  array    $params     The Parameters to send the LBRY API Call
+     * @return string               The cURL response
      */
     private function request($method, $params = array())
     {

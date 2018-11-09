@@ -1,9 +1,8 @@
 <?php
 $unnatributed = (object) array(
-    'name' => '(none / unattributed)',
+    'name' => 'none (anonymous)',
     'claim_id' => 'null'
 );
-// TODO: Test what happens with empty channel list, can't remember the return value
 $channels = LBRY()->daemon->channel_list();
 $channels[] = $unnatributed;
 // Sort the channels in a natural way

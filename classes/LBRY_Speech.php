@@ -120,9 +120,9 @@ class LBRY_Speech
                     if ($result && $result->success) {
                         $meta = wp_get_attachment_metadata($media->id);
                         if ($media->image_size) {
-                            $meta['sizes'][$media->image_size]['speech_asset_url'] =  $result->data->serveUrl;
+                            $meta['sizes'][$media->image_size][LBRY_SPEECH_ASSET_URL] =  $result->data->serveUrl;
                         } else {
-                            $meta['speech_asset_url'] = $result->data->serveUrl;
+                            $meta[LBRY_SPEECH_ASSET_URL] = $result->data->serveUrl;
                         }
                         wp_update_attachment_metadata($media->id, $meta);
                     } else { // Something unhandled happened here
@@ -219,7 +219,7 @@ class LBRY_Speech
      */
     public function is_published($meta)
     {
-        if (key_exists('speech_asset_url', $meta) && $meta['speech_asset_url'] !== '') {
+        if (key_exists(LBRY_SPEECH_ASSET_URL, $meta) && $meta[LBRY_SPEECH_ASSET_URL] !== '') {
             return true;
         }
 

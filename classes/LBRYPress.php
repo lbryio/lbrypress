@@ -115,8 +115,10 @@ class LBRYPress
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
-        $this->define('LBRY_WILL_PUBLISH', 'lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
-        $this->define('LBRY_POST_CHANNEL', 'lbry_channel'); // The meta key for which channel to publish
+        $this->define('LBRY_WILL_PUBLISH', '_lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
+        $this->define('LBRY_POST_CHANNEL', '_lbry_channel'); // The meta key for which channel to publish
+        $this->define('LBRY_PERM_URL', '_lbry_perm_url'); // The meta key for the permanent url of the published lbry post
+        $this->define('LBRY_SPEECH_ASSET_URL', 'speech_asset_url'); // The meta key for an asset's speech url
     }
 
     /**
@@ -233,7 +235,7 @@ class LBRYPress
             return 0;
         }
 
-        if ($b->name == '(none / unattributed)') {
+        if ($b->claim_id == 'null') {
             return -1;
         }
         return strnatcasecmp($a->name, $b->name);

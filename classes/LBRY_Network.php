@@ -20,9 +20,6 @@ class LBRY_Network
      */
     public $parser = null;
 
-    /**
-     * [__construct description]
-     */
     public function __construct()
     {
         $this->publisher = new LBRY_Network_Publisher();
@@ -63,7 +60,7 @@ class LBRY_Network
      * Handles saving the post meta that is relative to publishing to the LBRY Network
      * @param  int      $post_id    The ID of the post we are saving
      * @param  WP_Post  $post       The Post Object we are saving
-     * @return int  Returns post_id if user cannot edit post
+     * @return int                  Returns post_id if user cannot edit post
      */
     public function save_post_meta($post_id, $post)
     {
@@ -104,7 +101,7 @@ class LBRY_Network
 
     /**
      * Returns the HTML for the LBRY Meta Box
-     * @param  [type] $post [description]
+     * @param WP_POST   $post
      */
     public function meta_box_html($post)
     {

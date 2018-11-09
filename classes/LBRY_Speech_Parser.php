@@ -19,8 +19,8 @@ class LBRY_Speech_Parser
 
         foreach ($sources as $width => $source) {
             // Check to see if it is using base image first
-            if ($image_src == $source['url'] && key_exists('speech_asset_url', $image_meta)) {
-                $new_sources[$width]['url'] = $image_meta['speech_asset_url'];
+            if ($image_src == $source['url'] && key_exists(LBRY_SPEECH_ASSET_URL, $image_meta)) {
+                $new_sources[$width]['url'] = $image_meta[LBRY_SPEECH_ASSET_URL];
                 continue;
             }
 
@@ -55,7 +55,7 @@ class LBRY_Speech_Parser
 
         // If the image is the same as the base image, return the base spee.ch url
         if (pathinfo($image[0])['basename'] == pathinfo($image_meta['file'])['basename']) {
-            $new_image[0] = $image_meta['speech_asset_url'];
+            $new_image[0] = $image_meta[LBRY_SPEECH_ASSET_URL];
             return $new_image;
         }
 
@@ -65,22 +65,19 @@ class LBRY_Speech_Parser
         if (is_string($size)) {
             switch ($size) {
                 case 'full':
-                $new_image[0] = $image_meta['speech_asset_url'];
+                $new_image[0] = $image_meta[LBRY_SPEECH_ASSET_URL];
                 break;
                 case 'post-thumbnail':
                 if (LBRY()->speech->is_published($sizes['thumbnail'])) {
-                    $new_image[0] = $sizes['thumbnail']['speech_asset_url'];
+                    $new_image[0] = $sizes['thumbnail'][LBRY_SPEECH_ASSET_URL];
                 }
                 break;
                 default:
                 if (key_exists($size, $sizes) && LBRY()->speech->is_published($sizes[$size])) {
-                    $new_image[0] = $sizes[$size]['speech_asset_url'];
+                    $new_image[0] = $sizes[$size][LBRY_SPEECH_ASSET_URL];
                 }
                 break;
             }
-            // $time_end = microtime(true);
-            // $time = ($time_end - $time_start) * 1000;
-            // error_log("attachment image source in $time milliseconds");
             return $new_image;
         }
 
@@ -101,7 +98,6 @@ class LBRY_Speech_Parser
     // COMBAK: Need to make this a bit faster. Sitting between 100 and 300ms currently
     public function replace_urls_with_speech($content)
     {
-        // $time_start = microtime(true);
         $new_content = $content;
 
         $assets = array();
@@ -131,10 +127,6 @@ class LBRY_Speech_Parser
                 $new_content = str_replace($asset, $speech_url, $new_content);
             }
         }
-
-        // $time_end = microtime(true);
-        // $time = ($time_end - $time_start) * 1000;
-        // error_log("replace content urls in $time milliseconds");
         return $new_content;
     }
 
@@ -247,8 +239,8 @@ class LBRY_Speech_Parser
     private function find_speech_url_by_width($sizes, $width)
     {
         foreach ($sizes as $key => $size) {
-            if ($size['width'] == $width && key_exists('speech_asset_url', $size)) {
-                return $size['speech_asset_url'];
+            if ($size['width'] == $width && key_exists(LBRY_SPEECH_ASSET_URL, $size)) {
+                return $size[LBRY_SPEECH_ASSET_URL];
             }
         }
 
@@ -265,7 +257,7 @@ class LBRY_Speech_Parser
     {
         // See if this looks like video meta
         if (!key_exists('file', $meta) && key_exists('mime_type', $meta) && $meta['mime_type'] == 'video/mp4') {
-            return $meta['speech_asset_url'];
+            return $meta[LBRY_SPEECH_ASSET_URL];
         }
 
         $pathinfo = pathinfo($url);
@@ -273,15 +265,15 @@ class LBRY_Speech_Parser
 
         // Check main file or if $meta is just a url (video) first
         if (key_exists('file', $meta) && $basename == wp_basename($meta['file'])) {
-            return $meta['speech_asset_url'];
+            return $meta[LBRY_SPEECH_ASSET_URL];
         }
 
         // Check to see if we have a meta option here
         if (key_exists('sizes', $meta)) {
             // Then check sizes
             foreach ($meta['sizes'] as $size => $meta) {
-                if ($basename == $meta['file'] && key_exists('speech_asset_url', $meta)) {
-                    return $meta['speech_asset_url'];
+                if ($basename == $meta['file'] && key_exists(LBRY_SPEECH_ASSET_URL, $meta)) {
+                    return $meta[LBRY_SPEECH_ASSET_URL];
                 }
             }
         }
@@ -326,7 +318,6 @@ class LBRY_Speech_Parser
                 $post_id = attachment_url_to_postid($url);
             }
         }
-
         return (int) $post_id;
     }
 }
