@@ -40,18 +40,25 @@ class LBRY_Speech_Parser
     */
     public function replace_attachment_image_src($image, $attachment_id, $size)
     {
-        // $time_start = microtime(true);
         if (!$image) {
             return $image;
         }
 
         // Die if we don't have a speech_asset_url
         $image_meta = wp_get_attachment_metadata($attachment_id);
+
         if (!LBRY()->speech->is_published($image_meta)) {
             return $image;
         }
 
         $new_image = $image;
+
+        // If the image is the same as the base image, return the base spee.ch url
+        if (pathinfo($image[0])['basename'] == pathinfo($image_meta['file'])['basename']) {
+            $new_image[0] = $image_meta['speech_asset_url'];
+            return $new_image;
+        }
+
         $sizes = $image_meta['sizes'];
 
         // If we have a given size, then use that immediately
