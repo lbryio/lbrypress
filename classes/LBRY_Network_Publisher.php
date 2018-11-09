@@ -22,6 +22,8 @@ class LBRY_Network_Publisher
     // NOTE: This is currently sitting at about 150ms, mostly the post parsing
     public function publish($post, $channel)
     {
+
+        // TODO: Handle unnatributed channel
         // Leave if nothing to publish to
         if (!$channel) {
             return;

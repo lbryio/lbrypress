@@ -13,22 +13,24 @@ class LBRY_Speech_Parser
      */
     public function replace_image_srcset($sources, $size_array, $image_src, $image_meta, $attachment_id)
     {
-        // $time_start = microtime(true);
-
         $new_sources = $sources;
         $sizes = $image_meta['sizes'];
+        $base_image = pathinfo($image_src)['basename'];
 
         foreach ($sources as $width => $source) {
+            // Check to see if it is using base image first
+            if ($image_src == $source['url'] && key_exists('speech_asset_url', $image_meta)) {
+                $new_sources[$width]['url'] = $image_meta['speech_asset_url'];
+                continue;
+            }
+
+            // Otherwise, find the corresponding size
             $speech_url = $this->find_speech_url_by_width($sizes, $width);
 
             if ($speech_url) {
                 $new_sources[$width]['url'] = $speech_url;
             }
         }
-
-        // $time_end = microtime(true);
-        // $time = ($time_end - $time_start) * 1000;
-        // error_log("srcset in $time milliseconds");
         return $new_sources;
     }
 
@@ -137,6 +139,10 @@ class LBRY_Speech_Parser
      */
     public function scrape_images($content)
     {
+        // Return empty array if no images
+        if (!$content) {
+            return array();
+        }
         // Find all images
         preg_match_all('/<img [^>]+>/', $content, $images);
 
@@ -153,6 +159,11 @@ class LBRY_Speech_Parser
      */
     public function scrape_videos($content)
     {
+        // Return empty array if no videos
+        if (!$content) {
+            return array();
+        }
+
         // Only MP4 videos for now
         preg_match_all('/\[video.*mp4=".*".*\]/', $content, $videos);
         $videos = empty($videos[0]) ? array() : $videos[0];

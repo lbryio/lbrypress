@@ -51,6 +51,8 @@ class LBRY_Speech
 
         $all_media = $this->find_media($post_id);
 
+        error_log(print_r($all_media, true));
+
         // IDEA: Notify user if post save time will take a while
         if ($all_media) {
             $requests = array();
@@ -144,11 +146,7 @@ class LBRY_Speech
     {
         $all_media = array();
 
-        // Get content and put into a DOMDocument
         $content = get_post_field('post_content', $post_id);
-        if (!$content) {
-            return $all_media;
-        }
 
         $images = $this->parser->scrape_images($content);
 
@@ -161,6 +159,7 @@ class LBRY_Speech
             }
         }
         // Don't forget the featured image
+        error_log($post_id);
         if ($featured_id = get_post_thumbnail_id($post_id)) {
             $image_ids = array_merge($image_ids, array($featured_id));
         }
