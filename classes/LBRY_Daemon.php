@@ -17,7 +17,7 @@ class LBRY_Daemon
      * The Daemon Logger
      * @var LBRY_Daemon_Logger
      */
-    private $logger = null;
+    public $logger = null;
 
     /**
      * LBRY Daemon Object constructor

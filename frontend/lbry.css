@@ -1,0 +1,8 @@
+.lbry-published-banner {
+  background: rgba(223, 221, 221, 0.37);
+  padding: 16px 24px;
+}
+
+.lbry-published-banner p:last-child {
+  margin-bottom: 0;
+}

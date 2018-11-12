@@ -51,7 +51,7 @@ class LBRY_Speech
 
         $all_media = $this->find_media($post_id);
 
-        error_log(print_r($all_media, true));
+        // error_log(print_r($all_media, true));
 
         // IDEA: Notify user if post save time will take a while
         if ($all_media) {
@@ -131,6 +131,7 @@ class LBRY_Speech
                 } catch (\Exception $e) {
                     $image_size = $media->image_size ? $media->image_size : 'full';
                     error_log('Failed to upload asset with ID ' . $media->id . ' for size ' . $image_size . ' to supplied speech URL.');
+                    LBRY()->daemon->logger->log('Speech Upload', 'Failed to upload asset with ID ' . $media->id . ' for size ' . $image_size . ' to supplied speech URL. Message | ' . $e->getMessage());
                     error_log($e->getMessage());
                 }
             }

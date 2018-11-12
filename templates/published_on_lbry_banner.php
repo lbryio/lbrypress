@@ -1,4 +1,15 @@
-<blockquote class="lbry-published-banner">
-    <h5>This post has also been published to the <a href="https://lbry.io" target="_blank">LBRY blockchain</a> network.</h5>
-    <h5><a href="https://lbry.io/learn" target="_blank">Click Here</a> to learn more about the benefits of content freedom.</h5>
-</blockquote>
+<?php
+// HACK: Fix this so its not TAM specific
+    global $post;
+    $slug = $post->post_name;
+    $url = '@AntiMedia/' . $slug;
+?>
+<div class="lbry-published-banner">
+    <h5>Stored Safely on Blockchain</h5>
+    <p>
+        This post is published to <a href="https://lbry.io/get">LBRY</a> blockchain at <a href="https://open.lbry.io/<?= $url ?>">lbry://<?= $url ?></a>.
+    </p>
+    <p>
+        <a href="https://lbry.io/get" target="_blank">Try LBRY</a> to experience content freedom, earn crypto, and support The Anti-Media!
+    </p>
+</div>

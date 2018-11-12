@@ -55,7 +55,7 @@ class LBRY_Network_Publisher
                 }
                 if (!$description) {
                     $excerpt = get_the_excerpt($post);
-                    $description = $excerpt ? $excerpt : $title;
+                    $description = $excerpt ? $excerpt : $post->post_title;
                 }
                 $description .= ' | Originally published at ' . get_permalink($post);
 
@@ -63,6 +63,7 @@ class LBRY_Network_Publisher
 
                 $result = LBRY()->daemon->publish($args);
                 if ($result->success) {
+                    error_log(print_r($result, true));
                     update_post_meta($post->ID, LBRY_PERM_URL, $result->output->permanent_url);
                 }
             }

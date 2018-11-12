@@ -161,6 +161,10 @@ class LBRYPress
         // Banner output for published posts
         // NOTE: move this to its own class to reduce clutter?
         add_action('the_content', array($this, 'published_on_lbry_banner'), 12, 1);
+
+        add_action('wp_enqueue_scripts', function () {
+            wp_enqueue_style('lbry-css', plugins_url('/frontend/lbry.css', LBRY_PLUGIN_FILE));
+        });
     }
 
     /**
