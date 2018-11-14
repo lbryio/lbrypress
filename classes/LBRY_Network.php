@@ -93,7 +93,7 @@ class LBRY_Network
             update_post_meta($post_id, LBRY_POST_CHANNEL, $new_channel);
         }
 
-        if ($will_publish) {
+        if ($will_publish && $post->post_status == 'publish') {
             // Publish the post on the LBRY Network
             $this->publisher->publish($post, get_post_meta($post_id, LBRY_POST_CHANNEL, true));
         }

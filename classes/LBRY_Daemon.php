@@ -149,6 +149,7 @@ class LBRY_Daemon
                 'publish',
                 $args
             );
+            $this->logger->log('publish success!', 'Successfully published post with result: ' . print_r($result->result, true));
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
