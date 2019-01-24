@@ -116,9 +116,20 @@ class LBRY_Admin
     */
     public function sanitize($input)
     {
-        if (!empty($input['lbry_speech_pw'])) {
+        if (!empty($input[LBRY_SPEECH_CHANNEL])) {
+            $channel = $input[LBRY_SPEECH_CHANNEL];
+            $channel = str_replace('@', '', $channel);
+            $input[LBRY_SPEECH_CHANNEL] = $channel;
+        }
+
+        if (!empty($input[LBRY_SPEECH_PW])) {
             $encrypted = $this->encrypt($input['lbry_speech_pw']);
-            $input['lbry_speech_pw'] = $encrypted;
+            $input[LBRY_SPEECH_PW] = $encrypted;
+        } else {
+            // If we have a password and its empty, keep orginal password
+            if (!empty(get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW])) {
+                $input[LBRY_SPEECH_PW] = get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW];
+            }
         }
 
         return $input;
@@ -180,10 +191,9 @@ class LBRY_Admin
     public function speech_pw_callback()
     {
         printf(
-            '<input type="password" id="%1$s" name="%2$s[%1$s]" value="%3$s" placeholder="**********"',
+            '<input type="password" id="%1$s" name="%2$s[%1$s]" value="" placeholder="Leave empty for same password"',
             LBRY_SPEECH_PW,
-            LBRY_SETTINGS,
-            isset($this->options[LBRY_SPEECH_PW]) ? $this->get_pw_length() : ''
+            LBRY_SETTINGS
         );
     }
 
@@ -278,17 +288,6 @@ class LBRY_Admin
             }
             set_transient('lbry_wallet_check', true, 2 * HOUR_IN_SECONDS);
         }
-    }
-
-    private function get_pw_length()
-    {
-        $pw = $this->options[LBRY_SPEECH_PW];
-        if (empty($pw)) {
-            return '';
-        }
-        $pw = $this->decrypt($pw);
-        $length = strlen($pw);
-        return str_repeat("X", $length);
     }
 
     private function encrypt($plaintext)

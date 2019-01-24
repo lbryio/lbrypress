@@ -70,8 +70,11 @@ class LBRY_Speech
                 $speech_channel = get_option(LBRY_SETTINGS)[LBRY_SPEECH_CHANNEL];
                 $speech_pw = LBRY()->admin->get_speech_pw();
                 if (!empty($speech_channel) && !empty($speech_pw)) {
-                    $params['channelName'] = $speech_channel;
+                    $params['channelName'] = '@' . $speech_channel;
                     $params['channelPassword'] = $speech_pw;
+
+                    error_log($params['channelName']);
+                    error_log($params['channelPassword']);
                 }
 
                 $ch = $this->build_request('publish', $params);
