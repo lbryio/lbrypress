@@ -7,28 +7,23 @@
 
 class LBRY_Speech_Parser
 {
+    // COMBAK: May not need this, as replace_attachment_image_src may cover all use cases
     /**
      * Replace img srcset attributes with Spee.ch urls
      * Check https://developer.wordpress.org/reference/functions/wp_calculate_image_srcset/ hook for details
      */
     public function replace_image_srcset($sources, $size_array, $image_src, $image_meta, $attachment_id)
     {
+        // If we don't have a speech URL, bail
+        if (!LBRY()->speech->is_published($image_meta)) {
+            return;
+        }
+
         $new_sources = $sources;
-        $sizes = $image_meta['sizes'];
-        $base_image = pathinfo($image_src)['basename'];
 
         foreach ($sources as $width => $source) {
-            // Check to see if it is using base image first
-            if ($image_src == $source['url'] && key_exists(LBRY_SPEECH_ASSET_URL, $image_meta)) {
-                $new_sources[$width]['url'] = $image_meta[LBRY_SPEECH_ASSET_URL];
-                continue;
-            }
-
-            // Otherwise, find the corresponding size
-            $speech_url = $this->find_speech_url_by_width($sizes, $width);
-
-            if ($speech_url) {
-                $new_sources[$width]['url'] = $speech_url;
+            if ($cropped_url = $this->get_speech_crop_url($source['url'], $image_meta)) {
+                $new_sources[$width]['url'] = $cropped_url;
             }
         }
         return $new_sources;
@@ -44,48 +39,16 @@ class LBRY_Speech_Parser
             return $image;
         }
 
-        // Die if we don't have a speech_asset_url
         $image_meta = wp_get_attachment_metadata($attachment_id);
 
+        // Die if we don't have a speech_asset_url
         if (!LBRY()->speech->is_published($image_meta)) {
             return $image;
         }
 
         $new_image = $image;
-
-        // If the image is the same as the base image, return the base spee.ch url
-        if (pathinfo($image[0])['basename'] == pathinfo($image_meta['file'])['basename']) {
-            $new_image[0] = $image_meta[LBRY_SPEECH_ASSET_URL];
-            return $new_image;
-        }
-
-        $sizes = $image_meta['sizes'];
-
-        // If we have a given size, then use that immediately
-        if (is_string($size)) {
-            switch ($size) {
-                case 'full':
-                $new_image[0] = $image_meta[LBRY_SPEECH_ASSET_URL];
-                break;
-                case 'post-thumbnail':
-                if (LBRY()->speech->is_published($sizes['thumbnail'])) {
-                    $new_image[0] = $sizes['thumbnail'][LBRY_SPEECH_ASSET_URL];
-                }
-                break;
-                default:
-                if (key_exists($size, $sizes) && LBRY()->speech->is_published($sizes[$size])) {
-                    $new_image[0] = $sizes[$size][LBRY_SPEECH_ASSET_URL];
-                }
-                break;
-            }
-            return $new_image;
-        }
-
-        // Otherwise, we can find it by the url provided
-        $speech_url = $this->find_speech_url_by_file_url($image_meta, $image[0]);
-        if ($speech_url) {
-            $new_image[0] = $speech_url;
-        }
+        $cropped_url = $this->get_speech_crop_url($image[0], $image_meta);
+        $new_image[0] = $cropped_url;
 
         return $new_image;
     }
@@ -123,13 +86,48 @@ class LBRY_Speech_Parser
             $id = $this->rigid_attachment_url_to_postid($asset);
             $meta = wp_get_attachment_metadata($id);
 
-            if ($meta && LBRY()->speech->is_published($meta) && $speech_url = $this->find_speech_url_by_file_url($meta, $asset)) {
-                $new_content = str_replace($asset, $speech_url, $new_content);
+
+            if ($meta && LBRY()->speech->is_published($meta)) {
+                // If its a video, handle accordingly
+                if (!key_exists('file', $meta) && key_exists('mime_type', $meta) && $meta['mime_type'] == 'video/mp4') {
+                    $speech_url = $meta[LBRY_SPEECH_ASSET_URL];
+                } else {
+                    $speech_url = $this->get_speech_crop_url($asset, $meta);
+                }
+
+                if ($speech_url) {
+                    $new_content = str_replace($asset, $speech_url, $new_content);
+                }
             }
         }
         return $new_content;
     }
 
+    /**
+     * Calculates the crop url for Spee.ch to deliver responsive images
+     * @param  string $image_src  The src of the image that needs a spee.ch url
+     * @param  array  $image_meta The meta for the attachment that needs a spee.ch url
+     * @return string             The proper Spee.ch URL, false if none found
+     */
+    private function get_speech_crop_url($image_src, $image_meta)
+    {
+        $base_url = wp_get_upload_dir()['baseurl'];
+        $image_file_info = pathinfo($image_meta['file']);
+
+        // If this is the base image, just return it as is
+        if ($image_file_info['basename'] == pathinfo($image_src)['basename']) {
+            return $image_meta[LBRY_SPEECH_ASSET_URL];
+        }
+
+        // Otherwise, find the crop size
+        $comparable_url = $base_url . '/' . $image_file_info['dirname'] . '/' . $image_file_info['filename'];
+        $crop_size = str_replace($comparable_url, '', $image_src);
+        if (preg_match('/-(\d+)x(\d+)\..+/', $crop_size, $matches)) {
+            return $image_meta[LBRY_SPEECH_ASSET_URL] . '?w=' . $matches[1] . '&h=' . $matches[2] . '&t=crop';
+        }
+
+        return false;
+    }
 
     /**
      * Scrapes all image tags from content
@@ -227,58 +225,6 @@ class LBRY_Speech_Parser
             }
         }
 
-        return false;
-    }
-
-    /**
-     * Retrieves a speech_asset_url based sizes meta provided
-     * @param  array    $sizes  Image sizes meta array
-     * @param  string   $width  The width to look for
-     * @return string           An asset url if found, false if not
-     */
-    private function find_speech_url_by_width($sizes, $width)
-    {
-        foreach ($sizes as $key => $size) {
-            if ($size['width'] == $width && key_exists(LBRY_SPEECH_ASSET_URL, $size)) {
-                return $size[LBRY_SPEECH_ASSET_URL];
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Retrieves a speech_asset_url based on a passed url
-     * @param  array    $meta   The attachment meta data for the asset
-     * @param  string   $url    The URL of the asset being exchanged
-     * @return string           The URL of the Speech Asset
-     */
-    private function find_speech_url_by_file_url($meta, $url)
-    {
-        // See if this looks like video meta
-        if (!key_exists('file', $meta) && key_exists('mime_type', $meta) && $meta['mime_type'] == 'video/mp4') {
-            return $meta[LBRY_SPEECH_ASSET_URL];
-        }
-
-        $pathinfo = pathinfo($url);
-        $basename = $pathinfo['basename'];
-
-        // Check main file or if $meta is just a url (video) first
-        if (key_exists('file', $meta) && $basename == wp_basename($meta['file'])) {
-            return $meta[LBRY_SPEECH_ASSET_URL];
-        }
-
-        // Check to see if we have a meta option here
-        if (key_exists('sizes', $meta)) {
-            // Then check sizes
-            foreach ($meta['sizes'] as $size => $meta) {
-                if ($basename == $meta['file'] && key_exists(LBRY_SPEECH_ASSET_URL, $meta)) {
-                    return $meta[LBRY_SPEECH_ASSET_URL];
-                }
-            }
-        }
-
-        // Couldn't make a match
         return false;
     }
 
