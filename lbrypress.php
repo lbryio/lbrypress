@@ -25,7 +25,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 defined('ABSPATH') || die(); // Exit if accessed directly
 
-define('LBRY_REQUIRED_PHP_VERSION', '5.3'); // TODO: Figure out what versions we actually need
+define('LBRY_REQUIRED_PHP_VERSION', '5.6');
 define('LBRY_REQUIRED_WP_VERSION', '3.1');
 define('LBRY_PLUGIN_FILE', __FILE__);
 
@@ -70,9 +70,7 @@ function LBRY()
         if (! class_exists('LBRYPress')) {
             require_once(dirname(__FILE__) . '/classes/LBRYPress.php');
         }
-        // Bring in configuration requirements
-        // HACK: Will probably be getting rid of configuration once we sort out Spee.ch Implementation
-        require_once(dirname(__FILE__) . '/lbry_config.php');
+
         return LBRYPress::instance();
     } else {
         add_action('admin_notices', 'lbry_requirements_error');

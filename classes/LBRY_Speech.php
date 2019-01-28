@@ -67,10 +67,14 @@ class LBRY_Speech
                     );
 
                 // Pull Channel and Password from config file for now
-                // COMBAK: This will change in the future
-                if (LBRY_SPEECH_CHANNEL && LBRY_SPEECH_CHANNEL_PASSWORD) {
-                    $params['channelName'] = LBRY_SPEECH_CHANNEL;
-                    $params['channelPassword'] = LBRY_SPEECH_CHANNEL_PASSWORD;
+                $speech_channel = get_option(LBRY_SETTINGS)[LBRY_SPEECH_CHANNEL];
+                $speech_pw = LBRY()->admin->get_speech_pw();
+                if (!empty($speech_channel) && !empty($speech_pw)) {
+                    $params['channelName'] = '@' . $speech_channel;
+                    $params['channelPassword'] = $speech_pw;
+
+                    error_log($params['channelName']);
+                    error_log($params['channelPassword']);
                 }
 
                 $ch = $this->build_request('publish', $params);
@@ -160,7 +164,6 @@ class LBRY_Speech
             }
         }
         // Don't forget the featured image
-        error_log($post_id);
         if ($featured_id = get_post_thumbnail_id($post_id)) {
             $image_ids = array_merge($image_ids, array($featured_id));
         }

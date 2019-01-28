@@ -40,7 +40,7 @@ class LBRY_Admin
     public function page_init()
     {
         // Register the LBRY Setting array
-        register_setting(LBRY_SETTINGS_GROUP, LBRY_SETTINGS, array($this, 'sanitize'));
+        register_setting(LBRY_SETTINGS_GROUP, LBRY_SETTINGS, array('sanitize_callback' => array($this, 'sanitize')));
 
         // Add Required Settings Sections
         add_settings_section(
@@ -60,11 +60,27 @@ class LBRY_Admin
         );
 
         add_settings_field(
-            LBRY_SPEECH, // ID
-            'Spee.ch URL', // Title
-            array( $this, 'speech_callback' ), // Callback
-            LBRY_ADMIN_PAGE, // Page
-            LBRY_SETTINGS_SECTION_GENERAL // Section
+            LBRY_SPEECH,
+            'Spee.ch URL',
+            array( $this, 'speech_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
+        );
+
+        add_settings_field(
+            LBRY_SPEECH_CHANNEL,
+            'Spee.ch Channel',
+            array( $this, 'speech_channel_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
+        );
+
+        add_settings_field(
+            LBRY_SPEECH_PW,
+            'Spee.ch Password',
+            array( $this, 'speech_pw_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
         );
 
         add_settings_field(
@@ -96,10 +112,26 @@ class LBRY_Admin
 
     /**
     * Sanitizes setting input
-    * // TODO Actually sanitize the input
+    * // COMBAK Potentially sanitize more
     */
     public function sanitize($input)
     {
+        if (!empty($input[LBRY_SPEECH_CHANNEL])) {
+            $channel = $input[LBRY_SPEECH_CHANNEL];
+            $channel = str_replace('@', '', $channel);
+            $input[LBRY_SPEECH_CHANNEL] = $channel;
+        }
+
+        if (!empty($input[LBRY_SPEECH_PW])) {
+            $encrypted = $this->encrypt($input['lbry_speech_pw']);
+            $input[LBRY_SPEECH_PW] = $encrypted;
+        } else {
+            // If we have a password and its empty, keep orginal password
+            if (!empty(get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW])) {
+                $input[LBRY_SPEECH_PW] = get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW];
+            }
+        }
+
         return $input;
     }
 
@@ -137,6 +169,31 @@ class LBRY_Admin
             LBRY_SPEECH,
             LBRY_SETTINGS,
             isset($this->options[LBRY_SPEECH]) ? esc_attr($this->options[LBRY_SPEECH]) : ''
+        );
+    }
+
+    /**
+    * Prints Spee.ch channel input
+    */
+    public function speech_channel_callback()
+    {
+        printf(
+            '<span>@</span><input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" placeholder="your-channel"/>',
+            LBRY_SPEECH_CHANNEL,
+            LBRY_SETTINGS,
+            isset($this->options[LBRY_SPEECH_CHANNEL]) ? esc_attr($this->options[LBRY_SPEECH_CHANNEL]) : ''
+        );
+    }
+
+    /**
+    * Prints Spee.ch password input
+    */
+    public function speech_pw_callback()
+    {
+        printf(
+            '<input type="password" id="%1$s" name="%2$s[%1$s]" value="" placeholder="Leave empty for same password"',
+            LBRY_SPEECH_PW,
+            LBRY_SETTINGS
         );
     }
 
@@ -231,5 +288,40 @@ class LBRY_Admin
             }
             set_transient('lbry_wallet_check', true, 2 * HOUR_IN_SECONDS);
         }
+    }
+
+    private function encrypt($plaintext)
+    {
+        $ivlen = openssl_cipher_iv_length($cipher="AES-256-CTR");
+        $iv = openssl_random_pseudo_bytes($ivlen);
+        $ciphertext_raw = openssl_encrypt($plaintext, $cipher, wp_salt(), $options=OPENSSL_RAW_DATA, $iv);
+        $hmac = hash_hmac('sha256', $ciphertext_raw, wp_salt(), $as_binary=true);
+        return base64_encode($iv.$hmac.$ciphertext_raw);
+    }
+
+    private function decrypt($ciphertext)
+    {
+        $c = base64_decode($ciphertext);
+        $ivlen = openssl_cipher_iv_length($cipher="AES-256-CTR");
+        $iv = substr($c, 0, $ivlen);
+        $hmac = substr($c, $ivlen, $sha2len=32);
+        $ciphertext_raw = substr($c, $ivlen+$sha2len);
+        $original_plaintext = openssl_decrypt($ciphertext_raw, $cipher, wp_salt(), $options=OPENSSL_RAW_DATA, $iv);
+        $calcmac = hash_hmac('sha256', $ciphertext_raw, wp_salt(), $as_binary=true);
+        if (hash_equals($hmac, $calcmac)) {//PHP 5.6+ timing attack safe comparison
+            return $original_plaintext;
+        }
+
+        return false;
+    }
+
+    public function get_speech_pw()
+    {
+        $ciphertext = get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW];
+        if (empty($ciphertext)) {
+            return false;
+        }
+
+        return $this->decrypt($ciphertext);
     }
 }

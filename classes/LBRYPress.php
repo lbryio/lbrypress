@@ -113,6 +113,8 @@ class LBRYPress
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
+        $this->define('LBRY_SPEECH_CHANNEL', 'lbry_speech_channel'); // The spee.ch channel
+        $this->define('LBRY_SPEECH_PW', 'lbry_speech_pw'); // The password for the spee.ch channel
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
         $this->define('LBRY_WILL_PUBLISH', '_lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
