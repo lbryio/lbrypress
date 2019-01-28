@@ -88,9 +88,6 @@ class LBRY_Speech
                 curl_multi_add_handle($mh, $request['request']);
             }
 
-            // return;
-
-
             // Execute all requests simultaneously
             $running = null;
             do {
@@ -122,17 +119,12 @@ class LBRY_Speech
                     // Update image meta
                     if ($result && $result->success) {
                         $meta = wp_get_attachment_metadata($media->id);
-                        // if ($media->image_size) {
-                        //     $meta['sizes'][$media->image_size][LBRY_SPEECH_ASSET_URL] =  $result->data->serveUrl;
-                        // } else {
                         $meta[LBRY_SPEECH_ASSET_URL] = $result->data->serveUrl;
-                        // }
                         wp_update_attachment_metadata($media->id, $meta);
                     } else { // Something unhandled happened here
                         throw new \Exception("Unknown Speech Upload issue for asset");
                     }
                 } catch (\Exception $e) {
-                    // $image_size = $media->image_size ? $media->image_size : 'full';
                     error_log('Failed to upload asset with ID ' . $media->id . ' to supplied speech URL.');
                     LBRY()->daemon->logger->log('Speech Upload', 'Failed to upload asset with ID ' . $media->id . ' to supplied speech URL. Message | ' . $e->getMessage());
                     error_log($e->getMessage());
