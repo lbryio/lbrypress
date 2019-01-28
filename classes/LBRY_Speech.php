@@ -52,8 +52,6 @@ class LBRY_Speech
 
         $all_media = $this->find_media($post_id);
 
-        error_log(print_r($all_media, true));
-
         // IDEA: Notify user if post save time will take a while
         if ($all_media) {
             $requests = array();
@@ -73,9 +71,6 @@ class LBRY_Speech
                 if (!empty($speech_channel) && !empty($speech_pw)) {
                     $params['channelName'] = '@' . $speech_channel;
                     $params['channelPassword'] = $speech_pw;
-
-                    error_log($params['channelName']);
-                    error_log($params['channelPassword']);
                 }
 
                 $ch = $this->build_request('publish', $params);
