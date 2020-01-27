@@ -87,12 +87,18 @@ class LBRY_Daemon
     /**
      * Returns a list of channels for this account
      * https://lbry.tech/api/sdk#channel_list
+     * @param  int      $page    Pagination page number
      * @return array    claim dictionary or null if empty
      */
-    public function channel_list()
+    public function channel_list($page = 1)
     {
+        $params = array(
+            'page'      => $page,
+            'page_size' => 20
+        );
+
         try {
-            $result = $this->request('channel_list')->result;
+            $result = $this->request('channel_list', $params)->result->items;
             return empty($result) ? null : $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode());

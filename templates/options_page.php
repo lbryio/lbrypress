@@ -17,7 +17,6 @@ $channel_list = $LBRY->daemon->channel_list();
     </form>
     <h2>Your Publishable Channels</h2>
     <?php if ($channel_list): ?>
-        <?php error_log(print_r($channel_list, true)); ?>
         <ul class="lbry-channel-list">
             <?php foreach ($channel_list as $channel): ?>
                 <li><?= $channel->name ?></li>
