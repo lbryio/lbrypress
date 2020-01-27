@@ -67,7 +67,7 @@ class LBRY_Daemon
     }
 
     /**
-     * Returns the balance of a current LBRY account
+     * Returns the available balance of a current LBRY account
      * https://lbry.tech/api/sdk#account_balance
      * @param  string   $address    Wallet Address
      * @return float                Wallet Balance
@@ -76,7 +76,7 @@ class LBRY_Daemon
     {
         try {
             $result = $this->request('account_balance');
-            return $result->result;
+            return $result->result->available;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue getting account balance.');
