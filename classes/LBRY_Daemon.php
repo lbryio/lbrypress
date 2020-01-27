@@ -45,14 +45,19 @@ class LBRY_Daemon
     }
 
     /**
-     * Returns an array of Address lists
+     * Returns an paginated array of Address lists
      * https://lbry.tech/api/sdk#address_list
      * @return array    Array of address lists linked to this account
      */
-    public function address_list()
+    public function address_list($page = 1)
     {
+        // Get 20 per page
+        $params = array(
+            'page'  => $page,
+            'page_size' => 20
+        );
         try {
-            $result = $this->request('address_list');
+            $result = $this->request('address_list', $params);
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
