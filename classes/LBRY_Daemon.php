@@ -58,7 +58,7 @@ class LBRY_Daemon
         );
         try {
             $result = $this->request('address_list', $params);
-            return $result->result;
+            return $result->result->items;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue getting address list.');

@@ -149,7 +149,7 @@ class LBRY_Admin
     public function wallet_callback()
     {
         // Get first available account address from Daemon
-        $address = LBRY()->daemon->address_list()->items;
+        $address = LBRY()->daemon->address_list();
         $address = is_array($address) && !empty($address) ? $address[0]->address : '';
         printf(
             '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" readonly />',
