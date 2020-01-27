@@ -47,6 +47,7 @@ class LBRY_Daemon
     /**
      * Returns an paginated array of Address lists
      * https://lbry.tech/api/sdk#address_list
+     * @param  int      $page   Pagination page number
      * @return array    Array of address lists linked to this account
      */
     public function address_list($page = 1)
