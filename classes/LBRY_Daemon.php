@@ -110,7 +110,7 @@ class LBRY_Daemon
 
     /**
      * Create a claim for a new channel
-     * https://lbry.tech/api/sdk#channel_new
+     * https://lbry.tech/api/sdk#channel_create
      * @return array    dictionary containing result of the request
      */
     public function channel_new($channel_name, $bid_amount)
@@ -130,16 +130,16 @@ class LBRY_Daemon
 
         try {
             $result = $this->request(
-                'channel_new',
+                'channel_create',
                 array(
-                    'channel_name' => $channel_name,
-                    'amount' => number_format(floatval($bid_amount), 2, '.', '')
+                    'name' => $channel_name,
+                    'bid' => number_format(floatval($bid_amount), 2, '.', '')
                 )
             );
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue creating new channel.');
+            throw new \Exception('Issue creating new channel.', 1);
             return;
         }
     }
