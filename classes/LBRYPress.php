@@ -119,7 +119,8 @@ class LBRYPress
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
         $this->define('LBRY_WILL_PUBLISH', '_lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
         $this->define('LBRY_POST_CHANNEL', '_lbry_channel'); // The meta key for which channel to publish
-        $this->define('LBRY_PERM_URL', '_lbry_perm_url'); // The meta key for the permanent url of the published lbry post
+        $this->define('LBRY_CLAIM_ID', '_lbry_claim_id'); // The Claim ID for the post as it was published on LBRY
+        $this->define('LBRY_CANONICAL_URL', '_lbry_canonical_url'); // The canonical url for the published lbry post
         $this->define('LBRY_SPEECH_ASSET_URL', 'speech_asset_url'); // The meta key for an asset's speech url
     }
 
