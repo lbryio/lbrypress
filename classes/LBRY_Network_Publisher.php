@@ -77,7 +77,14 @@ class LBRY_Network_Publisher
             $outputs = $result->outputs;
 
             if ($outputs && is_array($outputs)) {
-                update_post_meta($post->ID, LBRY_PERM_URL, $result->outputs[0]->permanent_url);
+                $output = $result->outputs[0];
+                $claim_id = $output->claim_id;
+                // Set Claim ID
+                update_post_meta($post->ID, LBRY_CLAIM_ID, $claim_id);
+
+                // Set Canonical URL
+                $canonical_url = LBRY()->daemon->canonical_url($claim_id);
+                update_post_meta($post->ID, LBRY_CANONICAL_URL, $canonical_url);
             }
         } catch (Exception $e) {
             error_log('Issue publishing post ' . $post->ID . ' to LBRY: ' .  $e->getMessage());

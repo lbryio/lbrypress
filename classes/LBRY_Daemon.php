@@ -145,6 +145,38 @@ class LBRY_Daemon
     }
 
     /**
+     * Returns the canonical URL for the supplied claim ID, null otherwise
+     * @param  string $claim_id
+     * @return string           Canonical URL, null if not found
+     */
+    public function canonical_url($claim_id = null)
+    {
+        if (!$claim_id) {
+            return null;
+        }
+
+        try {
+            $result = $this->request(
+                'claim_search',
+                array(
+                    'claim_id'  => $claim_id,
+                    'no_totals' => true
+                )
+            );
+
+            $items = $result->result->items;
+            if (!$items) {
+                return null;
+            }
+
+            return $items[0]->canonical_url;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('canonical_url error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            return;
+        }
+    }
+
+    /**
      * Publishes a post to the LBRY Network
      * https://lbry.tech/api/sdk#publish
      * @param  array  $args        An array containing necessary data for publish post
