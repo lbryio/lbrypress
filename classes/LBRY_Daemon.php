@@ -149,8 +149,12 @@ class LBRY_Daemon
      * @param  string $claim_id
      * @return string           Canonical URL, null if not found
      */
-    public function canonical_url($claim_id)
+    public function canonical_url($claim_id = null)
     {
+        if (!$claim_id) {
+            return null;
+        }
+
         try {
             $result = $this->request(
                 'claim_search',
@@ -159,8 +163,6 @@ class LBRY_Daemon
                     'no_totals' => true
                 )
             );
-
-            error_log(print_r($result, true));
 
             $items = $result->result->items;
             if (!$items) {

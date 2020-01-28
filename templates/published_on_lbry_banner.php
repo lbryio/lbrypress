@@ -1,15 +1,24 @@
 <?php
-    $url = get_post_meta(get_the_id(), LBRY_PRETTY_URL, true);
-
-    // Backwards compatible if LBRY_PRETTY_URL wasn't set
+    $url = get_post_meta(get_the_id(), LBRY_CANONICAL_URL, true);
     if (!$url) {
-        $url = get_post_meta(get_the_id(), LBRY_PERM_URL, true);
+        // Get channel canonical for backwards compatibility
+        $channel_id = get_post_meta(get_the_id(), LBRY_POST_CHANNEL, true);
+        $url = LBRY()->daemon->canonical_url($channel_id);
+    }
+
+    if ($url) {
+        $url = str_replace('lbry://', 'lbry.tv/', $url);
     }
 ?>
 <div class="lbry-published-banner">
     <h5>Stored Safely on Blockchain</h5>
     <p>
-        This post is published to <a href="https://lbry.io/get">LBRY</a> blockchain at <a href="<?= $url ?>"><?= $url ?></a>.
+        This post is published to <a href="https://lbry.io/get">LBRY</a> blockchain
+        <?php if($url): ?>
+            at <a href="https://<?= $url ?>"><?= $url ?></a>.
+        <?php else: ?>
+            .
+        <?php endif; ?>
     </p>
     <p>
         <a href="https://lbry.io/get" target="_blank">Try LBRY</a> to experience content freedom, earn crypto, and support The Anti-Media!
