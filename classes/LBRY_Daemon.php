@@ -45,15 +45,21 @@ class LBRY_Daemon
     }
 
     /**
-     * Returns an array of Address lists
+     * Returns an paginated array of Address lists
      * https://lbry.tech/api/sdk#address_list
+     * @param  int      $page   Pagination page number
      * @return array    Array of address lists linked to this account
      */
-    public function address_list()
+    public function address_list($page = 1)
     {
+        // Get 20 per page
+        $params = array(
+            'page'  => $page,
+            'page_size' => 20
+        );
         try {
-            $result = $this->request('address_list');
-            return $result->result;
+            $result = $this->request('address_list', $params);
+            return $result->result->items;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue getting address list.');
@@ -62,7 +68,7 @@ class LBRY_Daemon
     }
 
     /**
-     * Returns the balance of a current LBRY account
+     * Returns the available balance of a current LBRY account
      * https://lbry.tech/api/sdk#account_balance
      * @param  string   $address    Wallet Address
      * @return float                Wallet Balance
@@ -71,7 +77,7 @@ class LBRY_Daemon
     {
         try {
             $result = $this->request('account_balance');
-            return $result->result;
+            return $result->result->available;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue getting account balance.');
@@ -82,12 +88,18 @@ class LBRY_Daemon
     /**
      * Returns a list of channels for this account
      * https://lbry.tech/api/sdk#channel_list
+     * @param  int      $page    Pagination page number
      * @return array    claim dictionary or null if empty
      */
-    public function channel_list()
+    public function channel_list($page = 1)
     {
+        $params = array(
+            'page'      => $page,
+            'page_size' => 20
+        );
+
         try {
-            $result = $this->request('channel_list')->result;
+            $result = $this->request('channel_list', $params)->result->items;
             return empty($result) ? null : $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
@@ -98,7 +110,7 @@ class LBRY_Daemon
 
     /**
      * Create a claim for a new channel
-     * https://lbry.tech/api/sdk#channel_new
+     * https://lbry.tech/api/sdk#channel_create
      * @return array    dictionary containing result of the request
      */
     public function channel_new($channel_name, $bid_amount)
@@ -118,16 +130,16 @@ class LBRY_Daemon
 
         try {
             $result = $this->request(
-                'channel_new',
+                'channel_create',
                 array(
-                    'channel_name' => $channel_name,
-                    'amount' => number_format(floatval($bid_amount), 2, '.', '')
+                    'name' => $channel_name,
+                    'bid' => number_format(floatval($bid_amount), 2, '.', '')
                 )
             );
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue creating new channel.');
+            throw new \Exception('Issue creating new channel.', 1);
             return;
         }
     }
