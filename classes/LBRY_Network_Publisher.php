@@ -9,7 +9,7 @@ class LBRY_Network_Publisher
 {
     /**
      * Publish the post to the LBRY Network
-     * @param  int      $post_id  The ID of the post we are publishing
+     * @param  WP_POST      $post_id  The ID of the post we are publishing
      * @param  string   $channel The Claim ID of the channel we are posting to
      */
     // NOTE: This is currently sitting at about 150ms, mostly the post parsing
@@ -48,6 +48,16 @@ class LBRY_Network_Publisher
 
             if ($featured_image[0]) {
                 $args['thumbnail_url'] = $featured_image[0];
+            }
+
+            // Setup Tags
+            $tags = get_the_terms( $post, 'post_tag' );
+            if ($tags) {
+                $tag_names = [];
+                foreach ($tags as $tag) {
+                    $tag_names[] = $tag->name;
+                }
+                $args['tags'] = $tag_names;
             }
 
             // Build description using Yoast if installed and its used, excerpt/title otherwise
