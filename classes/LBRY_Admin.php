@@ -14,7 +14,7 @@ class LBRY_Admin
     */
     public function __construct()
     {
-        add_action('admin_menu', array($this, 'create_options_page'));
+        add_action('admin_menu', array($this, 'create_menu_pages'));
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
@@ -23,15 +23,33 @@ class LBRY_Admin
     /**
     * Creates the options page in the WP admin interface
     */
-    public function create_options_page()
+    public function create_menu_pages()
     {
         add_menu_page(
             __('LBRYPress Settings', 'lbrypress'),
             __('LBRYPress', 'lbrypress'),
             'manage_options',
             LBRY_ADMIN_PAGE,
-            array($this, 'options_page_html'),
+            '',
             plugin_dir_url(LBRY_PLUGIN_FILE) . '/admin/images/lbry-logo.svg'
+        );
+
+        add_submenu_page(
+            LBRY_ADMIN_PAGE,
+            __('LBRYPress Settings', 'lbrypress'),
+            __('Settings', 'lbrypress'),
+            'manage_options',
+            LBRY_ADMIN_PAGE,
+            array($this, 'options_page_html')
+        );
+
+        add_submenu_page(
+            LBRY_ADMIN_PAGE,
+            __('LBRYPress Help', 'lbrypress'),
+            __('Help', 'lbrypress'),
+            'manage_options',
+            'lbrypress-help',
+            array($this, 'help_page_html')
         );
     }
 
@@ -109,6 +127,14 @@ class LBRY_Admin
         // Set class property to be referenced in callbacks
         $this->options = get_option(LBRY_SETTINGS);
         require_once(LBRY_ABSPATH . 'templates/options_page.php');
+    }
+
+    /**
+     * Returns the Help Page HTML for the plugin
+     */
+    public function help_page_html()
+    {
+        require_once(LBRY_ABSPATH . 'templates/help_page.php');
     }
 
     /**
