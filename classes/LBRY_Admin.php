@@ -25,12 +25,13 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
-        add_options_page(
+        add_menu_page(
             __('LBRYPress Settings', 'lbrypress'),
             __('LBRYPress', 'lbrypress'),
             'manage_options',
             LBRY_ADMIN_PAGE,
-            array($this, 'options_page_html')
+            array($this, 'options_page_html'),
+            plugin_dir_url(LBRY_PLUGIN_FILE) . '/admin/images/lbry-logo.svg'
         );
     }
 
