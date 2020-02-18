@@ -19,6 +19,11 @@ class LBRY_Daemon
     private $daemon_running = false;
 
     /**
+    * The Daemon Notice Handler
+    */
+    private $notice = null;
+
+    /**
      * The Daemon Logger
      * @var LBRY_Daemon_Logger
      */
@@ -30,7 +35,12 @@ class LBRY_Daemon
     public function __construct()
     {
         $this->logger = new LBRY_Daemon_Logger();
+        $this->notice = new LBRY_Admin_Notice();
         $this->daemon_running = $this->test_daemon();
+
+        if (!$this->daemon_running && !$this->start_daemon()) {
+            $this->notice->set_notice('error', 'Cannot connect to the LBRY Daemon. Click <a href="' . admin_url('admin.php?page=lbrypress-help') . '">HERE</a> for help.');
+        }
     }
 
     /**
@@ -39,7 +49,22 @@ class LBRY_Daemon
      */
     private function test_daemon()
     {
-        return true;
+        try {
+            $result = $this->request('status')->result;
+            return $result->is_running;
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log('daemon_status_error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            return false;
+        }
+    }
+
+    /**
+     * Attempts to start the daemon
+     * @return bool True on success
+     */
+    private function start_daemon()
+    {
+        return false;
     }
 
     /**
@@ -56,7 +81,7 @@ class LBRY_Daemon
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('address_unused error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting unused address.');
+            $this->notice->set_notice('error', 'Issue getting unused address.');
             return;
         }
     }
@@ -81,7 +106,7 @@ class LBRY_Daemon
             return $result->result->items;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting address list.');
+            $this->notice->set_notice('error', 'Issue getting address list.');
             return;
         }
     }
@@ -101,7 +126,7 @@ class LBRY_Daemon
             return $result->result->available;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting account balance.');
+            $this->notice->set_notice('error', 'Issue getting account balance.');
             return;
         }
     }
@@ -126,7 +151,7 @@ class LBRY_Daemon
             return empty($result) ? null : $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue retrieving channel list.');
+            $this->notice->set_notice('error', 'Issue retrieving channel list.');
             return;
         }
     }
@@ -226,7 +251,7 @@ class LBRY_Daemon
             return $result->result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
+            $this->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
             return;
         }
     }

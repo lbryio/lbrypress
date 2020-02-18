@@ -42,7 +42,9 @@ class LBRY_Admin_Notice
             set_transient('lbry_notices', array($notice));
         } else {
             $notices = get_transient('lbry_notices');
-            $notices[] = $notice;
+            if (!in_array($notice, $notices)) {
+                $notices[] = $notice;
+            }
             set_transient('lbry_notices', $notices);
         }
     }
@@ -56,6 +58,15 @@ class LBRY_Admin_Notice
         if ($notice['is_dismissible']) {
             $class .= ' is-dismissible';
         }
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
+        ob_start();
+        ?>
+        <div class="<?= $class ?>">
+            <p>
+                <span style="font-weight:bold">LBRYPress: </span>
+                <?= $notice['message'] ?>
+            </p>
+        </div>
+        <?php
+        echo ob_get_clean();
     }
 }

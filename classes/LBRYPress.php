@@ -142,13 +142,13 @@ class LBRYPress
      */
     private function init()
     {
+        $this->notice = new LBRY_Admin_Notice();
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
 
         // Admin request
         if (is_admin()) {
             $this->admin = new LBRY_Admin();
-            $this->notice = new LBRY_Admin_Notice();
             $this->network = new LBRY_Network();
         }
     }
