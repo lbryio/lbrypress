@@ -9,7 +9,7 @@
 
     <h2>Usage</h2>
 
-    <p>By default, `lbrynet` will provide a JSON-RPC server at `http://localhost:5279`. This is the address our plugin will be expecting to use.</p>
+    <p>By default, <code>lbrynet</code> will provide a JSON-RPC server at <code>http://localhost:5279</code>. This is the address our plugin will be expecting to use.</p>
     <p>If curious, The full API is documented <a href="https://lbry.tech/api/sdk" target="_blank">here</a></p>
 
     <p><a href="https://github.com/lbryio/lbry-sdk/blob/master/README.md" target="_blank">SDK Github</a></p>

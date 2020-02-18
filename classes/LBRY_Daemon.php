@@ -38,8 +38,9 @@ class LBRY_Daemon
         $this->notice = new LBRY_Admin_Notice();
         $this->daemon_running = $this->test_daemon();
 
-        if (!$this->daemon_running && !$this->start_daemon()) {
-            $this->notice->set_notice('error', 'Cannot connect to the LBRY Daemon. Click <a href="' . admin_url('admin.php?page=lbrypress-help') . '">HERE</a> for help.');
+        if (!$this->daemon_running) {
+            $this->start_daemon();
+            $this->notice->set_notice('error', 'Cannot connect to the LBRY Daemon. Attempting to start server. <br /> If you are still having troubles, click <a href="' . admin_url('admin.php?page=lbrypress-help') . '">HERE</a> for help.');
         }
     }
 
@@ -60,11 +61,19 @@ class LBRY_Daemon
 
     /**
      * Attempts to start the daemon
-     * @return bool True on success
      */
     private function start_daemon()
     {
-        return false;
+        $response = popen(ABSPATH . '/lbrynet start', "w");
+        error_log(print_r($response));
+    }
+
+    /**
+     * Attempts to start the daemon
+     */
+    private function stop_daemon()
+    {
+        exec(ABSPATH . '/lbrynet stop &');
     }
 
     /**
