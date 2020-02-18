@@ -122,6 +122,7 @@ class LBRYPress
         $this->define('LBRY_CLAIM_ID', '_lbry_claim_id'); // The Claim ID for the post as it was published on LBRY
         $this->define('LBRY_CANONICAL_URL', '_lbry_canonical_url'); // The canonical url for the published lbry post
         $this->define('LBRY_SPEECH_ASSET_URL', 'speech_asset_url'); // The meta key for an asset's speech url
+        $this->define('LBRY_DAEMON_PID', 'lbry_daemon_pid');
     }
 
     /**
@@ -184,7 +185,8 @@ class LBRYPress
             $option_defaults = array(
                 LBRY_SPEECH => null,
                 LBRY_LICENSE => $this->licenses[0],
-                LBRY_LBC_PUBLISH => 1
+                LBRY_LBC_PUBLISH => 1,
+                LBRY_DAEMON_PID => false
             );
 
             add_option(LBRY_SETTINGS, $option_defaults, false);

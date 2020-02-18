@@ -40,7 +40,7 @@ class LBRY_Daemon
 
         if (!$this->daemon_running) {
             $this->start_daemon();
-            $this->notice->set_notice('error', 'Cannot connect to the LBRY Daemon. Attempting to start server. <br /> If you are still having troubles, click <a href="' . admin_url('admin.php?page=lbrypress-help') . '">HERE</a> for help.');
+            $this->notice->set_notice('error', 'Cannot connect to the LBRY Daemon. Attempting to start daemon server. <br /> If you are still having troubles, click <a href="' . admin_url('admin.php?page=lbrypress-help') . '">HERE</a> for help.');
         }
     }
 
@@ -64,16 +64,53 @@ class LBRY_Daemon
      */
     private function start_daemon()
     {
-        $response = popen(ABSPATH . '/lbrynet start', "w");
-        error_log(print_r($response));
+        // Check if a daemon start process is already running
+        $options = get_option(LBRY_SETTINGS);
+        if ($options[LBRY_DAEMON_PID]) {
+            if ($this->is_process_running($options[LBRY_DAEMON_PID])) {
+                return;
+            }
+
+            $options[LBRY_DAEMON_PID] = false;
+            update_option(LBRY_SETTINGS, $options);
+        }
+
+        // Using proc_open to set up the request
+        // Again, this is unix only
+        $cmd = ABSPATH . "lbrynet start";
+        $command =  $cmd . ' > /dev/null 2> /dev/null & echo $!;';
+        $pid = exec($command);
+
+        if ($pid) {
+            $options = get_option(LBRY_SETTINGS);
+            $options[LBRY_DAEMON_PID] = $pid;
+            update_option(LBRY_SETTINGS, $options);
+        }
     }
 
     /**
-     * Attempts to start the daemon
+     * Attempts to stop the daemon
      */
     private function stop_daemon()
     {
-        exec(ABSPATH . '/lbrynet stop &');
+        exec(ABSPATH . 'lbrynet stop > /dev/null 2> /dev/null &');
+    }
+
+    /**
+     * Checks to see if a PID is currently running
+     * @param  int  $pid
+     * @return boolean
+     */
+    private function is_process_running($pid)
+    {
+        // This is unix specific
+        $lines_out = array();
+        exec('ps '.(int)$pid, $lines_out);
+        if(count($lines_out) >= 2) {
+          // Process is running
+          return true;
+        }
+        return false;
     }
 
     /**
