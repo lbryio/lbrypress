@@ -14,6 +14,11 @@ class LBRY_Daemon
     private $address = 'localhost:5279';
 
     /**
+     * The Daemon's Status
+     */
+    private $daemon_running = false;
+
+    /**
      * The Daemon Logger
      * @var LBRY_Daemon_Logger
      */
@@ -25,6 +30,16 @@ class LBRY_Daemon
     public function __construct()
     {
         $this->logger = new LBRY_Daemon_Logger();
+        $this->daemon_running = $this->test_daemon();
+    }
+
+    /**
+     * Returns a boolean representation of daemon status
+     * @return bool Whether or not the daemon is running
+     */
+    private function test_daemon()
+    {
+        return true;
     }
 
     /**
@@ -34,6 +49,8 @@ class LBRY_Daemon
      */
     public function wallet_unused_address()
     {
+        if (!$this->daemon_running) return;
+
         try {
             $result = $this->request('address_unused');
             return $result->result;
@@ -52,6 +69,8 @@ class LBRY_Daemon
      */
     public function address_list($page = 1)
     {
+        if (!$this->daemon_running) return;
+
         // Get 20 per page
         $params = array(
             'page'  => $page,
@@ -75,6 +94,8 @@ class LBRY_Daemon
      */
     public function wallet_balance()
     {
+        if (!$this->daemon_running) return;
+
         try {
             $result = $this->request('account_balance');
             return $result->result->available;
@@ -93,6 +114,8 @@ class LBRY_Daemon
      */
     public function channel_list($page = 1)
     {
+        if (!$this->daemon_running) return;
+
         $params = array(
             'page'      => $page,
             'page_size' => 20
@@ -115,6 +138,8 @@ class LBRY_Daemon
      */
     public function channel_new($channel_name, $bid_amount)
     {
+        if (!$this->daemon_running) return;
+
         // TODO: Sanitize channel name and bid
         // Make sure no @ sign, as we will add that
         if (strpos($channel_name, '@')) {
@@ -151,6 +176,8 @@ class LBRY_Daemon
      */
     public function canonical_url($claim_id = null)
     {
+        if (!$this->daemon_running) return;
+
         if (!$claim_id) {
             return null;
         }
@@ -188,6 +215,8 @@ class LBRY_Daemon
      */
     public function publish($args)
     {
+        if (!$this->daemon_running) return;
+
         try {
             $result = $this->request(
                 'publish',
