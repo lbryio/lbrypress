@@ -3,9 +3,9 @@
 
     <h2>Installation</h2>
 
-    <p>The current supported release <a href="https://github.com/lbryio/lbry-sdk/releases/tag/v0.54.0" target="_blank">can be found here</a>. It contains pre-built binaries for macOS, Debian-based Linux, and Windows.</p>
+    <p>The current supported release <a href="https://github.com/lbryio/lbry-sdk/releases/tag/v0.54.0" target="_blank">can be found here</a>. It contains pre-built binaries for macOS, Debian-based Linux, and Windows.<br>Simply download the proper daemon for your server's OS, extract it, and copy it to your WordPress installations root directory.</p>
     <p>For ease of use, our plugin will automatically try to run and start the daemon if installed at the root of your Wordpress install, so its advised you keep it there.</p>
-    <p>If you want to have your daemon running at a location other than your Wordpress root, feel free to set up a CRON Job on your server that will start the daemon if its not already running</p>
+    <p>If you want to have your daemon running at a location other than your Wordpress root, feel free to set up a CRON Job on your server that will start the daemon if its not already running.</p>
 
     <h2>Usage</h2>
 
