@@ -53,9 +53,9 @@ If images or GIFs are used in your posts, they'll be reposted to a spee.ch chann
 1) Go to https://spee.ch/login and create a new channel / password. 
 1) On the plugin page, enter Spee.ch URL as https://spee.ch, and populate the channel/password you just created. 
 1) Enter 0.1 for **LBC per Publish**.
-![](https://spee.ch/8/speech-setup-lbrypress.jpeg)
-
 1) Click **Save Settings**.
+
+![](https://spee.ch/8/speech-setup-lbrypress.jpeg)
 
 ## Setting up a your blog publishing channel
 This process will create a channel in your local wallet where your blog posts will be published to. Any available channels will be listed at the top of the **Your Publishable Channels** section.
@@ -70,10 +70,10 @@ This process will create a channel in your local wallet where your blog posts wi
 When creating a new post (or editing an existing one), you can choose to publish it on LBRY as well. If you do this for an existing post, it will not retain the original date (known issue). 
 
 1) Create your post.
-2) At the bottom of the Document menu, find **LBRY Network**, and click **Sync this post on channel**.
-3) Select the channel you want to publish it on. 
-4) Click Publish. 
-5) Give it a few minutes to publish and be confirmed on the network (there's currently no feedback for this). Check your content at: https://lbry.tv/@ChannelName.
+1) At the bottom of the Document menu, find **LBRY Network**, and click **Sync this post on channel**.
+1) Select the channel you want to publish it on. 
+1) Click Publish. 
+1) Give it a few minutes to publish and be confirmed on the network (there's currently no feedback for this). Check your content at: https://lbry.tv/@ChannelName.
 
 ## Need help?
 Email us at [hello@lbry.com](mailto:hello@lbry.com) if you need assistance setting up the LBRYPress plugin. 
