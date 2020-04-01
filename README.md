@@ -2,8 +2,9 @@ Wordpress plugin for LBRY - automated posting to markdown files including republ
 
 This plugin and readme is still in an early development, thank you for your patience! 
 
+![](https://spee.ch/c/lbry-press-cover.jpg)
 ## How it works
-The LBRYPress plugin communicates with the LBRY network via a locally installed SDK. This allows you to create a channel and then mirror any published posts to it. If there are images or GIFs in your post, they will be uploaded to spee.ch automatically during the publishing process. If you update a post, it will also be updated on LBRY. 
+The LBRYPress plugin communicates with the LBRY network via a locally installed SDK. This allows you to create a channel and then mirror any published posts to it. If there are images or GIFs in your post, they will be uploaded to spee.ch (our blockchain-based image sharing service) automatically during the publishing process. If you update a post, it will also be updated on LBRY. 
 
 ## Downloading and installing the Wordpress plugin
 First, install the LBRYPress plugin on Wordpress. 
@@ -48,7 +49,7 @@ LBRY will require LBRY Credits (LBC) for the channel creation and publishing pro
 1) We will take the amount you deposited and split it up by a factor of 10. So if you deposited 10 LBC, you'd split it into 100: `/opt/lbry/lbrynet account fund --amount=10.0 --outputs=100`
 
 ## Setting up a spee.ch channel for image re-hosting
-If images or GIFs are used in your posts, they'll be reposted to a spee.ch channel and automatically embed the new URL in your blog post. You will create a spee.ch channel and configure the plugin to use it.  
+If images or GIFs are used in your posts, they'll be reposted to a spee.ch channel and automatically embed the new URL in your blog post. **This channel is not meant to be viewed directly, it's just used as an image repository.** You will create a spee.ch channel and configure the plugin to use it.  
 
 1) Go to https://spee.ch/login and create a new channel / password. 
 1) On the plugin page, enter Spee.ch URL as https://spee.ch, and populate the channel/password you just created. 
