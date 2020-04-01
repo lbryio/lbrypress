@@ -43,6 +43,7 @@ LBRY will require LBRY Credits (LBC) for the channel creation and publishing pro
 
 1) Go to the LBRYPress plugin page and find your wallet address:
 ![](https://spee.ch/d/address.jpg)
+
 1) Copy this address and send at least a few credits to it. From the Desktop app/lbry.tv, go to the Wallet page > Send Credits. 
 1) We will take the amount you deposited and split it up by a factor of 10. So if you deposited 10 LBC, you'd split it into 100: `/opt/lbry/lbrynet account fund --amount=10.0 --outputs=100`
 
@@ -53,6 +54,7 @@ If images or GIFs are used in your posts, they'll be reposted to a spee.ch chann
 1) On the plugin page, enter Spee.ch URL as https://spee.ch, and populate the channel/password you just created. 
 1) Enter 0.1 for **LBC per Publish**.
 ![](https://spee.ch/8/speech-setup-lbrypress.jpeg)
+
 1) Click **Save Settings**.
 
 ## Setting up a your blog publishing channel
