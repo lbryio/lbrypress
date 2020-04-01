@@ -7,13 +7,13 @@
     }
 
     if ($url) {
-        $url = str_replace('lbry://', 'lbry.tv/', $url);
+        $url = str_replace('lbry://', 'open.lbry.com/', $url);
     }
 ?>
 <div class="lbry-published-banner">
     <h5>Stored Safely on Blockchain</h5>
     <p>
-        This post is published to <a href="https://lbry.io/get">LBRY</a> blockchain
+        This post is published to <a href="https://lbry.com/get">LBRY</a> blockchain
         <?php if($url): ?>
             at <a href="https://<?= $url ?>"><?= $url ?></a>.
         <?php else: ?>
@@ -21,6 +21,6 @@
         <?php endif; ?>
     </p>
     <p>
-        <a href="https://lbry.io/get" target="_blank">Try LBRY</a> to experience content freedom, earn crypto, and support The Anti-Media!
+        <a href="https://lbry.com/get" target="_blank">Try LBRY</a> to experience content freedom, earn crypto, and support us directly!
     </p>
 </div>
