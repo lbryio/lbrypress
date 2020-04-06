@@ -1,8 +1,9 @@
-Wordpress plugin for LBRY - automated posting to markdown files including republishing of embedded images.
+# LBRYPress - Publish from Wordpress to LBRY automatically
 
-This plugin and readme is still in an early development, thank you for your patience! 
+This plugin and readme are in early development. Thank you for your patience.
 
 ![](https://spee.ch/c/lbry-press-cover.jpg)
+
 ## How it works
 The LBRYPress plugin communicates with the LBRY network via a locally installed SDK. This allows you to create a channel and then mirror any published posts to it. If there are images or GIFs in your post, they will be uploaded to spee.ch (our blockchain-based image sharing service) automatically during the publishing process. If you update a post, it will also be updated on LBRY. 
 
