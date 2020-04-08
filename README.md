@@ -14,7 +14,7 @@ First, install the LBRYPress plugin on Wordpress.
 1) In Wordpress, install the plugin from the zip file. It will show errors until the next steps are completed.
 
 ## Downloading and installing LBRY
-This will step you through downloading the LBRY SDK, installing it, and running as a system service (optional). 
+This will step you through downloading the LBRY SDK, installing it, and running as a system service. 
 
 1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.67.2/lbrynet-linux.zip`
 1) Make a new directory in /opt named lbry: `mkdir /opt/lbry`
