@@ -19,7 +19,7 @@ This will step you through downloading the LBRY SDK, installing it, and running 
 1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.67.2/lbrynet-linux.zip`
 1) Make a new directory in /opt named lbry: `mkdir /opt/lbry`
 1) Unzip the file here: `unzip lbrynet-linux.zip -d /opt/lbry`
-1) To get started, you can run the SDK manually at first. Open a new terminal, `cd /opt/lbry` and run: `lbrynet start`
+1) To get started, you can run the SDK manually at first. Open a new terminal, `cd /opt/lbry` and run: `./lbrynet start`
 
 ### Install LBRY as system service (can skip this step for now)
 1) Create a file called lbrynet.service and insert it into `/etc/systemd/system/`:
