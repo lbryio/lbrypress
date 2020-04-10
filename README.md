@@ -18,7 +18,7 @@ This will step you through downloading the LBRY SDK, installing it, and running 
 
 1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.67.2/lbrynet-linux.zip`
 1) Make a new directory in /opt named lbry: `mkdir /opt/lbry`
-1) You will need Unzip installed: 'sudo apt get install unzip' 
+1) You will need Unzip installed: `sudo apt get install unzip` 
 1) Unzip the file here: `unzip lbrynet-linux.zip -d /opt/lbry`
 1) To get started, you can run the SDK manually at first. Open a new terminal, `cd /opt/lbry` and run: `./lbrynet start`
 Once you do this, the SDK is active and your terminal will sync with the blockchain, it may seem like the window is hung up, but it is showing you the action on the blockchain. Open a new terminal to issue further commands.
