@@ -18,8 +18,10 @@ This will step you through downloading the LBRY SDK, installing it, and running 
 
 1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.67.2/lbrynet-linux.zip`
 1) Make a new directory in /opt named lbry: `mkdir /opt/lbry`
+1) You will need Unzip installed: 'sudo apt get install unzip' 
 1) Unzip the file here: `unzip lbrynet-linux.zip -d /opt/lbry`
 1) To get started, you can run the SDK manually at first. Open a new terminal, `cd /opt/lbry` and run: `./lbrynet start`
+Once you do this, the SDK is active and your terminal will sync with the blockchain, it may seem like the window is hung up, but it is showing you the action on the blockchain. Open a new terminal to issue further commands.
 
 ### Install LBRY as system service (can skip this step for now)
 1) Create a file called lbrynet.service and insert it into `/etc/systemd/system/`:
@@ -47,7 +49,9 @@ LBRY will require LBRY Credits (LBC) for the channel creation and publishing pro
 ![](https://spee.ch/d/address.jpg)
 
 1) Copy this address and send at least a few credits to it. From the Desktop app/lbry.tv, go to the Wallet page > Send Credits. 
-1) We will take the amount you deposited and split it up by a factor of 10. So if you deposited 10 LBC, you'd split it into 100: `/opt/lbry/lbrynet account fund --amount=10.0 --outputs=100`
+1) We will take the amount you deposited and split it up by a factor of 10. So if you deposited 10 LBC, you'd split it into 100: The decimal point is important, it will throw back an error without the structure of "10.0" 
+1) Go to the LBRYnet Directory `cd /opt/lbry/`
+1) Run the command: `./lbrynet account fund --amount=10.0 --outputs=100`
 
 ## Setting up a spee.ch channel for image re-hosting
 If images or GIFs are used in your posts, they'll be reposted to a spee.ch channel and automatically embed the new URL in your blog post. **This channel is not meant to be viewed directly, it's just used as an image repository.** You will create a spee.ch channel and configure the plugin to use it.  
@@ -75,6 +79,7 @@ When creating a new post (or editing an existing one), you can choose to publish
 1) At the bottom of the Document menu, find **LBRY Network**, and click **Sync this post on channel**.
 1) Select the channel you want to publish it on. 
 1) Click Publish. 
+1) The Plugin will automatically add a link to content on LBRY.
 1) Give it a few minutes to publish and be confirmed on the network (there's currently no feedback for this). Check your content at: https://lbry.tv/@ChannelName.
 
 ## Need help?
