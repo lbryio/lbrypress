@@ -16,7 +16,7 @@ First, install the LBRYPress plugin on Wordpress.
 ## Downloading and installing LBRY
 This will step you through downloading the LBRY SDK, installing it, and running as a system service. 
 
-1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.67.2/lbrynet-linux.zip`
+1) Download the latest LBRY SDK from our [releases page for your OS](https://github.com/lbryio/lbry-sdk/releases):  `wget https://github.com/lbryio/lbry-sdk/releases/download/v0.86.1/lbrynet-linux.zip`
 1) Make a new directory in /opt named lbry: `mkdir /opt/lbry`
 1) You may need to install Unzip: `sudo apt get install unzip` 
 1) Unzip the file here: `unzip lbrynet-linux.zip -d /opt/lbry`
@@ -43,7 +43,7 @@ WantedBy=multi-user.target
 1) Start it with: `sudo service lbrynet start`. If you are already running LBRY in the background, issue a `lbrynet stop` command first.
 
 ## Funding and preparing your wallet
-LBRY will require LBRY Credits (LBC) for the channel creation and publishing process. You can send LBC to this instance from your LBRY app / lbry.tv using the Wallet page > Send Credits. If you need LBC, sign up for a [lbry.tv account](https://lbry.tv) or [email us](mailto:hello@lbry.com). After you send credits, they will be split into smaller amounts to facilatate the publishing process. 
+LBRY will require LBRY Credits (LBC) for the channel creation and publishing process. You can send LBC to this instance from your LBRY app / lbry.tv using the Wallet page > Send Credits. If you need LBC, sign up for a [lbry.tv account](https://lbry.tv) or [email us](mailto:hello@lbry.com). After you send credits, they will be split into smaller amounts to facilatate the publishing process. You can also use an existing LBRY Desktop wallet/ channel by copying the default_wallet file into `~/.local/shared/lbry/lbryum/wallets`. 
 
 1) Go to the LBRYPress plugin page and find your wallet address:
 ![](https://spee.ch/d/address.jpg)
@@ -53,18 +53,18 @@ LBRY will require LBRY Credits (LBC) for the channel creation and publishing pro
 1) Go to the LBRYnet Directory `cd /opt/lbry/`
 1) Run the command: `./lbrynet account fund --amount=10.0 --outputs=100`
 
-## Setting up a spee.ch channel for image re-hosting
-If images or GIFs are used in your posts, they'll be reposted to a spee.ch channel and automatically embed the new URL in your blog post. **This channel is not meant to be viewed directly, it's just used as an image repository.** You will create a spee.ch channel and configure the plugin to use it.  
+## Setting up publishing
+Experimental: republishing of images in blog to LBRY: If images or GIFs are used in your posts, they should be reposted to as thumbnails similar to the upload process in the LBRY apps. This feature may not work correctly at this time. 
 
-1) Go to https://spee.ch/login and create a new channel / password. 
-1) On the plugin page, enter Spee.ch URL as https://spee.ch, and populate the channel/password you just created. 
+**Please note: spee.ch channel creation is no longer available and that step can be skiped.**
+
 1) Enter 0.1 for **LBC per Publish**.
 1) Click **Save Settings**.
 
 ![](https://spee.ch/8/speech-setup-lbrypress.jpeg)
 
 ## Setting up a your blog publishing channel
-This process will create a channel in your local wallet where your blog posts will be published to. Any available channels will be listed at the top of the **Your Publishable Channels** section.
+If you don't already have a channel, this process will create a channel in your local wallet where your blog posts will be published to. Any available channels will be listed at the top of the **Your Publishable Channels** section.
 
 1) Enter the channel you wish to create and publish under in **New Channel Name**. 
 1) Enter a bid of 0.01 (this can be increased later). 
@@ -81,6 +81,8 @@ When creating a new post (or editing an existing one), you can choose to publish
 1) Click Publish. 
 1) The plugin will automatically add a link to content on LBRY.
 1) Give it a few minutes to publish and be confirmed on the network (there's currently no feedback for this). Check your content at: https://lbry.tv/@ChannelName.
+
+If you edit a post, it will also create an update on the LBRY network.
 
 ## Need help?
 Email us at [hello@lbry.com](mailto:hello@lbry.com) if you need assistance setting up the LBRYPress plugin. 
