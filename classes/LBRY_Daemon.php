@@ -69,15 +69,17 @@ class LBRY_Daemon
 
     /**
      * Returns the available balance of a current LBRY account
-     * https://lbry.tech/api/sdk#account_balance
-     * @param  string   $address    Wallet Address
-     * @return float                Wallet Balance
+     * https://lbry.tech/api/sdk#wallet_balance
+     * @param  string   $address           Wallet Address
+     * @return array   $wallet_balance    Wallet Balance
+     * 
      */
     public function wallet_balance()
     {
-        try {
-            $result = $this->request('account_balance');
-            return $result->result->available;
+        try { // Convert JSON string to an object
+            $result = $this->request('wallet_balance');
+            return $result;
+            $wallet_balance = $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
             LBRY()->notice->set_notice('error', 'Issue getting account balance.');
