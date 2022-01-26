@@ -4,6 +4,7 @@
  *
  * @package LBRYPress
  */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
 class LBRY_Daemon
 {
@@ -32,14 +33,13 @@ class LBRY_Daemon
      * https://lbry.tech/api/sdk#address_unused
      * @return string   Unused wallet address in base58
      */
-    public function wallet_unused_address()
-    {
+    public function wallet_unused_address() {
         try {
-            $result = $this->request('address_unused');
+            $result = $this->request( 'address_unused' );
             return $result->result;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('address_unused error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting unused address.');
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'address_unused error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue getting unused address.' );
             return;
         }
     }
@@ -50,19 +50,18 @@ class LBRY_Daemon
      * @param  int      $page   Pagination page number
      * @return array    Array of address lists linked to this account
      */
-    public function address_list($page = 1)
-    {
+    public function address_list( $page = 1 ) {
         // Get 20 per page
         $params = array(
             'page'  => $page,
             'page_size' => 20
         );
         try {
-            $result = $this->request('address_list', $params);
+            $result = $this->request( 'address_list', $params );
             return $result->result->items;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('address_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting address list.');
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'address_list error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue getting address list.' );
             return;
         }
     }
@@ -71,13 +70,14 @@ class LBRY_Daemon
      * Returns the available balance of a current LBRY account
      * https://lbry.tech/api/sdk#wallet_balance
      * @param  string   $address           Wallet Address
-     * @return array   $wallet_balance    Wallet Balance
+     * @return object   $wallet_balance    Wallet Balance
      * 
      */
     public function wallet_balance()
     {
+        
         try { // Convert JSON string to an object
-            $result = $this->request('wallet_balance');
+            $result = $this->request( 'wallet_balance', array() );
             return $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
@@ -92,7 +92,7 @@ class LBRY_Daemon
      * @param  int      $page    Pagination page number
      * @return array    claim dictionary or null if empty
      */
-    public function channel_list($page = 1)
+    public function channel_list( $page = 1 )
     {
         $params = array(
             'page'      => $page,
@@ -100,11 +100,11 @@ class LBRY_Daemon
         );
 
         try {
-            $result = $this->request('channel_list', $params)->result->items;
-            return empty($result) ? null : $result;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue retrieving channel list.');
+            $result = $this->request( 'channel_list', $params )->result->items;
+            return empty( $result ) ? null : $result;
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'channel_list error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue retrieving channel list.' );
             return;
         }
     }
@@ -114,19 +114,20 @@ class LBRY_Daemon
      * https://lbry.tech/api/sdk#channel_create
      * @return array    dictionary containing result of the request
      */
-    public function channel_new($channel_name, $bid_amount)
+
+    public function channel_new( $channel_name, $channel_bid )
     {
         // TODO: Sanitize channel name and bid
         // Make sure no @ sign, as we will add that
-        if (strpos($channel_name, '@')) {
-            throw new \Exception('Illegal character "@" in channel name', 1);
+        if ( strpos( $channel_name, '@' ) ) {
+            throw new \Exception( 'Illegal character "@" in channel name', 1 );
         }
-
+        
         // No white space allowed
-        if (strpos($channel_name, ' ')) {
-            throw new \Exception("No spaces allowed in channel name", 1);
+        if ( strpos( $channel_name, ' ' ) ) {
+            throw new \Exception( "No spaces allowed in channel name", 1 );
         }
-
+ 
         $channel_name = '@' . $channel_name;
 
         try {
@@ -134,13 +135,16 @@ class LBRY_Daemon
                 'channel_create',
                 array(
                     'name' => $channel_name,
-                    'bid' => number_format(floatval($bid_amount), 2, '.', '')
+                    'bid'  => $channel_bid
                 )
             );
+
+            $this->logger->log( 'channel_create success!', 'Successfully created channel with result: ' . print_r( $result->result, true ) );
             return $result->result;
+            
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            throw new \Exception('Issue creating new channel.', 1);
+            $this->logger->log( 'channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            throw new \Exception( 'Issue creating new channel.', 1 );
             return;
         }
     }
@@ -150,9 +154,9 @@ class LBRY_Daemon
      * @param  string $claim_id
      * @return string           Canonical URL, null if not found
      */
-    public function canonical_url($claim_id = null)
+    public function canonical_url( $claim_id = null )
     {
-        if (!$claim_id) {
+        if ( ! $claim_id ) {
             return null;
         }
 
@@ -166,13 +170,13 @@ class LBRY_Daemon
             );
 
             $items = $result->result->items;
-            if (!$items) {
+            if ( ! $items ) {
                 return null;
             }
 
             return $items[0]->canonical_url;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('canonical_url error', $e->getMessage() . ' | Code: ' . $e->getCode());
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'canonical_url error', $e->getMessage() . ' | Code: ' . $e->getCode() );
             return;
         }
     }
@@ -187,18 +191,18 @@ class LBRY_Daemon
      *
      * @return object $result
      */
-    public function publish($args)
+    public function publish( $args )
     {
         try {
             $result = $this->request(
                 'publish',
                 $args
             );
-            $this->logger->log('publish success!', 'Successfully published post with result: ' . print_r($result->result, true));
+            $this->logger->log( 'publish success!', 'Successfully published post with result: ' . print_r( $result->result, true ) );
             return $result->result;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue publishing / updating post to LBRY Network.' );
             return;
         }
     }
@@ -209,52 +213,52 @@ class LBRY_Daemon
      * @param  array    $params     The Parameters to send the LBRY API Call
      * @return string               The cURL response
      */
-    private function request($method, $params = array())
+    private function request( $method, $params = array() ) 
     {
         // JSONify our request data
         $data = array(
             'method' => $method,
             'params' => $params
         );
-        $data = json_encode($data);
+        $data = json_encode( $data );
 
         // Send it via curl
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $this->address);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_AUTOREFERER, false);
-        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt( $ch, CURLOPT_URL, $this->address );
+        curl_setopt( $ch, CURLOPT_POST, true );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
+        curl_setopt( $ch, CURLOPT_AUTOREFERER, false );
+        curl_setopt( $ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
+        curl_setopt( $ch, CURLOPT_HEADER, 0 );
 
-        $result = curl_exec($ch);
-        $response_code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
+        $result = curl_exec( $ch );
+        $response_code = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+        curl_close( $ch );
 
-        if ($response_code != '200') {
-            $this->logger->log("Damon Connection Issue", "Daemon connection returned response code $response_code");
-            throw new LBRYDaemonException("Daemon Connection Issue", $response_code);
+        if ( $response_code != '200' ) {
+            $this->logger->log( "Damon Connection Issue", "Daemon connection returned response code $response_code" );
+            throw new LBRYDaemonException( "Daemon Connection Issue", $response_code );
         }
 
 
-        $result = json_decode($result);
-        $this->check_for_errors($result);
+        $result = json_decode( $result );
+        $this->check_for_errors( $result );
         return $result;
     }
 
     /**
-     * Checks for erros in decoded daemon response and throws an exception if it finds one
+     * Checks for errors in decoded daemon response and throws an exception if it finds one
      * @param  $response
      */
-    private function check_for_errors($response)
+    private function check_for_errors( $response )
     {
-        if (property_exists($response, 'error')) {
+        if ( property_exists( $response, 'error' ) ) {
             $message = $response->error->message;
             $code = $response->error->code;
-            $this->logger->log("Daemon error code $code", $message);
-            throw new LBRYDaemonException($message, $code);
+            $this->logger->log( "Daemon error code $code", $message );
+            throw new LBRYDaemonException( $message, $code );
         }
     }
 

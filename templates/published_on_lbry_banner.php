@@ -1,4 +1,6 @@
 <?php
+defined('ABSPATH') || die(); // Exit if accessed directly
+
     $url = get_post_meta(get_the_id(), LBRY_CANONICAL_URL, true);
     if (!$url) {
         // Get channel canonical for backwards compatibility
