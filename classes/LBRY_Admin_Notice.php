@@ -4,12 +4,13 @@
 *
 * @package LBRYPress
 */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
 class LBRY_Admin_Notice
 {
-    public function __construct()
-    {
-        add_action('admin_notices', array($this, 'admin_notices'));
+
+    public function __construct() {
+        add_action( 'admin_notices', array( $this, 'admin_notices' ) );
     }
 
     /**
@@ -17,12 +18,12 @@ class LBRY_Admin_Notice
     */
     public function admin_notices()
     {
-        if (get_transient('lbry_notices')) {
-            $notices = get_transient('lbry_notices');
-            foreach ($notices as $key => $notice) {
-                $this->create_admin_notice($notice);
+        if ( get_transient( 'lbry_notices' ) ) {
+            $notices = get_transient( 'lbry_notices' );
+            foreach ( $notices as $key => $notice ) {
+                $this->create_admin_notice( $notice );
             }
-            delete_transient('lbry_notices');
+            delete_transient( 'lbry_notices' );
         }
     }
 
@@ -30,7 +31,7 @@ class LBRY_Admin_Notice
      * Sets transients for admin errors
      */
     // TODO: Make sure we only set one transient at a time per error
-    public function set_notice($status = 'error', $message = 'Something went wrong', $is_dismissible = false)
+    public function set_notice( $status = 'error', $message = 'Something went wrong', $is_dismissible = false )
     {
         $notice = array(
             'status' => $status,
@@ -38,24 +39,24 @@ class LBRY_Admin_Notice
             'is_dismissible' => $is_dismissible
         );
 
-        if (! get_transient('lbry_notices')) {
-            set_transient('lbry_notices', array($notice));
+        if (! get_transient( 'lbry_notices' ) ) {
+            set_transient( 'lbry_notices', array( $notice ) );
         } else {
-            $notices = get_transient('lbry_notices');
+            $notices = get_transient( 'lbry_notices' );
             $notices[] = $notice;
-            set_transient('lbry_notices', $notices);
+            set_transient( 'lbry_notices', $notices );
         }
     }
 
     /**
      * Prints an admin notice
      */
-    private function create_admin_notice($notice)
+    private function create_admin_notice( $notice )
     {
         $class = 'notice notice-' . $notice['status'];
-        if ($notice['is_dismissible']) {
+        if ( $notice['is_dismissible'] ) {
             $class .= ' is-dismissible';
         }
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($notice['message']));
+        printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $notice['message'] ) );
     }
 }

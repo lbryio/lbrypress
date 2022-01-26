@@ -43,10 +43,11 @@ WantedBy=multi-user.target
 1) Start it with: `sudo service lbrynet start`. If you are already running LBRY in the background, issue a `lbrynet stop` command first.
 
 ## Funding and preparing your wallet
-LBRY will require LBRY Credits (LBC) for the channel creation and publishing process. You can send LBC to this instance from your LBRY app / lbry.tv using the Wallet page > Send Credits. If you need LBC, sign up for a [lbry.tv account](https://lbry.tv) or [email us](mailto:hello@lbry.com). After you send credits, they will be split into smaller amounts to facilatate the publishing process. You can also use an existing LBRY Desktop wallet/ channel by copying the default_wallet file into `~/.local/shared/lbry/lbryum/wallets`. 
+LBRY will require LBRY Credits (LBC) for the channel creation and publishing process. You can send LBC to this instance from your LBRY app / lbry.tv using the Wallet page > Send Credits. If you need LBC, sign up for a [lbry.tv account](https://lbry.tv) or [email us](mailto:hello@lbry.com). After you send credits, they will be split into smaller amounts to facilitate the publishing process. You can also use an existing LBRY Desktop wallet/ channel by copying the default_wallet file into `~/.local/shared/lbry/lbryum/wallets`. 
 
 1) Go to the LBRYPress plugin page and find your wallet address:
-![](https://spee.ch/d/address.jpg)
+
+![](/admin/images/wallet-address.jpg)
 
 1) Copy this address and send at least a few credits to it. From the Desktop app/lbry.tv, go to the Wallet page > Send Credits. 
 1) We will take the amount you deposited and split it up by a factor of 10. So if you deposited 10 LBC, you'd split it into 100: The decimal point is important, it will throw back an error without the structure of "10.0" 
@@ -58,19 +59,29 @@ Experimental: republishing of images in blog to LBRY: If images or GIFs are used
 
 **Please note: spee.ch channel creation is no longer available and that step can be skiped.**
 
-1) Enter 0.1 for **LBC per Publish**.
+1) Select the channel you wish as a **Default Publish Channel**. Can change later on a per-post basis.
+1) Select the **Default Publish License** you wish to use as your default.
+1) Enter 0.001 for **LBC per Publish** (later you can add more as a support if needed).
 1) Click **Save Settings**.
 
-![](https://spee.ch/8/speech-setup-lbrypress.jpeg)
+![](/admin/images/settings-tab.jpg)
 
-## Setting up a your blog publishing channel
-If you don't already have a channel, this process will create a channel in your local wallet where your blog posts will be published to. Any available channels will be listed at the top of the **Your Publishable Channels** section.
+## Setting up your blog publishing channel
+If you don't already have a channel, this process will create a channel in your local wallet where your blog posts will be published to. Any available channels will be listed at the top of the **Your Publishable Channels** section on the **Channels** tab.
 
 1) Enter the channel you wish to create and publish under in **New Channel Name**. 
-1) Enter a bid of 0.01 (this can be increased later). 
+Your channel will be created with a single @ prefix and all spaces and underscores are changed to a dash. Uppercase characters are allowed. Most special characters are removed.
+1) Enter an **Amount of LBC to Bid** of 0.001 (current minimum, you can increase the amount or use supports later).
+By adding as a support you push your content higher in the search but also keep your LBC fluid and easily moved without needing to abandon your claim.
 1) Click **Add New Channel**.
 
-![](https://spee.ch/7/channel-lbrypress.jpg)
+![](/admin/images/add-channel.jpg)
+
+![](/admin/images/channel-create-success.jpg)
+
+Wait a few minutes and do a page refresh, your new channel should now be in the list.
+
+![](/admin/images/new-channel.jpg) 
 
 ## Publishing blog posts
 When creating a new post (or editing an existing one), you can choose to publish it on LBRY as well. If you do this for an existing post, it will not retain the original date (known issue). 

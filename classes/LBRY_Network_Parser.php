@@ -8,6 +8,8 @@ use League\HTMLToMarkdown\HtmlConverter;
  *
  * @package LBRYPress
  */
+defined('ABSPATH') || die(); // Exit if accessed directly
+
 
 class LBRY_Network_Parser
 {
