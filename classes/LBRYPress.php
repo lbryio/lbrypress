@@ -6,8 +6,7 @@
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
 
-class LBRYPress
-{
+class LBRYPress {
 
     /**
      * Version of LBRYPress
@@ -63,9 +62,8 @@ class LBRYPress
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
      */
-    public static function instance()
-    {
-        if (is_null(self::$_instance)) {
+    public static function instance() {
+        if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
         return self::$_instance;
@@ -75,10 +73,9 @@ class LBRYPress
     /**
      * LBRYPress Constructor
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->define_constants();
-        spl_autoload_register(array($this, 'lbry_autoload_register'));
+        spl_autoload_register( array( $this, 'lbry_autoload_register' ) );
         $this->init();
         $this->init_hooks();
     }
@@ -89,10 +86,9 @@ class LBRYPress
      * @param string      $name  Constant name.
      * @param string|bool $value Constant value.
      */
-    private function define($name, $value)
-    {
-        if (! defined($name)) {
-            define($name, $value);
+    private function define( $name, $value ) {
+        if ( ! defined( $name ) ) {
+            define( $name, $value );
         }
     }
 
@@ -128,11 +124,10 @@ class LBRYPress
     /**
      * Autoloader Registration
      */
-    private function lbry_autoload_register($class)
-    {
+    private function lbry_autoload_register( $class ) {
         $file_name = LBRY_ABSPATH . 'classes/' . $class . '.php';
 
-        if (file_exists($file_name)) {
+        if ( file_exists( $file_name ) ) {
             require $file_name;
             return;
         }
@@ -142,13 +137,12 @@ class LBRYPress
     /**
      * Initialize this class itself
      */
-    private function init()
-    {
+    private function init() {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
 
         // Admin request
-        if (is_admin()) {
+        if ( is_admin() ) {
             $this->admin = new LBRY_Admin();
             $this->notice = new LBRY_Admin_Notice();
             $this->network = new LBRY_Network();
@@ -158,17 +152,16 @@ class LBRYPress
     /**
      * Set up all hooks and actions necessary for the plugin to run
      */
-    private function init_hooks()
-    {
-        register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
-        register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
+    private function init_hooks() {
+        register_activation_hook( LBRY_PLUGIN_FILE, array( $this, 'activate' ) );
+        register_deactivation_hook( LBRY_PLUGIN_FILE, array( $this, 'deactivate' ) );
 
         // Banner output for published posts
         // NOTE: move this to its own class to reduce clutter?
-        add_action('the_content', array($this, 'published_on_lbry_banner'), 12, 1);
+        add_action( 'the_content', array( $this, 'published_on_lbry_banner' ), 12, 1 );
 
-        add_action('wp_enqueue_scripts', function () {
-            wp_enqueue_style('lbry-css', plugins_url('/frontend/lbry.css', LBRY_PLUGIN_FILE));
+        add_action( 'wp_enqueue_scripts', function () {
+            wp_enqueue_style( 'lbry-css', plugins_url( '/frontend/lbry.css', LBRY_PLUGIN_FILE ) );
         });
     }
 
@@ -179,7 +172,7 @@ class LBRYPress
         // TODO: Make sure errors are thrown if daemon can't be contacted, stop activation
 
         // Add options to the options table we need
-        if (! get_option(LBRY_SETTINGS)) {
+        if (! get_option( LBRY_SETTINGS ) ) {
 
             //Default options
             $option_defaults = array(
@@ -187,14 +180,12 @@ class LBRYPress
                 'default_lbry_channel' => '',
                 LBRY_LICENSE => '',
                 LBRY_LBC_PUBLISH => 0.01,
-                //'channel_bid_amount' => 0.01,
-                // LBRY_SPEECH =>'',
-                // LBRY_SPEECH_CHANNEL => '',
-                // LBRY_SPEECH_PW => '',
+                //'lbry_channel_bid_amount' => 0.01,
             );
 
-            add_option(LBRY_SETTINGS, $option_defaults, false);
+            add_option( LBRY_SETTINGS, $option_defaults, false );
         }
+
         if ( ! get_option( 'lbry_speech_settings' ) ) {
             // Default Speech Settings
             $option_defaults = array(
@@ -222,26 +213,26 @@ class LBRYPress
      */
     public function deactivate() {
         // TODO: Stop the daemon
-        error_log('Deactivated LBRYPress');
+        error_log( 'Deactivated LBRYPress' );
     }
 
     public function published_on_lbry_banner($content)
     {
-        if (!is_single() || !in_the_loop() || !is_main_query()) {
+        if ( ! is_single() || ! in_the_loop() || ! is_main_query() ) {
             return $content;
         }
 
         global $post;
-        if ($post->post_type != 'post') {
+        if ( $post->post_type != 'post' ) {
             return $content;
         }
 
-        if (!get_post_meta($post->ID, LBRY_WILL_PUBLISH, true)) {
+        if ( ! get_post_meta( $post->ID, LBRY_WILL_PUBLISH, true ) ) {
             return $content;
         }
 
         ob_start();
-        require(LBRY_ABSPATH . 'templates/published_on_lbry_banner.php');
+        require( LBRY_ABSPATH . 'templates/published_on_lbry_banner.php' );
         $banner = ob_get_clean();
 
         return $content .= $banner;
