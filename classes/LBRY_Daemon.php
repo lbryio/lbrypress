@@ -80,8 +80,8 @@ class LBRY_Daemon
             $result = $this->request('wallet_balance');
             return $result;
         } catch (LBRYDaemonException $e) {
-            $this->logger->log('account_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting account balance.');
+            $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
+            LBRY()->notice->set_notice('error', 'Issue getting wallet balance.');
             return;
         }
     }
