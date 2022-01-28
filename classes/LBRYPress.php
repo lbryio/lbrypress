@@ -108,9 +108,9 @@ class LBRYPress
         $this->define('LBRY_VERSION', $this->version);
 
         // Library Options Names
-        $this->define('LBRY_SETTINGS_GROUP', 'lbry_settings_group');
+        //$this->define('LBRY_SETTINGS_GROUP', 'lbry_settings_group');
         $this->define('LBRY_SETTINGS', 'lbry_settings');
-        $this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
+        //$this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
@@ -136,6 +136,7 @@ class LBRYPress
             require $file_name;
             return;
         }
+        require_once LBRY_ABSPATH . 'classes/class-lbry-admin-page.php';
     }
 
     /**
@@ -182,16 +183,26 @@ class LBRYPress
 
             //Default options
             $option_defaults = array(
-                LBRY_LICENSE => $this->licenses[0],
+                LBRY_WALLET => '',
+                'default_lbry_channel' => '',
+                LBRY_LICENSE => '',
                 LBRY_LBC_PUBLISH => 0.01,
-                'new_channel' => null,
-                'bid_amount' => 0.01,
+                //'channel_bid_amount' => 0.01,
+                // LBRY_SPEECH =>'',
+                // LBRY_SPEECH_CHANNEL => '',
+                // LBRY_SPEECH_PW => '',
+            );
+
+            add_option(LBRY_SETTINGS, $option_defaults, false);
+        }
+        if ( ! get_option( 'lbry_speech_settings' ) ) {
+            // Default Speech Settings
+            $option_defaults = array(
                 LBRY_SPEECH =>'',
                 LBRY_SPEECH_CHANNEL => '',
                 LBRY_SPEECH_PW => '',
             );
-
-            add_option(LBRY_SETTINGS, $option_defaults, false);
+            add_option( 'lbry_speech_settings', $option_defaults, false );
         }
 
         // COMBAK: decide if we need to check for missing or corrupt settings. May be unecessary.

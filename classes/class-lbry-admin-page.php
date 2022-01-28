@@ -65,23 +65,23 @@ class LBRY_Admin {
           // Set class properties to be referenced in callbacks
           $this->options = get_option( LBRY_SETTINGS );
         //  $this->options_channel = get_option( 'lbry_channel_settings' );
-        //  $this->options_speech = get_option( 'lbry_speech_settings' );
+          $this->options_speech = get_option( 'lbry_speech_settings' );
           require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
 
     /**
-    * Register settings for the plugin
+    * Main Admin Page Settings
     */
     public function options_page_init() {
 
         register_setting(
             'lbry_general_settings',
             LBRY_SETTINGS,
-            array( $this, 'sanitize' )
+            array( $this, 'sanitize_general_settings' )
         );
 
         add_settings_section(
-            LBRY_SETTINGS_SECTION_GENERAL, // ID
+            'lbry_settings_section_general', // ID
             'General Settings', // Title
             array( $this, 'general_section_callback' ), // Callback
             LBRY_ADMIN_PAGE // Page
@@ -92,7 +92,15 @@ class LBRY_Admin {
             'LBRY Wallet Address',
             array( $this, 'wallet_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
+        );
+
+        add_settings_field(
+            'default_lbry_channel',
+            'Default Publish Channel',
+            array( $this, 'default_channel_callback' ),
+            LBRY_ADMIN_PAGE,
+            'lbry_settings_section_general'
         );
 
         add_settings_field(
@@ -100,7 +108,7 @@ class LBRY_Admin {
             'LBRY Publishing License',
             array( $this, 'license_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
         );
 
         add_settings_field(
@@ -108,8 +116,12 @@ class LBRY_Admin {
             'LBC Per Publish',
             array( $this, 'lbc_per_publish_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
         );
+
+        /**
+         * Channel Admin Page Settings
+         */
 
         register_setting(
             'lbry_channel_settings',
@@ -147,17 +159,21 @@ class LBRY_Admin {
         );
 
         add_settings_field(
-            'bid_amount',
+            'channel_bid_amount',
             'Amount of LBC to Bid',
             array( $this, 'channel_lbc_bid_callback' ),
             'lbrypress-channel',
             'lbry_settings_section_channel'
         );
 
+        /**
+         * Speech Admin Page settings
+         */
+
         register_setting(
             'lbry_speech_settings',
-            LBRY_SETTINGS,
-            array( $this, 'sanitize' )
+            'lbry_speech_settings',
+            array( $this, 'sanitize_speech_settings' )
         );
 
         add_settings_section(
@@ -197,31 +213,73 @@ class LBRY_Admin {
     * // COMBAK Potentially sanitize more
     */
     public function sanitize($input) {
-        $input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
-        $input[LBRY_SPEECH] = esc_url_raw( $input[LBRY_SPEECH] );
+//        $input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
+//        $input[LBRY_SPEECH] = esc_url_raw( $input[LBRY_SPEECH] );
         // TODO sanitize License
         $input['new_channel'] = sanitize_text_field( $input['new_channel'] );
-        $input['bid_amount'] = number_format( floatval( $input['bid_amount'] ), 3, '.', '' );
-        $input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
+        $input['channel_bid_amount'] = number_format( floatval( $input['channel_bid_amount'] ), 3, '.', '' );
+//        $input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
 
-        if (!empty($input[LBRY_SPEECH_CHANNEL])) {
-            $channel = $input[LBRY_SPEECH_CHANNEL];
-            $channel = str_replace('@', '', $channel);
-            $input[LBRY_SPEECH_CHANNEL] = sanitize_user($channel);
-        }
+        // if (!empty($input[LBRY_SPEECH_CHANNEL])) {
+        //     $channel = $input[LBRY_SPEECH_CHANNEL];
+        //     $channel = str_replace('@', '', $channel);
+        //     $input[LBRY_SPEECH_CHANNEL] = sanitize_user($channel);
+        // }
 
-        if (!empty($input[LBRY_SPEECH_PW])) {
-            $input[LBRY_SPEECH_PW] = sanitize_text_field($input[LBRY_SPEECH_PW]);
-            $encrypted = $this->encrypt($input[LBRY_SPEECH_PW]);
-            $input[LBRY_SPEECH_PW] = $encrypted;
-        } else {
-            // If we have a password and its empty, keep orginal password
-            if (!empty(get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW])) {
-                $input[LBRY_SPEECH_PW] = get_option(LBRY_SETTINGS[LBRY_SPEECH_PW]);
-            }
-        }
+        // if (!empty($input[LBRY_SPEECH_PW])) {
+        //     $input[LBRY_SPEECH_PW] = sanitize_text_field($input[LBRY_SPEECH_PW]);
+        //     $encrypted = $this->encrypt($input[LBRY_SPEECH_PW]);
+        //     $input[LBRY_SPEECH_PW] = $encrypted;
+        // } else {
+        //     // If we have a password and its empty, keep orginal password
+        //     if (!empty(get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW])) {
+        //         $input[LBRY_SPEECH_PW] = get_option(LBRY_SETTINGS[LBRY_SPEECH_PW]);
+        //     }
+        // }
 
         return $input;
+    }
+
+    public function sanitize_speech_settings( $input ) {
+        $new_input = (array) get_option( 'lbry_speech_settings' );
+        if ( isset( $input[LBRY_SPEECH] ) ) {
+            $new_input[LBRY_SPEECH] = esc_url_raw( $input[LBRY_SPEECH] );
+        }
+        if ( isset( $input[LBRY_SPEECH_CHANNEL] ) ) {
+            $channel = $input[LBRY_SPEECH_CHANNEL];
+            $channel = str_replace( '@', '', $channel );
+            $new_input[LBRY_SPEECH_CHANNEL] = sanitize_user( $channel );
+
+        }
+        if ( isset( $input[LBRY_SPEECH_PW] ) ) {
+            $input[LBRY_SPEECH_PW] = sanitize_text_field( $input[LBRY_SPEECH_PW] );
+            $encrypted = $this->encrypt( $input[LBRY_SPEECH_PW] );
+            $new_input[LBRY_SPEECH_PW] = $encrypted;
+        } else { // If we have a password and it's empty, keep original password
+            if ( empty( $input[LBRY_SPEECH_PW] ) )
+                $new_input[LBRY_SPEECH_PW] = get_option( ['lbry_speech_settings'][LBRY_SPEECH_PW] );
+        }
+        return $new_input;
+        update_option( 'lbry_speech_settings', $new_input );
+    }
+
+    public function sanitize_general_settings( $input ) {
+        $new_input = (array) get_option( LBRY_SETTINGS );
+        //$license = LBRY()->licenses;
+        if ( isset( $input[LBRY_WALLET] ) ) {
+            $new_input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
+        }
+        if ( isset( $input['default_lbry_channel'] ) ) {
+            $new_input['default_lbry_channel'] = sanitize_text_field( $input['default_lbry_channel'] );
+            //update_option( LBRY_SETTINGS['default_lbry_channel'], $new_input['default_lbry_channel'] );
+        }
+        if ( isset( $input[LBRY_LICENSE] ) && ( in_array( $input[LBRY_LICENSE], LBRY()->licenses ) ) ) {
+            $new_input[LBRY_LICENSE] = $input[LBRY_LICENSE];
+        }
+        if ( isset( $input[LBRY_LBC_PUBLISH] ) ) {
+            $new_input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
+        }
+        return $new_input;
     }
 
     /**
@@ -270,11 +328,43 @@ class LBRY_Admin {
         $address = LBRY()->daemon->address_list();
         $address = is_array($address) && !empty($address) ? $address[0]->address : '';
         printf(
-            '<input type="text" id="'. esc_attr('%1$s') .'" name="'. esc_attr('%1$s') .'" value="' . esc_attr('%2$s') . '" readonly />',
+            '<input type="text" id="'. esc_attr('%1$s') .'" name="'. esc_attr('%2$s[%1$s]') .'" value="' . esc_attr('%3$s') . '" readonly />',
             LBRY_WALLET,
-//            LBRY_SETTINGS,
+            LBRY_SETTINGS,
             $address
         );
+    }
+
+    /**
+     * Prints select to choose a default publish to channel
+     */
+    public function default_channel_callback() {
+        $options = '';
+        $channel_list = LBRY()->daemon->channel_list();
+
+        if ( $channel_list ) : ?>
+            <ul class="lbry-default-list">
+                <?php foreach ( $channel_list as $channel ) {
+                    $selected = $this->options['default_lbry_channel'] === $channel->name;
+
+                    $options .= '<option value="' . $channel->name . '"';
+                    if ( $selected ) {
+                        $options .= ' selected';
+                    }
+                    $options .= '>' . $channel->name . '</option>';
+                }
+
+                printf(
+                    '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '">' . esc_html('%3$s') . '</select>',
+                    'default_lbry_channel',
+                    LBRY_SETTINGS,
+                    $options
+                );
+                ?>
+            </ul>
+            <?php else: ?>
+                <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
+        <?php endif;
     }
 
     /**
@@ -296,9 +386,9 @@ class LBRY_Admin {
         }
 
         printf(
-            '<select id="'.esc_attr('%1$s').'" name="'. esc_attr('%1$s') .'">' . esc_html('%2$s') . '</select>',
+            '<select id="'.esc_attr('%1$s').'" name="'. esc_attr('%2$s[%1$s]') .'">' . esc_html('%3$s') . '</select>',
             LBRY_LICENSE,
-//            LBRY_SETTINGS,
+            LBRY_SETTINGS,
             $options
         );
     }
@@ -308,7 +398,7 @@ class LBRY_Admin {
     */
     public function lbc_per_publish_callback() {
         printf(
-            '<input type="number" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '" value="' . esc_attr('%3$s') . '" min="0.001" step="0.001"/>',
+            '<input type="number" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_attr('%3$s') . '" min="0.001" step="0.001"/>',
             LBRY_LBC_PUBLISH,
             LBRY_SETTINGS,
             $this->options[LBRY_LBC_PUBLISH]
@@ -321,7 +411,7 @@ class LBRY_Admin {
 
     public function channel_create_callback() {
         printf(
-          '<span>@</span><input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '" value="' . esc_attr('%3$s') . '" placeholder="your-new-channel" required>',
+          '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="@' . esc_attr('%3$s') . '" placeholder="your-new-channel" required>',
           'new_channel',
           LBRY_SETTINGS,
           $this->options['new_channel']
@@ -329,10 +419,10 @@ class LBRY_Admin {
     }
     public function channel_lbc_bid_callback() {
         printf(
-            '<input type="number" step="0.001" min="0.001" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '" value="' . esc_html('%3$s') . '" required>',
-            'bid_amount',
+            '<input type="number" step="0.001" min="0.001" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_attr('%3$s') . '" required>',
+            'channel_bid_amount',
             LBRY_SETTINGS,
-            $this->options['bid_amount']
+            $this->options['channel_bid_amount']
         );
     }
 
@@ -340,11 +430,12 @@ class LBRY_Admin {
     * Prints Spee.ch input
     */
     public function speech_callback() {
+        $options = get_option( 'lbry_speech_settings' );
         printf(
-            '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '" value="' . esc_attr('%3$s') . '" placeholder="https://your-speech-address.com"/>',
-            LBRY_SPEECH,
-            LBRY_SETTINGS,
-            isset($this->options[LBRY_SPEECH]) ? $this->options[LBRY_SPEECH] : ''
+            '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_url('%3$s') . '" placeholder="https://your-speech-address.com">',
+            'lbry_speech',
+            'lbry_speech_settings',
+            isset( $options['lbry_speech'] ) ? $options['lbry_speech'] : ''
         );
     }
 
@@ -352,11 +443,12 @@ class LBRY_Admin {
     * Prints Spee.ch channel input
     */
     public function speech_channel_callback() {
+        $options = get_option( 'lbry_speech_settings' );
         printf(
-            '<span>@</span><input type="text" id="' . esc_attr('%1$s') . '" name="'. esc_attr('%1$s') .'" value="' . esc_attr('%3$s') . '" placeholder="your-channel"/>',
-            LBRY_SPEECH_CHANNEL,
-            LBRY_SETTINGS,
-            isset($this->options[LBRY_SPEECH_CHANNEL]) ? $this->options[LBRY_SPEECH_CHANNEL] : ''
+            '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="@' . esc_attr('%3$s') . '" placeholder="your-speech-channel">',
+            'lbry_speech_channel',
+            'lbry_speech_settings',
+            isset( $options['lbry_speech_channel'] ) ? $options['lbry_speech_channel'] : ''
         );
     }
 
@@ -365,11 +457,9 @@ class LBRY_Admin {
     */
     public function speech_pw_callback() {
         printf(
-            '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '"' . esc_attr('%3$s') . '" placeholder="Leave empty for same password"',
-            LBRY_SPEECH_PW,
-            LBRY_SETTINGS,
-            isset($this->options[LBRY_SPEECH_PW]) ? $this->options[LBRY_SPEECH_PW] : ''
-
+            '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" placeholder="Leave empty for same password">',
+            'lbry_speech_pw',
+            'lbry_speech_settings',
         );
     }
 
@@ -377,18 +467,18 @@ class LBRY_Admin {
     * Handles new channel form submission
     */
     public function add_channel() {
-        $redirect_url = admin_url( 'options-general.php?page=' . LBRY_ADMIN_PAGE );
+        $redirect_url = admin_url( 'admin.php?page=lbrypress&action=channels' );
 
         // Check that nonce
-        if ( ! isset( $_POST['new_channel'] ) || ! isset($_POST['bid_amount'] ) ) {
+        if ( ! isset( $_POST['new_channel'] ) || ! isset($_POST['channel_bid_amount'] ) ) {
             LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
         } else {
             $new_channel = $_POST['new_channel'];
-            $bid_amount = $_POST['bid_amount'];
+            $channel_bid_amount = $_POST['channel_bid_amount'];
 
             // Try to add the new channel
             try {
-                $result = LBRY()->daemon->channel_new( $new_channel, $bid_amount );
+                $result = LBRY()->daemon->channel_new( $new_channel, $channel_bid_amount );
                 // Tell the user it takes some time to go through
                 LBRY()->notice->set_notice( 'success', 'Successfully added a new channel! Please wait a few minutes for the bid to process.', true );
             } catch ( \Exception $e ) {
