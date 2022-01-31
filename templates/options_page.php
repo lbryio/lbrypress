@@ -1,13 +1,14 @@
 <?php
 $LBRY = LBRY();
 $wallet_balance = $LBRY->daemon->wallet_balance();
+$available_balance = $wallet_balance->result->available;
 $channel_list = $LBRY->daemon->channel_list();
 // TODO: Make this page look cleaner
 ?>
 <div class="wrap">
     <h1><?= esc_html(get_admin_page_title()); ?></h1>
     <h2>Your wallet amount:</h2>
-    <code><?= number_format($wallet_balance, 2, '.', ','); ?></code>
+    <img src="<?php echo esc_url( plugin_dir_url(LBRY_PLUGIN_FILE) . 'admin/images/lbc.png') ?>" class="icon icon-lbc wallet-icon-lbc" style="height: 1.8em; margin-right: .5em; margin-bottom: -.5em;"><code><?= number_format($available_balance, 2, '.', ','); ?></code>
     <form action="options.php" method="post">
         <?php
         settings_fields(LBRY_SETTINGS_GROUP);
