@@ -2,7 +2,8 @@
 /**
  * ============================
  * CHANNELS SETTINGS ADMIN PAGE
- * 
+ * Uses the post-admin action so we can use the $_POST global variable to build our cURL request and the settings are not saved to the datbase
+ * @package LBRYPress
  * ============================
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
@@ -22,6 +23,7 @@ defined('ABSPATH') || die(); // Exit if accessed directly
     <?php if ( isset( $_POST['lbry_new_channel'] ) ) {
             $channel = $_POST['lbry_new_channel'];
             $channel = str_replace( '@', '', $channel );
+            $channel = str_replace( ' ', '-', $channel );          
             $clean_input['lbry_new_channel'] = sanitize_user( $channel );
           }
           if ( isset( $_POST['lbry_channel_bid_amount'] ) ) {
@@ -56,7 +58,7 @@ defined('ABSPATH') || die(); // Exit if accessed directly
                                 'lbry_channel_bid_amount',
                                 $clean_input['lbry_channel_bid_amount'],
                             ); ?>
-                            <p>Minimum bid <img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc"> 0.001</p>
+                            <p>Current minimum bid <img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc"> 0.001</p>
                         </td>
                 </tr>
             </tbody>

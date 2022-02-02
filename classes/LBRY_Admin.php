@@ -71,7 +71,7 @@ class LBRY_Admin
           // Set class properties to be referenced in callbacks
           $this->options = get_option( LBRY_SETTINGS );
           //$this->options_channel = get_option( 'lbry_channel_settings' );
-          $this->options_speech = get_option( 'lbry_speech_settings' );
+          $this->options_speech = get_option( LBRY_SPEECH_SETTINGS );
           require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
 
@@ -130,15 +130,19 @@ class LBRY_Admin
 
         /**
          * Channel Page Settings
+         * We are using a custom page so that we can use the admin-post action and retrieve the $_POST 
+         * global variable to create the cURL request to create_channel, no need to save the inputs to 
+         * our database.
          */
+        
 
         /**
          * Speech Admin Page settings
          */
 
         register_setting(
-            'lbry_speech_settings',
-            'lbry_speech_settings',
+            LBRY_SPEECH_SETTINGS,
+            LBRY_SPEECH_SETTINGS,
             array( $this, 'sanitize_speech_settings' )
         );
 
@@ -205,7 +209,7 @@ class LBRY_Admin
 
     public function sanitize_speech_settings( $input )
     {
-        $new_input = (array) get_option( 'lbry_speech_settings' );
+        $new_input = (array) get_option( LBRY_SPEECH_SETTINGS );
         if ( isset( $input[LBRY_SPEECH] ) ) {
             $new_input[LBRY_SPEECH] = sanitize_text_field( $input[LBRY_SPEECH] );
         }
@@ -221,10 +225,10 @@ class LBRY_Admin
         } else { 
             // If we have a password and it's empty, keep original password
             if ( empty( $input[LBRY_SPEECH_PW] ) )
-                $new_input[LBRY_SPEECH_PW] = get_option( ['lbry_speech_settings'][LBRY_SPEECH_PW] );
+                $new_input[LBRY_SPEECH_PW] = get_option( LBRY_SPEECH_SETTINGS[LBRY_SPEECH_PW] );
         }
         return $new_input;
-        update_option( 'lbry_speech_settings', $new_input );
+        update_option( LBRY_SPEECH_SETTINGS, $new_input );
     }
 
     /**
@@ -252,12 +256,6 @@ class LBRY_Admin
         <?php endif;
     }
 
-    /**
-    * Section info for the Create New Channel Section
-    */
-    public function channel_section_callback() {
-        // TODO add some markup for a callback
-    }
 
     /**
     * Section info for the Speech Channel Section
@@ -367,11 +365,11 @@ class LBRY_Admin
     */
     public function speech_callback()
     {
-        $options = get_option( 'lbry_speech_settings' );
+        $options = get_option( LBRY_SPEECH_SETTINGS );
         printf(
             '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_attr('%3$s') . '" placeholder="https://your-speech-address.com">',
             LBRY_SPEECH,
-            'lbry_speech_settings',
+            LBRY_SPEECH_SETTINGS,
             isset( $options[LBRY_SPEECH] ) ? $options[LBRY_SPEECH] : '',
         );
     }
@@ -381,11 +379,11 @@ class LBRY_Admin
     */
     public function speech_channel_callback()
     {
-        $options = get_option( 'lbry_speech_settings' );
+        $options = get_option( LBRY_SPEECH_SETTINGS );
         printf(
             '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="@' . esc_attr('%3$s') . '" placeholder="your-speech-channel">',
             LBRY_SPEECH_CHANNEL,
-            'lbry_speech_settings',
+            LBRY_SPEECH_SETTINGS,
             isset( $options[LBRY_SPEECH_CHANNEL] ) ? $options[LBRY_SPEECH_CHANNEL] : '',
         );
     }
@@ -398,7 +396,7 @@ class LBRY_Admin
         printf(
             '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" placeholder="Leave empty for same password">',
             LBRY_SPEECH_PW,
-            'lbry_speech_settings',
+            LBRY_SPEECH_SETTINGS,
         );
     }
 
@@ -414,11 +412,12 @@ class LBRY_Admin
         if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_channel_nonce' ) ) {
             if ( empty( $_POST['lbry_new_channel'] ) || empty( $_POST['lbry_channel_bid_amount'] ) ) {
                 LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
-            }elseif ( isset( $_POST['lbry_new_channel'] ) && isset( $_POST['lbry_channel_bid_amount'] ) ) {
-                $channel = sanitize_key( $_POST['lbry_new_channel'] ); // TODO: sanitize key only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use a something else for better control?
+            } elseif ( isset( $_POST['lbry_new_channel'] ) && isset( $_POST['lbry_channel_bid_amount'] ) ) {
+                $channel = $_POST['lbry_new_channel']; // TODO: sanitize key() only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use something else for better control?
                 $channel = trim( $channel );
                 $channel = str_replace( '@', '', $channel );
                 $channel = str_replace( ' ', '-', $channel );
+                $channel = str_replace( '_', '-', $channel );
                 $channel_name = sanitize_user( $channel );
 
                 $bid = $_POST['lbry_channel_bid_amount'];

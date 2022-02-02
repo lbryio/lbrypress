@@ -113,6 +113,7 @@ class LBRYPress
         //$this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
+        $this->define( 'LBRY_SPEECH_SETTINGS', 'lbry_speech_settings' );
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_SPEECH_CHANNEL', 'lbry_speech_channel'); // The spee.ch channel
         $this->define('LBRY_SPEECH_PW', 'lbry_speech_pw'); // The password for the spee.ch channel
@@ -186,21 +187,20 @@ class LBRYPress
                 LBRY_WALLET => '',
                 'default_lbry_channel' => '',
                 LBRY_LICENSE => '',
-                LBRY_LBC_PUBLISH => 0.01,
-                //'lbry_channel_bid_amount' => 0.01,
+                LBRY_LBC_PUBLISH => 0.001,
             );
 
             add_option( LBRY_SETTINGS, $option_defaults, false );
         }
 
-        if ( ! get_option( 'lbry_speech_settings' ) ) {
+        if ( ! get_option( LBRY_SPEECH_SETTINGS ) ) {
             // Default Speech Settings
             $option_defaults = array(
                 LBRY_SPEECH =>'',
                 LBRY_SPEECH_CHANNEL => '',
                 LBRY_SPEECH_PW => '',
             );
-            add_option( 'lbry_speech_settings', $option_defaults, false );
+            add_option( LBRY_SPEECH_SETTINGS, $option_defaults, false );
         }
 
         // COMBAK: decide if we need to check for missing or corrupt settings. May be unecessary.

@@ -1,6 +1,6 @@
 <?php
 /**
- * The Admin Options Page
+ * The Options Page with tabs
  * @package LBRYPress
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
@@ -34,7 +34,7 @@ $lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
             } elseif ( $lbry_active_tab == 'channels' ) {
                 include_once( 'partials/channel-page.php' );
             } elseif ( $lbry_active_tab == 'speech' ) {
-                settings_fields( 'lbry_speech_settings' );
+                settings_fields( LBRY_SPEECH_SETTINGS );
                 do_settings_sections( 'lbrypress-speech' );
                 submit_button();
             } else {
