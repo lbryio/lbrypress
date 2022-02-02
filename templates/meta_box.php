@@ -1,4 +1,6 @@
 <?php
+defined('ABSPATH') || die(); // Exit if accessed directly
+
 $unnatributed = (object) array(
     'name' => 'none (anonymous)',
     'claim_id' => 'null'

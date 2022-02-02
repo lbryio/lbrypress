@@ -4,8 +4,10 @@
 *
 * @package LBRYPress
 */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
-class LBRY_Admin_Notice {
+class LBRY_Admin_Notice
+{
 
     public function __construct() {
         add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -14,7 +16,8 @@ class LBRY_Admin_Notice {
     /**
     * Displays all messages set with the lbry_notices transient
     */
-    public function admin_notices() {
+    public function admin_notices()
+    {
         if ( get_transient( 'lbry_notices' ) ) {
             $notices = get_transient( 'lbry_notices' );
             foreach ( $notices as $key => $notice ) {
@@ -28,7 +31,8 @@ class LBRY_Admin_Notice {
      * Sets transients for admin errors
      */
     // TODO: Make sure we only set one transient at a time per error
-    public function set_notice( $status = 'error', $message = 'Something went wrong', $is_dismissible = false ) {
+    public function set_notice( $status = 'error', $message = 'Something went wrong', $is_dismissible = false )
+    {
         $notice = array(
             'status' => $status,
             'message' => $message,
@@ -47,7 +51,8 @@ class LBRY_Admin_Notice {
     /**
      * Prints an admin notice
      */
-    private function create_admin_notice( $notice ) {
+    private function create_admin_notice( $notice )
+    {
         $class = 'notice notice-' . $notice['status'];
         if ( $notice['is_dismissible'] ) {
             $class .= ' is-dismissible';

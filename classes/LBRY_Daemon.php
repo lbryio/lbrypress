@@ -231,7 +231,7 @@ class LBRY_Daemon
         curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'Content-Type: application/json' ) );
         curl_setopt( $ch, CURLOPT_AUTOREFERER, false );
         curl_setopt( $ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1 );
-        curl_setopt( $ch, CURLOPT_HEADER, 0 ); 
+        curl_setopt( $ch, CURLOPT_HEADER, 0 );
 
         $result = curl_exec( $ch );
         $response_code = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
