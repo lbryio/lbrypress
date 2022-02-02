@@ -130,6 +130,9 @@ class LBRY_Admin
 
         /**
          * Channel Page Settings
+         * Channels page will use admin.php instead of options.php so we are able to use the admin-post action 
+         * so we need to build our own inputs and use $_POST in place of saving options database settings (no need to database 
+         * the channel_create request inputs).
          */
 
         /**
@@ -359,9 +362,9 @@ class LBRY_Admin
 
     /**
      * Channels Page
+     * Channels page uses admin.php so we are able to use the admin-post action instead of options.php
      */
 
-     // Channels page uses admin.php so we can use the admin-post action instead of options.php
     /**
     * Prints Spee.ch input
     */
@@ -414,7 +417,7 @@ class LBRY_Admin
         if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_channel_nonce' ) ) {
             if ( empty( $_POST['lbry_new_channel'] ) || empty( $_POST['lbry_channel_bid_amount'] ) ) {
                 LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
-            }elseif ( isset( $_POST['lbry_new_channel'] ) && isset( $_POST['lbry_channel_bid_amount'] ) ) {
+            } elseif ( isset( $_POST['lbry_new_channel'] ) && isset( $_POST['lbry_channel_bid_amount'] ) ) {
                 $channel = sanitize_key( $_POST['lbry_new_channel'] ); // TODO: sanitize key only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use a something else for better control?
                 $channel = trim( $channel );
                 $channel = str_replace( '@', '', $channel );
