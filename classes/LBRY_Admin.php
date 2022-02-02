@@ -131,7 +131,7 @@ class LBRY_Admin
         /**
          * Channel Page Settings
          * We are using a custom page so that we can use the admin-post action and retrieve the $_POST 
-         * global variable to create the cURL request to create_channel, no need to save the inputs to 
+         * global variable to populate the cURL request to create_channel, not saving the inputs to 
          * our database.
          */
         
@@ -189,11 +189,9 @@ class LBRY_Admin
 
         if ( isset( $input[LBRY_WALLET] ) ) {
             $new_input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
-            //update_option( LBRY_WALLET, $new_input[LBRY_WALLET] );
         }
         if ( isset( $input['default_lbry_channel'] ) ) {
             $new_input['default_lbry_channel'] = sanitize_text_field( $input['default_lbry_channel'] );
-            //update_option( 'default_lbry_channel', $new_input['default_lbry_channel'] );
         }
         $license_array = LBRY()->licenses;
         if ( isset( $input[LBRY_LICENSE] ) && ( in_array( $input[LBRY_LICENSE], $license_array ) ) ) {
@@ -201,10 +199,8 @@ class LBRY_Admin
         }
         if ( isset( $input[LBRY_LBC_PUBLISH] ) ) {
             $new_input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
-            //update_option( LBRY_LBC_PUBLISH, $new_input[LBRY_LBC_PUBLISH] );
         }
         return $new_input;
-        //update_option( LBRY_SETTINGS, $new_input );
     }
 
     public function sanitize_speech_settings( $input )
@@ -285,7 +281,8 @@ class LBRY_Admin
     /**
      * Prints select to choose a default publish to channel
      */
-    public function default_channel_callback() {
+    public function default_channel_callback()
+    {
         $options = '';
         $channel_list = LBRY()->daemon->channel_list();
 
