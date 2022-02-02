@@ -57,8 +57,8 @@ class LBRY_Admin
             add_action( 'admin_notices', 'lbry_plugin_not_configured_notice' );
         }
         function admin_permission_check() {
-          	if (!current_user_can('manage_options'))  {
-          		wp_die( __('You do not have sufficient permissions to access this page.') );
+          	if ( ! current_user_can( 'manage_options' ) )  {
+          		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
           	}
         }
     }
@@ -89,7 +89,7 @@ class LBRY_Admin
 
         // Add Required Settings Sections
         add_settings_section(
-            'lbry_settings_section_general', // ID
+            LBRY_SETTINGS_SECTION_GENERAL, // ID
             'General Settings', // Title
             array( $this, 'general_section_callback' ), // Callback
             LBRY_ADMIN_PAGE // Page
@@ -101,7 +101,7 @@ class LBRY_Admin
             'LBRY Wallet Address',
             array( $this, 'wallet_callback' ),
             LBRY_ADMIN_PAGE,
-            'lbry_settings_section_general'
+            LBRY_SETTINGS_SECTION_GENERAL
         );
 
         add_settings_field(
@@ -109,7 +109,7 @@ class LBRY_Admin
             'Default Publish Channel',
             array( $this, 'default_channel_callback' ),
             LBRY_ADMIN_PAGE,
-            'lbry_settings_section_general'
+            LBRY_SETTINGS_SECTION_GENERAL
         );
 
         add_settings_field(
@@ -117,7 +117,7 @@ class LBRY_Admin
             'LBRY Publishing License',
             array( $this, 'license_callback' ),
             LBRY_ADMIN_PAGE,
-            'lbry_settings_section_general'
+            LBRY_SETTINGS_SECTION_GENERAL
         );
 
         add_settings_field(
@@ -125,7 +125,7 @@ class LBRY_Admin
             'LBC Per Publish',
             array( $this, 'lbc_per_publish_callback' ),
             LBRY_ADMIN_PAGE,
-            'lbry_settings_section_general'
+            LBRY_SETTINGS_SECTION_GENERAL
         );
 
         /**
