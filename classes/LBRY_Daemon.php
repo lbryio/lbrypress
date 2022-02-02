@@ -33,8 +33,7 @@ class LBRY_Daemon
      * https://lbry.tech/api/sdk#address_unused
      * @return string   Unused wallet address in base58
      */
-    public function wallet_unused_address()
-    {
+    public function wallet_unused_address() {
         try {
             $result = $this->request( 'address_unused' );
             return $result->result;
@@ -51,8 +50,7 @@ class LBRY_Daemon
      * @param  int      $page   Pagination page number
      * @return array    Array of address lists linked to this account
      */
-    public function address_list($page = 1)
-    {
+    public function address_list( $page = 1 ) {
         // Get 20 per page
         $params = array(
             'page'  => $page,
@@ -193,18 +191,18 @@ class LBRY_Daemon
      *
      * @return object $result
      */
-    public function publish($args)
+    public function publish( $args )
     {
         try {
             $result = $this->request(
                 'publish',
                 $args
             );
-            $this->logger->log('publish success!', 'Successfully published post with result: ' . print_r($result->result, true));
+            $this->logger->log( 'publish success!', 'Successfully published post with result: ' . print_r( $result->result, true ) );
             return $result->result;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue publishing / updating post to LBRY Network.');
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log('publish error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue publishing / updating post to LBRY Network.' );
             return;
         }
     }

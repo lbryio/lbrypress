@@ -5,8 +5,8 @@
  * @package LBRYPress
  */
 
-class LBRY_Daemon_Logger
-{
+class LBRY_Daemon_Logger {
+    
     /**
      * The directory to log to
      * @var string

@@ -89,7 +89,7 @@ class LBRY_Admin
 
         // Add Required Settings Sections
         add_settings_section(
-            LBRY_SETTINGS_SECTION_GENERAL, // ID
+            'lbry_settings_section_general', // ID
             'General Settings', // Title
             array( $this, 'general_section_callback' ), // Callback
             LBRY_ADMIN_PAGE // Page
@@ -101,7 +101,15 @@ class LBRY_Admin
             'LBRY Wallet Address',
             array( $this, 'wallet_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
+        );
+
+        add_settings_field(
+            'default_lbry_channel',
+            'Default Publish Channel',
+            array( $this, 'default_channel_callback' ),
+            LBRY_ADMIN_PAGE,
+            'lbry_settings_section_general'
         );
 
         add_settings_field(
@@ -109,7 +117,7 @@ class LBRY_Admin
             'LBRY Publishing License',
             array( $this, 'license_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
         );
 
         add_settings_field(
@@ -117,13 +125,12 @@ class LBRY_Admin
             'LBC Per Publish',
             array( $this, 'lbc_per_publish_callback' ),
             LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
+            'lbry_settings_section_general'
         );
 
         /**
          * Channel Page Settings
          */
-
 
         /**
          * Speech Admin Page settings
@@ -278,6 +285,38 @@ class LBRY_Admin
     
 
     /**
+     * Prints select to choose a default publish to channel
+     */
+    public function default_channel_callback() {
+        $options = '';
+        $channel_list = LBRY()->daemon->channel_list();
+
+        if ( $channel_list ) : ?>
+            <ul class="lbry-default-list">
+                <?php foreach ( $channel_list as $channel ) {
+                    $selected = $this->options['default_lbry_channel'] === $channel->name;
+
+                    $options .= '<option value="' . $channel->name . '"';
+                    if ( $selected ) {
+                        $options .= ' selected';
+                    }
+                    $options .= '>' . $channel->name . '</option>';
+                }
+
+                printf(
+                    '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '">' . esc_html('%3$s') . '</select>',
+                    'default_lbry_channel',
+                    LBRY_SETTINGS,
+                    $options
+                );
+                ?>
+            </ul>
+            <?php else: ?>
+                <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
+        <?php endif;
+    }
+
+    /**
     * Prints License input
     */
     public function license_callback()
@@ -323,6 +362,8 @@ class LBRY_Admin
      */
 
      // Channels page uses admin.php so we can use the admin-post action instead of options.php
+
+     
     /**
     * Prints Spee.ch input
     */
