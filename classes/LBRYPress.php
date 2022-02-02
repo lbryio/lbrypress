@@ -131,7 +131,6 @@ class LBRYPress {
             require $file_name;
             return;
         }
-        require_once LBRY_ABSPATH . 'classes/class-lbry-admin-page.php';
     }
 
     /**
