@@ -357,9 +357,9 @@ class LBRY_Admin
 
     /**
      * Channels Page
+     * Channels page uses admin.php so we are able to use the admin-post action instead of options.php
      */
 
-     // Channels page uses admin.php so we can use the admin-post action instead of options.php
     /**
     * Prints Spee.ch input
     */
