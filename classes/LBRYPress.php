@@ -4,6 +4,7 @@
  *
  * @package LBRYPress
  */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
 class LBRYPress
 {
@@ -173,18 +174,21 @@ class LBRYPress
     /**
      * Run during plugin activation
      */
-    public function activate()
-    {
+    public function activate() {
         // TODO: Make sure errors are thrown if daemon can't be contacted, stop activation
 
         // Add options to the options table we need
         if (! get_option(LBRY_SETTINGS)) {
 
-            // Default options
+            //Default options
             $option_defaults = array(
-                LBRY_SPEECH => null,
                 LBRY_LICENSE => $this->licenses[0],
-                LBRY_LBC_PUBLISH => 1
+                LBRY_LBC_PUBLISH => 0.01,
+                'new_channel' => null,
+                'bid_amount' => 0.01,
+                LBRY_SPEECH =>'',
+                LBRY_SPEECH_CHANNEL => '',
+                LBRY_SPEECH_PW => '',
             );
 
             add_option(LBRY_SETTINGS, $option_defaults, false);
@@ -205,8 +209,7 @@ class LBRYPress
     /**
      * Clean up on deactivation
      */
-    public function deactivate()
-    {
+    public function deactivate() {
         // TODO: Stop the daemon
         error_log('Deactivated LBRYPress');
     }

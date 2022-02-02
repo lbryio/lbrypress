@@ -1,0 +1,11 @@
+/**
+ * Stylesheet for the admin options page
+ * @package LBRYPress
+ */
+
+ .wallet-icon-lbc {
+    height: 1.8em;
+    margin-right: .5em;
+    margin-bottom: -.5em;
+  }
+  

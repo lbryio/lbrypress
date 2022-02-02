@@ -1,0 +1,47 @@
+<?php
+/**
+ * The Admin Options Page
+ * @package LBRYPress
+ */
+defined('ABSPATH') || die(); // Exit if accessed directly
+
+$LBRY = LBRY();
+$wallet_balance = $LBRY->daemon->wallet_balance();
+$available_balance = $wallet_balance->result->available;
+$lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
+?>
+
+<div class="wrap">
+    <h1><?php esc_html( get_admin_page_title() ); ?></h1>
+
+    <h2><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc wallet-icon-lbc"><code><?= number_format( $available_balance, 3, '.', ',' ); ?></code> Wallet Available Balance</h2>
+    <nav class="nav-tab-wrapper">
+        <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=general' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'general' || '' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Settings' ); ?></a>
+        <a href="<?php echo esc_url( admin_url( 'admin.php?page=lbrypress&tab=channels' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'channels' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Channels' ); ?></a>
+        <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=speech' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'speech' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Spee.ch' ); ?></a>
+    </nav>
+        <?php if ( $lbry_active_tab == 'channels' ) {
+            include_once( 'partials/channel-page.php' );
+        } else {
+            ?>
+            <form class="" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
+            <?php
+        }
+            if ( $lbry_active_tab == 'general' ) {
+                settings_fields( 'lbry_general_settings' );
+                do_settings_sections( LBRY_ADMIN_PAGE );
+                submit_button();
+            } elseif ( $lbry_active_tab == 'channels' ) {
+                include_once( 'partials/channel-page.php' );
+            } elseif ( $lbry_active_tab == 'speech' ) {
+                settings_fields( 'lbry_speech_settings' );
+                do_settings_sections( 'lbrypress-speech' );
+                submit_button();
+            } else {
+                settings_fields( 'lbry_general_settings' );
+                do_settings_sections( LBRY_ADMIN_PAGE );
+                submit_button();
+            }
+            ?>
+          </form>
+  </div><!-- wrap -->
