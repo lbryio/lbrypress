@@ -6,7 +6,8 @@
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
 
-class LBRYPress {
+class LBRYPress
+{
 
     /**
      * Version of LBRYPress
@@ -62,7 +63,8 @@ class LBRYPress {
      *
      * Ensures only one instance of LBRYPress is loaded or can be loaded.
      */
-    public static function instance() {
+    public static function instance()
+    {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
@@ -73,7 +75,8 @@ class LBRYPress {
     /**
      * LBRYPress Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->define_constants();
         spl_autoload_register( array( $this, 'lbry_autoload_register' ) );
         $this->init();
@@ -86,7 +89,8 @@ class LBRYPress {
      * @param string      $name  Constant name.
      * @param string|bool $value Constant value.
      */
-    private function define( $name, $value ) {
+    private function define( $name, $value )
+    {
         if ( ! defined( $name ) ) {
             define( $name, $value );
         }
@@ -124,7 +128,8 @@ class LBRYPress {
     /**
      * Autoloader Registration
      */
-    private function lbry_autoload_register( $class ) {
+    private function lbry_autoload_register( $class )
+    {
         $file_name = LBRY_ABSPATH . 'classes/' . $class . '.php';
 
         if ( file_exists( $file_name ) ) {
@@ -136,7 +141,8 @@ class LBRYPress {
     /**
      * Initialize this class itself
      */
-    private function init() {
+    private function init()
+    {
         $this->daemon = new LBRY_Daemon();
         $this->speech = new LBRY_Speech();
 
@@ -151,7 +157,8 @@ class LBRYPress {
     /**
      * Set up all hooks and actions necessary for the plugin to run
      */
-    private function init_hooks() {
+    private function init_hooks()
+    {
         register_activation_hook( LBRY_PLUGIN_FILE, array( $this, 'activate' ) );
         register_deactivation_hook( LBRY_PLUGIN_FILE, array( $this, 'deactivate' ) );
 
@@ -167,7 +174,8 @@ class LBRYPress {
     /**
      * Run during plugin activation
      */
-    public function activate() {
+    public function activate()
+    {
         // TODO: Make sure errors are thrown if daemon can't be contacted, stop activation
 
         // Add options to the options table we need
@@ -210,7 +218,8 @@ class LBRYPress {
     /**
      * Clean up on deactivation
      */
-    public function deactivate() {
+    public function deactivate()
+    {
         // TODO: Stop the daemon
         error_log( 'Deactivated LBRYPress' );
     }
