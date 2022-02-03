@@ -185,7 +185,7 @@ class LBRY_Admin
 
     public function sanitize_general_settings( $input )
     {
-        $new_input = (array) get_option( LBRY_SETTINGS ); // get saved data
+        $new_input = get_option( LBRY_SETTINGS ); // get saved data
 
         if ( isset( $input[LBRY_WALLET] ) ) {
             $new_input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
@@ -205,7 +205,7 @@ class LBRY_Admin
 
     public function sanitize_speech_settings( $input )
     {
-        $new_input = (array) get_option( LBRY_SPEECH_SETTINGS );
+        $new_input = get_option( LBRY_SPEECH_SETTINGS );
         if ( isset( $input[LBRY_SPEECH] ) ) {
             $new_input[LBRY_SPEECH] = sanitize_text_field( $input[LBRY_SPEECH] );
         }
@@ -242,7 +242,7 @@ class LBRY_Admin
     {
         $channel_list = LBRY()->daemon->channel_list();
 
-        if ( (array)( $channel_list ) ) { ?>
+        if ( $channel_list ) { ?>
             <ul class="lbry-channel-list">
                 <?php foreach ( $channel_list as $channel ) { ?>
                     <li><?php esc_html_e( $channel->name ) ?></li>
@@ -287,7 +287,7 @@ class LBRY_Admin
         $options = '';
         $channel_list = LBRY()->daemon->channel_list();
 
-        if ( (array)( $channel_list ) ) { ?>
+        if ( $channel_list ) { ?>
             <ul class="lbry-default-list">
                 <?php foreach ( $channel_list as $channel ) {
                     $selected = $this->options['default_lbry_channel'] === $channel->name;
