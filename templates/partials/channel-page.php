@@ -17,7 +17,7 @@ defined('ABSPATH') || die(); // Exit if accessed directly
 
     ?>	
     <h1></h1>			
-	<h2><?php _e( 'Available Channels To Publish', $this->plugin_name ); ?></h2>
+	<h2><?php _e( 'Available Channels To Publish', 'lbrypress' ); ?></h2>
     <?php LBRY()->admin->available_channels_callback(); ?>		
 	<div class="lbry_add_channel_form">
     <?php if ( isset( $_POST['lbry_new_channel'] ) ) {
