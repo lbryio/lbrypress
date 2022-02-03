@@ -238,18 +238,19 @@ class LBRY_Admin
     /**
     * Section info for the Available Channel(s) Section
     */
-    public function available_channels_callback() {
+    public function available_channels_callback()
+    {
         $channel_list = LBRY()->daemon->channel_list();
 
-        if ($channel_list): ?>
+        if ( (array)( $channel_list ) ) { ?>
             <ul class="lbry-channel-list">
-                <?php foreach ($channel_list as $channel): ?>
-                    <li><?php esc_html_e($channel->name) ?></li>
-                <?php endforeach; ?>
+                <?php foreach ( $channel_list as $channel ) { ?>
+                    <li><?php esc_html_e( $channel->name ) ?></li>
+                <?php } ?>
             </ul>
-        <?php else: ?>
+        <?php } else { ?>
             <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
-        <?php endif;
+        <?php }
     }
 
 
@@ -268,7 +269,7 @@ class LBRY_Admin
     {
         // Get first available account address from Daemon
         $address = LBRY()->daemon->address_list();
-        $address = is_array($address) && !empty($address) ? $address[0]->address : '';
+        $address = is_array( $address ) && ! empty( $address ) ? $address[0]->address : '';
         printf(
             '<input type="text" id="'. esc_attr('%1$s') .'" name="'. esc_attr('%2$s[%1$s]') .'" value="' . esc_attr('%3$s') . '" readonly />',
             LBRY_WALLET,
@@ -286,16 +287,16 @@ class LBRY_Admin
         $options = '';
         $channel_list = LBRY()->daemon->channel_list();
 
-        if ( $channel_list ) : ?>
+        if ( (array)( $channel_list ) ) { ?>
             <ul class="lbry-default-list">
                 <?php foreach ( $channel_list as $channel ) {
                     $selected = $this->options['default_lbry_channel'] === $channel->name;
 
-                    $options .= '<option value="' . $channel->name . '"';
+                    $options .= '<option value="' . esc_attr( $channel->name ) . '"';
                     if ( $selected ) {
                         $options .= ' selected';
                     }
-                    $options .= '>' . $channel->name . '</option>';
+                    $options .= '>' . esc_html( $channel->name ) . '</option>';
                 }
 
                 printf(
@@ -306,9 +307,9 @@ class LBRY_Admin
                 );
                 ?>
             </ul>
-            <?php else: ?>
-                <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
-        <?php endif;
+            <?php } else { ?>
+                <p>Looks like you haven't added any channels yet. You can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
+        <?php }
     }
 
     /**
