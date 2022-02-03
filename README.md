@@ -75,7 +75,8 @@ Your channel will be created with a single @ prefix and all spaces and underscor
 By adding as a support you push your content higher in the search but also keep your LBC fluid and easily moved without needing to abandon your claim.
 1) Click **Add New Channel**.
 
-![](/admin/images/channel-tab.jpg)
+![](/admin/images/add-channel.jpg)
+
 ![](/admin/images/channel-create-success.jpg)
 
 Wait a few minutes and do a page refresh, your new channel should now be in the list.
