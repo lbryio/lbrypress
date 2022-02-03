@@ -427,7 +427,9 @@ class LBRY_Admin
                 try { 
                     $result = LBRY()->daemon->channel_new( $channel_name, $channel_bid );
                     // Tell the user it takes some time to go through
-                    LBRY()->notice->set_notice( 'success', 'Successfully added a new channel! Please allow a few minutes for the bid to process.', true );
+                    LBRY()->notice->set_notice(
+                        'success', 'Successfully added a new channel: @' . esc_html( $channel_name ) . '! Please allow a few minutes for the bid to process.', true );
+                    
                 } catch ( \Exception $e ) {
                     LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
                 }
