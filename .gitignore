@@ -5,6 +5,7 @@
 
 .DS_Store
 extensions.json
+.vscode/*
 
 tmp/*
 logs/*
