@@ -33,11 +33,13 @@ class LBRY_Admin
                           'manage_options',
                           LBRY_ADMIN_PAGE,
                           array( $this, 'options_page_html' ),
-                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-logo.svg'
+                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
                           );
 
         // Admin stylesheet enqueue
-        function load_admin_stylesheet() {
+        function load_admin_stylesheet( $hook ) {
+
+            if ( ( $hook == 'post.php' ) || ( $hook == 'post-new.php' ) || ( $_GET['page'] == 'lbrypress' ) ) {
                     wp_enqueue_style(
                         'lbry-admin',
                         plugins_url( '/admin/css/lbry-admin.css', LBRY_PLUGIN_FILE ),
@@ -45,8 +47,9 @@ class LBRY_Admin
                         LBRY_VERSION,
                         'all'
                     );
+                }
         }
-        add_action( 'load-' . $hook_suffix , 'load_admin_stylesheet' );
+        add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
         
         // Admin Error Notices
         function lbry_plugin_not_configured_notice() {
@@ -277,7 +280,7 @@ class LBRY_Admin
             $address
         );
     }
-    
+
 
     /**
      * Prints select to choose a default publish to channel
@@ -288,11 +291,10 @@ class LBRY_Admin
         $channel_list = LBRY()->daemon->channel_list();
 
         if ( $channel_list ) { ?>
-            <ul class="lbry-default-list">
                 <?php foreach ( $channel_list as $channel ) {
-                    $selected = $this->options['default_lbry_channel'] === $channel->name;
+                    $selected = $this->options['default_lbry_channel'] === $channel->claim_id;
 
-                    $options .= '<option value="' . esc_attr( $channel->name ) . '"';
+                    $options .= '<option value="' . esc_attr( $channel->claim_id ) . '"';
                     if ( $selected ) {
                         $options .= ' selected';
                     }
@@ -306,7 +308,6 @@ class LBRY_Admin
                     $options
                 );
                 ?>
-            </ul>
             <?php } else { ?>
                 <p>Looks like you haven't added any channels yet. You can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
@@ -321,11 +322,11 @@ class LBRY_Admin
         $options = '';
         // Create options list, select current license
         //
-        foreach (LBRY()->licenses as $value => $name) {
+        foreach ( LBRY()->licenses as $value => $name ) {
             $selected = $this->options[LBRY_LICENSE] === $value;
 
             $options .= '<option value="' . $value . '"';
-            if ($selected) {
+            if ( $selected ) {
                 $options .= ' selected';
             }
             $options .= '>'. $name . '</option>';
@@ -425,7 +426,7 @@ class LBRY_Admin
                 try { 
                     $result = LBRY()->daemon->channel_new( $channel_name, $channel_bid );
                     // Tell the user it takes some time to go through
-                    LBRY()->notice->set_notice( 'success', 'Successfully added a new channel! Please allow a few minutes for the bid to process.', true );
+                    LBRY()->notice->set_notice( 'success', 'Successfully added a new channel! ' . esc_html_e($channel_name) . ' Please allow a few minutes for the bid to process.', true );
                 } catch ( \Exception $e ) {
                     LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
                 }

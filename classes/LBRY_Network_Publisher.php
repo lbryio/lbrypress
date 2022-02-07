@@ -6,14 +6,17 @@
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
 
-class LBRY_Network_Publisher {
+class LBRY_Network_Publisher
+{
     /**
      * Publish the post to the LBRY Network
      * @param  WP_POST      $post_id  The ID of the post we are publishing
      * @param  string   $channel The Claim ID of the channel we are posting to
      */
     // NOTE: This is currently sitting at about 150ms, mostly the post parsing
-    public function publish( $post, $channel = null ) {
+    public function publish( $post, $channel, $license ) {
+        
+        $post_id = $post->ID;
         // Get converted markdown into a file
         $filepath = LBRY_ABSPATH . 'tmp/' . $post->post_name . time() . '.md';
         $file = fopen( $filepath, 'w' );
@@ -33,7 +36,7 @@ class LBRY_Network_Publisher {
                 'file_path' => $filepath,
                 'title' => $post->post_title,
                 'languages' => array( substr( get_locale(), 0, 2 ) ),
-                'license' => get_option( LBRY_SETTINGS )[LBRY_LICENSE]
+                'license' => $license,
             );
 
             // Setup channel
