@@ -4,7 +4,7 @@
 !*.*
 
 .DS_Store
-.extensions.json
+extensions.json
 
 tmp/*
 logs/*
