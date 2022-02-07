@@ -291,6 +291,7 @@ class LBRY_Admin
             $address
         );
     }
+    
 
     /**
      * Checkbox to default to always allow publish on LBRY
