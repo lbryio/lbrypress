@@ -44,7 +44,7 @@ class LBRY_Speech
             return false;
         }
 
-        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
+        $speech_url = get_option(LBRY_SPEECH_SETTINGS)[LBRY_SPEECH];
 
         // Die if we don't have a spee.ch url
         if (!$speech_url || $speech_url === '') {
@@ -67,7 +67,7 @@ class LBRY_Speech
                     );
 
                 // Pull Channel and Password from config file for now
-                $speech_channel = get_option(LBRY_SETTINGS)[LBRY_SPEECH_CHANNEL];
+                $speech_channel = get_option(LBRY_SPEECH_SETTINGS)[LBRY_SPEECH_CHANNEL];
                 $speech_pw = LBRY()->admin->get_speech_pw();
                 if (!empty($speech_channel) && !empty($speech_pw)) {
                     $params['channelName'] = '@' . $speech_channel;
@@ -230,7 +230,7 @@ class LBRY_Speech
      */
     private function build_request($method, $params = array())
     {
-        $speech_url = get_option(LBRY_SETTINGS)[LBRY_SPEECH];
+        $speech_url = get_option(LBRY_SPEECH_SETTINGS)[LBRY_SPEECH];
 
         // Die if no URL
         if (!$speech_url) {

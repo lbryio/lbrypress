@@ -33,11 +33,13 @@ class LBRY_Admin
                           'manage_options',
                           LBRY_ADMIN_PAGE,
                           array( $this, 'options_page_html' ),
-                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-logo.svg'
+                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
                           );
 
         // Admin stylesheet enqueue
-        function load_admin_stylesheet() {
+        function load_admin_stylesheet( $hook ) {
+
+            if ( ( $hook == 'post.php' ) || ( $hook == 'post-new.php' ) || ( $_GET['page'] == 'lbrypress' ) ) {
                     wp_enqueue_style(
                         'lbry-admin',
                         plugins_url( '/admin/css/lbry-admin.css', LBRY_PLUGIN_FILE ),
@@ -45,8 +47,9 @@ class LBRY_Admin
                         LBRY_VERSION,
                         'all'
                     );
+                }
         }
-        add_action( 'load-' . $hook_suffix , 'load_admin_stylesheet' );
+        add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
         
         // Admin Error Notices
         function lbry_plugin_not_configured_notice() {
@@ -100,6 +103,14 @@ class LBRY_Admin
             LBRY_WALLET,
             'LBRY Wallet Address',
             array( $this, 'wallet_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
+        );
+
+        add_settings_field(
+            'lbry_default_publish_setting',
+            'Always Publish to LBRY',
+            array( $this, 'lbry_always_pub_callback' ),
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
@@ -190,6 +201,9 @@ class LBRY_Admin
         if ( isset( $input[LBRY_WALLET] ) ) {
             $new_input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
         }
+
+        $new_input['lbry_default_publish_setting'] = $input['lbry_default_publish_setting'];
+
         if ( isset( $input['default_lbry_channel'] ) ) {
             $new_input['default_lbry_channel'] = sanitize_text_field( $input['default_lbry_channel'] );
         }
@@ -277,7 +291,21 @@ class LBRY_Admin
             $address
         );
     }
-    
+
+    /**
+     * Checkbox to default to always allow publish on LBRY
+     */
+    public function lbry_always_pub_callback()
+    {
+        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
+        $checked = ( @$options == true ? 'checked' : '' );
+        printf(
+        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . $checked . '><p>Change the Default setting on the <strong>Publish to LBRY</strong> checkbox to always checked, this can still be adjusted on a per post basis on the new post page</p>',
+        'lbry_default_publish_setting',
+        LBRY_SETTINGS,
+
+        );
+    }
 
     /**
      * Prints select to choose a default publish to channel
@@ -288,11 +316,10 @@ class LBRY_Admin
         $channel_list = LBRY()->daemon->channel_list();
 
         if ( $channel_list ) { ?>
-            <ul class="lbry-default-list">
                 <?php foreach ( $channel_list as $channel ) {
-                    $selected = $this->options['default_lbry_channel'] === $channel->name;
+                    $selected = $this->options['default_lbry_channel'] === $channel->claim_id;
 
-                    $options .= '<option value="' . esc_attr( $channel->name ) . '"';
+                    $options .= '<option value="' . esc_attr( $channel->claim_id ) . '"';
                     if ( $selected ) {
                         $options .= ' selected';
                     }
@@ -306,7 +333,6 @@ class LBRY_Admin
                     $options
                 );
                 ?>
-            </ul>
             <?php } else { ?>
                 <p>Looks like you haven't added any channels yet. You can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
@@ -321,11 +347,11 @@ class LBRY_Admin
         $options = '';
         // Create options list, select current license
         //
-        foreach (LBRY()->licenses as $value => $name) {
+        foreach ( LBRY()->licenses as $value => $name ) {
             $selected = $this->options[LBRY_LICENSE] === $value;
 
             $options .= '<option value="' . $value . '"';
-            if ($selected) {
+            if ( $selected ) {
                 $options .= ' selected';
             }
             $options .= '>'. $name . '</option>';
