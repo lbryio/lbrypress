@@ -113,14 +113,15 @@ class LBRYPress
         $this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
-        $this->define( 'LBRY_SPEECH_SETTINGS', 'lbry_speech_settings' );
+        $this->define('LBRY_SPEECH_SETTINGS', 'lbry_speech_settings');
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_SPEECH_CHANNEL', 'lbry_speech_channel'); // The spee.ch channel
         $this->define('LBRY_SPEECH_PW', 'lbry_speech_pw'); // The password for the spee.ch channel
         $this->define('LBRY_LICENSE', 'lbry_license'); // the license to publish with to the LBRY network
         $this->define('LBRY_LBC_PUBLISH', 'lbry_lbc_publish'); // amount of lbc to use per publish
         $this->define('LBRY_WILL_PUBLISH', '_lbry_will_publish'); // The meta key for if to publish to LBRY Network or not
-        $this->define('LBRY_POST_CHANNEL', '_lbry_channel'); // The meta key for which channel to publish
+        $this->define('LBRY_POST_CHANNEL', '_lbry_post_pub_channel'); // The meta key for which channel to publish
+        $this->define('LBRY_POST_LICENSE', '_lbry_post_pub_license'); // The meta key for which license to publish on
         $this->define('LBRY_CLAIM_ID', '_lbry_claim_id'); // The Claim ID for the post as it was published on LBRY
         $this->define('LBRY_CANONICAL_URL', '_lbry_canonical_url'); // The canonical url for the published lbry post
         $this->define('LBRY_SPEECH_ASSET_URL', 'speech_asset_url'); // The meta key for an asset's speech url
@@ -185,6 +186,7 @@ class LBRYPress
             //Default options
             $option_defaults = array(
                 LBRY_WALLET => '',
+                'lbry_default_publish_setting' => '',
                 'default_lbry_channel' => '',
                 LBRY_LICENSE => '',
                 LBRY_LBC_PUBLISH => 0.001,
