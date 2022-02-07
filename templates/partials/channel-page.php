@@ -8,18 +8,16 @@
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
 
- if ( current_user_can( 'manage_options' ) ) {
+if ( current_user_can( 'manage_options' ) ) {
 
     // Generate a custom nonce
     $lbrynonce = wp_create_nonce( 'add_channel_nonce' );
 
     // Build the page
-
     ?>	
-    <h1></h1>			
-	<h2><?php _e( 'Available Channels To Publish', $this->plugin_name ); ?></h2>
+			
+	<h3><?php _e( 'Available Channels To Publish', 'lbrypress' ); ?></h3>
     <?php LBRY()->admin->available_channels_callback(); ?>		
-	<div class="lbry_add_channel_form">
     <?php if ( isset( $_POST['lbry_new_channel'] ) ) {
             $channel = $_POST['lbry_new_channel'];
             $channel = str_replace( '@', '', $channel );
@@ -32,11 +30,11 @@ defined('ABSPATH') || die(); // Exit if accessed directly
           }
     ?>
 
-	<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" id="lbry_add_channel_form" >	
+	<form class="" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" id="lbry_add_channel_form">	
             		
 		<input type="hidden" name="action" value="lbry_add_channel">
 		<input type="hidden" name="_lbrynonce" value="<?php echo $lbrynonce ?>">
-        <h2><?php echo _e( 'Create a New Channel', $this->plugin_name ); ?></h2>			
+        <h3><?php echo _e( 'Create a New Channel', 'lbrypress' ); ?></h3>			
 		<table class="form-table" role="presentation">
             <tbody>
                 <tr>
@@ -65,10 +63,8 @@ defined('ABSPATH') || die(); // Exit if accessed directly
         </table>                 
 		<p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="Create New Channel"></p>
 	</form>			
-	</div><!-- .lbry_add_channel_form -->
 <?php    
-}
-else {  
+} else {  
 ?>
 	<p> <?php __( "You are not authorized to perform this operation.", $this->plugin_name ) ?> </p>
 <?php   
