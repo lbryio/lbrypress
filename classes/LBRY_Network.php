@@ -132,12 +132,6 @@ class LBRY_Network
         $value = $new_value;
         if ( ( $value ) ? $value : 0 );
 
-        //     //$value = get_option(LBRY_SETTINGS)['lbry_default_publish_setting'];
-        //     $value = get_post_meta( $post_id, '_lbry_will_publish', true );
-        // } else {
-        //     $value = 0;
-        // }
-
         // nonce set on page meta-box.php
         printf (
         '<div class="lbry-meta-checkbox-wrapper lbry-meta-checkbox-wrapper-last">
