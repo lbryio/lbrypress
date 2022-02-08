@@ -155,11 +155,6 @@ class LBRY_Admin
          */
         
 
-
-        /**
-         * Speech Admin Page settings
-         */
-
         /**
          * Speech Admin Page settings
          */
@@ -323,7 +318,7 @@ class LBRY_Admin
     }
 
     /**
-     * Prints select to choose a default to publish to channel
+     * Prints select to choose a default publish to channel
      */
     public function default_channel_callback()
     {
@@ -348,9 +343,8 @@ class LBRY_Admin
                     $options
                 );
                 ?>
-            </ul>
-        <?php } else { ?>
-                <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
+            <?php } else { ?>
+                <p>Looks like you haven't added any channels yet. You can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
     }
     

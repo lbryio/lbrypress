@@ -79,9 +79,9 @@ class LBRY_Daemon
         try { // Convert JSON string to an object
             $result = $this->request( 'wallet_balance', array() );
             return $result;
-        } catch (LBRYDaemonException $e) {
-            $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
-            LBRY()->notice->set_notice('error', 'Issue getting wallet balance.');
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue getting wallet balance.' );
             return;
         }
     }
