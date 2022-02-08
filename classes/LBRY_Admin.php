@@ -305,9 +305,12 @@ class LBRY_Admin
     public function lbry_always_pub_callback()
     {
         $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        $checked = ( @$options == true ? 'checked' : '' );
+        if ( ! isset( $options ) ) {
+            $options = 0;
+        }
+        $checked = checked( $options, 1, false );
         printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . $checked . '><p>Change the Default setting on the <strong>Publish to LBRY</strong> checkbox to always checked, this can still be adjusted on a per post basis on the new post page</p>',
+        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
         'lbry_default_publish_setting',
         LBRY_SETTINGS,
 
