@@ -1,52 +1,50 @@
 <?php
+/**
+ * The Options Page with tabs
+ * @package LBRYPress
+ */
+defined('ABSPATH') || die(); // Exit if accessed directly
+
 $LBRY = LBRY();
 $wallet_balance = $LBRY->daemon->wallet_balance();
 $available_balance = $wallet_balance->result->available;
+$lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
 $channel_list = $LBRY->daemon->channel_list();
 // TODO: Make this page look cleaner
 ?>
+
 <div class="wrap">
-    <h1><?= esc_html(get_admin_page_title()); ?></h1>
-    <h2>Your wallet amount:</h2>
-    <img src="<?php echo esc_url( plugin_dir_url(LBRY_PLUGIN_FILE) . 'admin/images/lbc.png') ?>" class="icon icon-lbc wallet-icon-lbc" style="height: 1.8em; margin-right: .5em; margin-bottom: -.5em;"><code><?= number_format($available_balance, 2, '.', ','); ?></code>
-    <form action="options.php" method="post">
-        <?php
-        settings_fields(LBRY_SETTINGS_GROUP);
-        do_settings_sections(LBRY_ADMIN_PAGE);
-        submit_button('Save Settings');
-        ?>
-    </form>
-    <h2>Your Publishable Channels</h2>
-    <?php if ($channel_list): ?>
-        <ul class="lbry-channel-list">
-            <?php foreach ($channel_list as $channel): ?>
-                <li><?= $channel->name ?></li>
-            <?php endforeach; ?>
-        </ul>
-    <?php else: ?>
-        <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
-    <?php endif; ?>
-    <h2>Add a new channel to publish to:</h2>
-    <form action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
-        <?php wp_nonce_field('lbry_add_channel', '_lbrynonce'); ?>
-        <input type="hidden" name="action" value="lbry_add_channel">
-        <table class="form-table">
-            <tbody>
-                <tr>
-                    <th scope="row">New Channel Name</th>
-                    <td>
-                        <span>@</span>
-                        <input type="text" name="new_channel" value="" placeholder="your-new-channel" required>
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">Amount of LBC to Bid</th>
-                    <td>
-                        <input type="number" step="0.1" min="0.1" name="bid_amount" value="10" required>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <?php submit_button('Add New Channel'); ?>
-    </form>
-</div>
+    <h1><?php esc_html_e( get_admin_page_title(), 'lbrypress' ); ?></h1>
+
+    <h2 title="<?php echo esc_attr( number_format( $total_balance, 3, '.', ',' ) ); ?> Wallet Total Balance"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc wallet-icon-lbc" style="height: 1.8em; margin-right: .5em; margin-bottom: -.5em;"><code><?php esc_html_e( number_format( $available_balance, 3, '.', ',' ) ); ?></code> Wallet Available Balance</h2>
+    <nav class="nav-tab-wrapper">
+        <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=general' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'general' || '' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Settings' ); ?></a>
+        <a href="<?php echo esc_url( admin_url( 'admin.php?page=lbrypress&tab=channels' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'channels' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Channels' ); ?></a>
+        <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=speech' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'speech' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Spee.ch' ); ?></a>
+    </nav>
+        <?php if ( $lbry_active_tab == 'channels' ) {
+            include_once( 'partials/channel-page.php' );
+        } else {
+            ?>
+            <form class="form-table" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
+            <?php
+        }
+                if ( $lbry_active_tab == 'general' ) {
+                    settings_fields( 'lbry_general_settings' );
+                    do_settings_sections( LBRY_ADMIN_PAGE );
+                    submit_button();
+                } elseif ( $lbry_active_tab == 'channels' ) {
+                    include_once( 'partials/channel-page.php' );
+                } elseif ( $lbry_active_tab == 'speech' ) {
+                    settings_fields( LBRY_SPEECH_SETTINGS );
+                    do_settings_sections( 'lbrypress-speech' );
+                    submit_button();
+                } else {
+                    settings_fields( 'lbry_general_settings' );
+                    do_settings_sections( LBRY_ADMIN_PAGE );
+                    submit_button();
+                }
+            ?>
+            </form>
+</div><!-- wrap -->
+
