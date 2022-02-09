@@ -41,13 +41,17 @@ class LBRY_Admin
     public function page_init()
     {
         // Register the LBRY Setting array
-        register_setting(LBRY_SETTINGS_GROUP, LBRY_SETTINGS, array('sanitize_callback' => array($this, 'sanitize')));
+        register_setting(
+            LBRY_SETTINGS_GROUP,
+            LBRY_SETTINGS,
+            array( $this, 'sanitize_general_settings' )
+        );
 
         // Add Required Settings Sections
         add_settings_section(
             LBRY_SETTINGS_SECTION_GENERAL, // ID
             'General Settings', // Title
-            array( $this, 'general_section_info' ), // Callback
+            array( $this, 'general_section_callback' ), // Callback
             LBRY_ADMIN_PAGE // Page
         );
 
@@ -108,14 +112,16 @@ class LBRY_Admin
     {
         // Set class property to be referenced in callbacks
         $this->options = get_option(LBRY_SETTINGS);
-        require_once(LBRY_ABSPATH . 'templates/options_page.php');
+        require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
+
 
     /**
     * Sanitizes setting input
     * // COMBAK Potentially sanitize more
     */
-    public function sanitize($input)
+
+    public function sanitize_general_settings( $input )
     {
         if (!empty($input[LBRY_SPEECH_CHANNEL])) {
             $channel = $input[LBRY_SPEECH_CHANNEL];
@@ -139,7 +145,7 @@ class LBRY_Admin
     /**
     * Section info for the General Section
     */
-    public function general_section_info()
+    public function general_section_callback()
     {
         print 'This is where you can configure how LBRYPress will distribute your content:';
     }
