@@ -22,7 +22,7 @@ $channel_list = $LBRY->daemon->channel_list();
         <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=speech' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'speech' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Spee.ch' ); ?></a>
     </nav>
         <?php if ( $lbry_active_tab == 'channels' ) {
-            include_once( 'partials/channel-page.php' );
+            include_once( 'channels-page.php' );
         } else {
             ?>
             <form class="form-table" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
@@ -33,7 +33,7 @@ $channel_list = $LBRY->daemon->channel_list();
                     do_settings_sections( LBRY_ADMIN_PAGE );
                     submit_button();
                 } elseif ( $lbry_active_tab == 'channels' ) {
-                    include_once( 'partials/channel-page.php' );
+                    include_once( 'channels-page.php' );
                 } elseif ( $lbry_active_tab == 'speech' ) {
                     settings_fields( LBRY_SPEECH_SETTINGS );
                     do_settings_sections( 'lbrypress-speech' );

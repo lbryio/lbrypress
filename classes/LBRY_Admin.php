@@ -96,6 +96,14 @@ class LBRY_Admin
         );
 
         /**
+         * Channel Page Settings
+         * We are using a custom page so that we can use the admin-post action and retrieve the $_POST 
+         * global variable to populate the cURL request to create_channel, not saving the inputs to 
+         * our database.
+         */
+        
+         
+        /**
          * Speech Admin Page settings
          */
 
@@ -204,6 +212,26 @@ class LBRY_Admin
     {
         print 'This is where you can configure how LBRYPress will distribute your content:';
     }
+
+    /**
+    * Section info for the Available Channel(s) Section
+    */
+    public function available_channels_callback()
+    {
+        $channel_list = LBRY()->daemon->channel_list();
+
+        if ( $channel_list ) { ?>
+            <ul class="lbry-channel-list">
+                <?php foreach ( $channel_list as $channel ) { ?>
+                    <li><?php esc_html_e( $channel->name ) ?></li>
+                <?php } ?>
+            </ul>
+        <?php } else { ?>
+            <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
+        <?php }
+    }
+
+
 /**
     * Section info for the Speech Channel Section
     */
@@ -269,6 +297,11 @@ class LBRY_Admin
         );
     }
 
+    /**
+     * Channels Page
+     * Channels page uses admin.php so we are able to use the admin-post action instead of options.php
+     */
+
        /**
     * Prints Spee.ch input
     */
@@ -315,28 +348,41 @@ class LBRY_Admin
     */
     public function add_channel()
     {
-        $redirect_url = admin_url('options-general.php?page=' . LBRY_ADMIN_PAGE);
 
+        $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
+        
         // Check that nonce
-        if (! isset($_POST['_lbrynonce']) || ! wp_verify_nonce($_POST['_lbrynonce'], 'lbry_add_channel')) {
-            LBRY()->notice->set_notice('error');
-        } elseif (! isset($_POST['new_channel']) || ! isset($_POST['bid_amount'])) {
-            LBRY()->notice->set_notice('error', 'Must supply both channel name and bid amount');
-        } else {
-            $new_channel = $_POST['new_channel'];
-            $bid_amount = $_POST['bid_amount'];
+        if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_channel_nonce' ) ) {
+            if ( empty( $_POST['lbry_new_channel'] ) || empty( $_POST['lbry_channel_bid_amount'] ) ) {
+                LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
+            } elseif ( isset( $_POST['lbry_new_channel'] ) && isset( $_POST['lbry_channel_bid_amount'] ) ) {
+                $channel = $_POST['lbry_new_channel']; // TODO: sanitize key() only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use something else for better control?
+                $channel = trim( $channel );
+                $channel = str_replace( '@', '', $channel );
+                $channel = str_replace( ' ', '-', $channel );
+                $channel = str_replace( '_', '-', $channel );
+                $channel_name = sanitize_user( $channel );
 
-            // Try to add the new channel
-            try {
-                $result = LBRY()->daemon->channel_new($new_channel, $bid_amount);
-                // Tell the user it takes some time to go through
-                LBRY()->notice->set_notice('success', 'Successfully added a new channel! Please wait a few minutes for the bid to process.', true);
-            } catch (\Exception $e) {
-                LBRY()->notice->set_notice('error', $e->getMessage(), false);
+                $bid = $_POST['lbry_channel_bid_amount'];
+                $channel_bid = number_format( floatval( $bid ), 3, '.', '' );
+
+                // Try to add the new channel
+                try { 
+                    $result = LBRY()->daemon->channel_new( $channel_name, $channel_bid );
+                    // Tell the user it takes some time to go through
+                    LBRY()->notice->set_notice(
+                        'success', 'Successfully added a new channel: @' . esc_html( $channel_name ) . '! Please allow a few minutes for the bid to process.', true );
+                    
+                } catch ( \Exception $e ) {
+                    LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
+                }
             }
+        } else {
+            LBRY()->notice->set_notice('error', 'Security check failed' );
+            die( __( 'Security check failed', 'lbrypress' ) );
         }
 
-        wp_safe_redirect($redirect_url);
+        wp_safe_redirect( $redirect_url );
         exit();
     }
 
