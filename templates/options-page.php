@@ -34,7 +34,7 @@ $channel_list = $LBRY->daemon->channel_list();
                     do_settings_sections( LBRY_ADMIN_PAGE );
                     submit_button();
                 } elseif ( $lbry_active_tab == 'channels' ) {
-//                    include_once( 'partials/channel-page.php' );
+///                    include_once( 'partials/channel-page.php' );
                 } elseif ( $lbry_active_tab == 'speech' ) {
                     settings_fields( LBRY_SPEECH_SETTINGS );
                     do_settings_sections( 'lbrypress-speech' );
