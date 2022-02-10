@@ -33,6 +33,21 @@ class LBRY_Admin
             array($this, 'options_page_html'),
             plugin_dir_url(LBRY_PLUGIN_FILE) . '/admin/images/lbry-logo.svg'
         );
+ 
+        // Admin stylesheet enqueue
+        function load_admin_stylesheet( $hook ) {
+
+            if ( ( $_GET['page'] == 'lbrypress' ) ) {
+                    wp_enqueue_style(
+                        'lbry-admin',
+                        plugins_url( '/admin/css/lbry-admin.css', LBRY_PLUGIN_FILE ),
+                        array(),
+                        LBRY_VERSION,
+                        'all'
+                    );
+                }
+        }
+        add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
     }
 
     /**
