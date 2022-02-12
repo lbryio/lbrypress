@@ -25,7 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
-        $hook_suffix = add_menu_page(
+        add_menu_page(
             __('LBRYPress Settings', 'lbrypress'),
             __('LBRYPress', 'lbrypress'),
             'manage_options',
