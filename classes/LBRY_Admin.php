@@ -25,6 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
+        
         add_menu_page(
             __( 'LBRYPress Settings', 'lbrypress' ),
             __( 'LBRYPress', 'lbrypress' ),
@@ -68,7 +69,7 @@ class LBRY_Admin
     {
         // Register the LBRY Setting array
         register_setting(
-            LBRY_SETTINGS_GROUP,
+            'lbry_general_settings',
             LBRY_SETTINGS,
             array( $this, 'sanitize_general_settings' )
         );
@@ -115,7 +116,6 @@ class LBRY_Admin
         
          
         /**
-
          * Speech Admin Page settings
          */
 
@@ -275,7 +275,7 @@ class LBRY_Admin
         }
 
         printf(
-            '<select id="%1$s" name="%2$s[%1$s]">%3$s</select>',
+            '<select id="'.esc_attr('%1$s').'" name="'. esc_attr('%2$s[%1$s]') .'">' . esc_html('%3$s') . '</select>',
             LBRY_LICENSE,
             LBRY_SETTINGS,
             $options

@@ -82,6 +82,8 @@ class LBRY_Network
         $will_publish = (isset($_POST[LBRY_WILL_PUBLISH]) ? $_POST[LBRY_WILL_PUBLISH] : false);
         $new_channel = (isset($_POST[LBRY_POST_CHANNEL]) ? $_POST[LBRY_POST_CHANNEL] : null);
         $cur_channel = get_post_meta($post_id, LBRY_POST_CHANNEL, true);
+        $license = $_POST[LBRY_POST_PUB_LICENSE];
+        $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );        
 
         // Update meta acordingly
         if (!$will_publish) {
