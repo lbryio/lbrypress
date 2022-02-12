@@ -114,7 +114,7 @@ class LBRY_Daemon
      * https://lbry.tech/api/sdk#channel_create
      * @return array    dictionary containing result of the request
      */
-    public function channel_new($channel_name, $bid_amount)
+    public function channel_new($channel_name, $channel_bid)
     {
         // TODO: Sanitize channel name and bid
         // Make sure no @ sign, as we will add that
@@ -134,10 +134,13 @@ class LBRY_Daemon
                 'channel_create',
                 array(
                     'name' => $channel_name,
-                    'bid' => number_format(floatval($bid_amount), 2, '.', '')
+                    'bid'  => $channel_bid
                 )
             );
+ 
+            $this->logger->log( 'channel_create success!', 'Successfully created channel with result: ' . print_r( $result->result, true ) );
             return $result->result;
+            
         } catch (LBRYDaemonException $e) {
             $this->logger->log('channel_new error', $e->getMessage() . ' | Code: ' . $e->getCode());
             throw new \Exception('Issue creating new channel.', 1);
