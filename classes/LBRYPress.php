@@ -183,12 +183,22 @@ class LBRYPress
 
             // Default options
             $option_defaults = array(
-                LBRY_SPEECH => null,
+                
                 LBRY_LICENSE => $this->licenses[0],
                 LBRY_LBC_PUBLISH => 1
             );
 
             add_option(LBRY_SETTINGS, $option_defaults, false);
+        }
+
+        if ( ! get_option( LBRY_SPEECH_SETTINGS ) ) {
+            // Default Speech Settings
+            $option_defaults = array(
+                LBRY_SPEECH =>'',
+                LBRY_SPEECH_CHANNEL => '',
+                LBRY_SPEECH_PW => '',
+            );
+            add_option( LBRY_SPEECH_SETTINGS, $option_defaults, false );
         }
 
         // COMBAK: decide if we need to check for missing or corrupt settings. May be unecessary.
