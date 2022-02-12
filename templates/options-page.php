@@ -14,8 +14,7 @@ $channel_list = $LBRY->daemon->channel_list();
 
 <div class="wrap">
     <h1><?php esc_html_e( get_admin_page_title(), 'lbrypress' ); ?></h1>
-
-    <h2 title="<?php echo esc_attr( number_format( $total_balance, 3, '.', ',' ) ); ?> Wallet Total Balance"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc wallet-icon-lbc"><code><?php esc_html_e( number_format( $available_balance, 3, '.', ',' ) ); ?></code> Wallet Available Balance</h2>
+    <h2 title="<?php echo esc_attr( number_format( $total_balance, 3, '.', ',' ) ); ?> Wallet Total Balance"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc wallet-icon-lbc" style="height: 1.8em; margin-right: .5em; margin-bottom: -.5em;"><code><?php esc_html_e( number_format( $available_balance, 3, '.', ',' ) ); ?></code> Wallet Available Balance</h2>
     <nav class="nav-tab-wrapper">
         <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=general' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'general' || '' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Settings' ); ?></a>
         <a href="<?php echo esc_url( admin_url( 'admin.php?page=lbrypress&tab=channels' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'channels' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Channels' ); ?></a>
