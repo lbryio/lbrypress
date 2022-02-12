@@ -25,7 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
-        $hook_suffix = add_menu_page(
+        add_menu_page(
             __('LBRYPress Settings', 'lbrypress'),
             __('LBRYPress', 'lbrypress'),
             'manage_options',
@@ -48,6 +48,17 @@ class LBRY_Admin
                 }
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
+    }
+
+    /**
+    * Returns the Options Page HTML for the plugin
+    */
+    public function options_page_html()
+    {
+          // Set class properties to be referenced in callbacks
+          $this->options = get_option( LBRY_SETTINGS );
+          $this->options_speech = get_option( LBRY_SPEECH_SETTINGS );
+          require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
 
     /**
@@ -145,17 +156,6 @@ class LBRY_Admin
             'lbry_settings_section_speech'
         );
     }
-
-    /**
-    * Returns the Options Page HTML for the plugin
-    */
-    public function options_page_html()
-    {
-        // Set class property to be referenced in callbacks
-        $this->options = get_option(LBRY_SETTINGS);
-        require_once( LBRY_ABSPATH . 'templates/options-page.php' );
-    }
-
 
     /**
     * Sanitizes setting input
@@ -340,7 +340,6 @@ class LBRY_Admin
             LBRY_SPEECH_SETTINGS,
         );
     }
-
 
     /**
     * Handles new channel form submission
