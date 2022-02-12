@@ -37,7 +37,7 @@ class LBRY_Admin
         // Admin stylesheet enqueue
         function load_admin_stylesheet( $hook ) {
 
-            if ( ( $_GET['page'] == 'lbrypress' ) ) {
+            if ( ( $hook == 'post.php' ) || ( $hook == 'post-new.php' ) || ( $_GET['page'] == 'lbrypress' ) ) {
                     wp_enqueue_style(
                         'lbry-admin',
                         plugins_url( '/admin/css/lbry-admin.css', LBRY_PLUGIN_FILE ),

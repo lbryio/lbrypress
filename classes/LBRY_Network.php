@@ -34,7 +34,7 @@ class LBRY_Network
     private function post_meta_setup()
     {
         // Add the meta boxes
-        add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
+        add_action( 'add_meta_boxes', array( $this, 'lbry_meta_boxes' ) );
 
         // Save the post meta on 'save_post' hook
         add_action('wp_insert_post', array($this, 'save_post_meta'), 11, 2);
@@ -43,12 +43,12 @@ class LBRY_Network
     /**
      * Adds the meta boxes to the post editing backend
      */
-    public function add_meta_boxes()
+    public function lbry_meta_boxes( $post )
     {
         // IDEA: Support post types based on user selection
         add_meta_box(
             'lbry-network-publishing',      // Unique ID
-            'LBRY Network',                 // Title
+            __('LBRY Network', 'lbrypress'),                // Title
             array($this, 'meta_box_html'),  // Callback function
             'post',                         // Screen Options (or post type)
             'side',                         // Context
@@ -107,6 +107,6 @@ class LBRY_Network
      */
     public function meta_box_html( $post )
     {
-        require_once(LBRY_ABSPATH . 'templates/meta_box.php');
+        require_once( LBRY_ABSPATH . 'templates/meta-box.php' );
     }
 }
