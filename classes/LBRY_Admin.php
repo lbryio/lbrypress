@@ -91,12 +91,21 @@ class LBRY_Admin
         );
 
         add_settings_field(
+            'lbry_default_publish_setting',
+            'Always Publish to LBRY',
+            array( $this, 'lbry_always_pub_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
+        );
+
+        add_settings_field(
             'default_lbry_channel',
             'Default Publish Channel',
             array( $this, 'default_channel_callback' ),
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
+
         add_settings_field(
             LBRY_LICENSE,
             'LBRY Publishing License',
@@ -258,6 +267,24 @@ class LBRY_Admin
             LBRY_WALLET,
             LBRY_SETTINGS,
             $address
+        );
+    }
+
+    /**
+     * Checkbox to default to always allow publish on LBRY
+     */
+    public function lbry_always_pub_callback()
+    {
+        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
+        if ( ! isset( $options ) ) {
+            $options = 0;
+        }
+        $checked = checked( $options, 1, false );
+        printf(
+        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
+        'lbry_default_publish_setting',
+        LBRY_SETTINGS,
+
         );
     }
 
