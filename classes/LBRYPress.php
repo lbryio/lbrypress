@@ -112,6 +112,7 @@ class LBRYPress
         $this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');
         $this->define('LBRY_WALLET', 'lbry_wallet'); // the wallet address
+        $this->define('LBRY_SPEECH_SETTINGS', 'lbry_speech_settings');
         $this->define('LBRY_SPEECH', 'lbry_speech'); // the spee.ch address
         $this->define('LBRY_SPEECH_CHANNEL', 'lbry_speech_channel'); // The spee.ch channel
         $this->define('LBRY_SPEECH_PW', 'lbry_speech_pw'); // The password for the spee.ch channel
