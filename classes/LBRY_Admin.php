@@ -25,7 +25,6 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
-        
         add_menu_page(
             __( 'LBRYPress Settings', 'lbrypress' ),
             __( 'LBRYPress', 'lbrypress' ),
@@ -91,6 +90,13 @@ class LBRY_Admin
             LBRY_SETTINGS_SECTION_GENERAL
         );
 
+        add_settings_field(
+            'default_lbry_channel',
+            'Default Publish Channel',
+            array( $this, 'default_channel_callback' ),
+            LBRY_ADMIN_PAGE,
+            LBRY_SETTINGS_SECTION_GENERAL
+        );
         add_settings_field(
             LBRY_LICENSE,
             'LBRY Publishing License',
@@ -256,6 +262,37 @@ class LBRY_Admin
     }
 
     /**
+     * Prints select to choose a default to publish to channel
+     */
+    public function default_channel_callback()
+    {
+        $options = '';
+        $channel_list = LBRY()->daemon->channel_list();
+
+        if ( $channel_list ) {
+                foreach ( $channel_list as $channel ) {
+                    $selected = $this->options['default_lbry_channel'] === $channel->claim_id;
+
+                    $options .= '<option value="' . esc_attr( $channel->claim_id ) . '"';
+                    if ( $selected ) {
+                        $options .= ' selected';
+                    }
+                    $options .= '>' . esc_html( $channel->name ) . '</option>';
+                }
+
+                printf(
+                    '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '">' . esc_html('%3$s') . '</select>',
+                    'default_lbry_channel',
+                    LBRY_SETTINGS,
+                    $options
+                );
+        } else { ?>
+                <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
+        <?php }
+    }
+    
+    
+    /**
     * Prints License input
     */
     public function license_callback()
@@ -282,6 +319,7 @@ class LBRY_Admin
         );
     }
 
+    
     /**
     * Prints LBC per publish input
     */
