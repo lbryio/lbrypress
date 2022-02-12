@@ -26,11 +26,11 @@ class LBRY_Admin
     public function create_options_page()
     {
         add_menu_page(
-            __('LBRYPress Settings', 'lbrypress'),
-            __('LBRYPress', 'lbrypress'),
+            __( 'LBRYPress Settings', 'lbrypress' ),
+            __( 'LBRYPress', 'lbrypress' ),
             'manage_options',
             LBRY_ADMIN_PAGE,
-            array($this, 'options_page_html'),
+            array( $this, 'options_page_html' ),
             plugin_dir_url(LBRY_PLUGIN_FILE) . '/admin/images/lbry-logo.svg'
         );
 
@@ -246,7 +246,7 @@ class LBRY_Admin
     {
         // Get first available account address from Daemon
         $address = LBRY()->daemon->address_list();
-        $address = is_array($address) && !empty($address) ? $address[0]->address : '';
+        $address = is_array( $address ) && ! empty( $address ) ? $address[0]->address : '';
         printf(
             '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" readonly />',
             LBRY_WALLET,
@@ -264,11 +264,11 @@ class LBRY_Admin
         $options = '';
         // Create options list, select current license
         //
-        foreach (LBRY()->licenses as $value => $name) {
+        foreach ( LBRY()->licenses as $value => $name ) {
             $selected = $this->options[LBRY_LICENSE] === $value;
 
             $options .= '<option value="' . $value . '"';
-            if ($selected) {
+            if ( $selected ) {
                 $options .= ' selected';
             }
             $options .= '>'. $name . '</option>';
@@ -398,7 +398,7 @@ class LBRY_Admin
                 if (!get_transient('lbry_wallet_warning_email')) {
                     $email = get_option('admin_email');
                     $subject = 'Your LBRYPress Wallet Balance is Low!';
-                    $message = "You LBRY Wallet for your wordpress installation at " . site_url() . " is running very low.\r\n\r\nYou currently have " . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
+                    $message = "Your LBRY Wallet for your WordPress installation at " . site_url() . " is running very low.\r\n\r\nYou currently have " . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
                     wp_mail($email, $subject, $message);
                     set_transient('lbry_wallet_warning_email', true, DAY_IN_SECONDS);
                 }
