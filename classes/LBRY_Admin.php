@@ -25,7 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
-        $hook_suffix = add_menu_page(
+        add_menu_page(
             __('LBRYPress Settings', 'lbrypress'),
             __('LBRYPress', 'lbrypress'),
             'manage_options',
@@ -48,6 +48,17 @@ class LBRY_Admin
                 }
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
+    }
+
+    /**
+    * Returns the Options Page HTML for the plugin
+    */
+    public function options_page_html()
+    {
+          // Set class properties to be referenced in callbacks
+          $this->options = get_option( LBRY_SETTINGS );
+          $this->options_speech = get_option( LBRY_SPEECH_SETTINGS );
+          require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
 
     /**
@@ -147,17 +158,6 @@ class LBRY_Admin
     }
 
     /**
-    * Returns the Options Page HTML for the plugin
-    */
-    public function options_page_html()
-    {
-        // Set class property to be referenced in callbacks
-        $this->options = get_option(LBRY_SETTINGS);
-        require_once( LBRY_ABSPATH . 'templates/options-page.php' );
-    }
-
-
-    /**
     * Sanitizes setting input
     * // COMBAK Potentially sanitize more
     */
@@ -213,7 +213,7 @@ class LBRY_Admin
     {
         print 'This is where you can configure how LBRYPress will distribute your content:';
     }
-/**
+    /**
     * Section info for the Speech Channel Section
     */
     public function speech_section_callback()
@@ -237,14 +237,6 @@ class LBRY_Admin
         <?php } else { ?>
             <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
         <?php }
-    }
-
-/**
-    * Section info for the Speech Channel Section
-    */
-    public function speech_section_callback()
-    {
-      print 'If you have a Spee.ch account, you can enter your account details here, if you don\'t already have a Spee.ch account, no need to enter anything here.';
     }
 
     /**
@@ -303,53 +295,13 @@ class LBRY_Admin
         );
     }
 
-       /**
-    * Prints Spee.ch input
-    */
-    public function speech_callback()
-    {
-        $options = get_option( LBRY_SPEECH_SETTINGS );
-        printf(
-            '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_attr('%3$s') . '" placeholder="https://your-speech-address.com">',
-            LBRY_SPEECH,
-            LBRY_SPEECH_SETTINGS,
-            isset( $options[LBRY_SPEECH] ) ? $options[LBRY_SPEECH] : '',
-        );
-    }
-
-    /**
-    * Prints Spee.ch channel input
-    */
-    public function speech_channel_callback()
-    {
-        $options = get_option( LBRY_SPEECH_SETTINGS );
-        printf(
-            '<input type="text" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="@' . esc_attr('%3$s') . '" placeholder="your-speech-channel">',
-            LBRY_SPEECH_CHANNEL,
-            LBRY_SPEECH_SETTINGS,
-            isset( $options[LBRY_SPEECH_CHANNEL] ) ? $options[LBRY_SPEECH_CHANNEL] : '',
-        );
-    }
-
-    /**
-    * Prints Spee.ch password input
-    */
-    public function speech_pw_callback()
-    {
-        printf(
-            '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" placeholder="Leave empty for same password">',
-            LBRY_SPEECH_PW,
-            LBRY_SPEECH_SETTINGS,
-        );
-    }
-
 
     /**
      * Channels Page
      * Channels page uses admin.php so we are able to use the admin-post action instead of options.php
      */
 
-       /**
+    /**
     * Prints Spee.ch input
     */
     public function speech_callback()
@@ -388,7 +340,6 @@ class LBRY_Admin
             LBRY_SPEECH_SETTINGS,
         );
     }
-
 
     /**
     * Handles new channel form submission
