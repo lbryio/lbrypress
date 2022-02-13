@@ -37,7 +37,7 @@ class LBRY_Admin
         // Admin stylesheet enqueue
         function load_admin_stylesheet( $hook ) {
 
-            if ( ( $_GET['page'] == 'lbrypress' ) ) {
+            if ( ( $hook == 'post.php' ) || ( $hook == 'post-new.php' ) || ( $_GET['page'] == 'lbrypress' ) ) {
                     wp_enqueue_style(
                         'lbry-admin',
                         plugins_url( '/admin/css/lbry-admin.css', LBRY_PLUGIN_FILE ),
@@ -91,7 +91,6 @@ class LBRY_Admin
         );
 
         add_settings_field(
-
             'lbry_default_publish_setting',
             'Always Publish to LBRY',
             array( $this, 'lbry_always_pub_callback' ),
@@ -100,7 +99,6 @@ class LBRY_Admin
         );
 
         add_settings_field(
-
             'default_lbry_channel',
             'Default Publish Channel',
             array( $this, 'default_channel_callback' ),
@@ -275,6 +273,7 @@ class LBRY_Admin
             $address
         );
     }
+
 
     /**
      * Checkbox to default to always allow publish on LBRY
