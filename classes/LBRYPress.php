@@ -185,9 +185,11 @@ class LBRYPress
 
             //Default options
             $option_defaults = array(
-                
-                LBRY_LICENSE => $this->licenses[0],
-                LBRY_LBC_PUBLISH => 1
+                LBRY_WALLET => '',
+                'lbry_default_publish_setting' => '',
+                'default_lbry_channel' => '',
+                LBRY_LICENSE => '',
+                LBRY_LBC_PUBLISH => 0.001,
             );
 
             add_option( LBRY_SETTINGS, $option_defaults, false );

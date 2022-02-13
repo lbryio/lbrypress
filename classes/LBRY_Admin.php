@@ -312,6 +312,24 @@ class LBRY_Admin
     }
 
     /**
+     * Checkbox to default to always allow publish on LBRY
+     */
+    public function lbry_always_pub_callback()
+    {
+        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
+        if ( ! isset( $options ) ) {
+            $options = 0;
+        }
+        $checked = checked( $options, 1, false );
+        printf(
+        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
+        'lbry_default_publish_setting',
+        LBRY_SETTINGS,
+
+        );
+    }
+
+    /**
      * Prints select to choose a default to publish to channel
      */
     public function default_channel_callback()
