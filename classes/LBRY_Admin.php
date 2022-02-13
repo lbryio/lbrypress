@@ -274,7 +274,7 @@ class LBRY_Admin
         );
     }
 
-    /**
+    /**e
      * Checkbox to default to always allow publish on LBRY
      */
     public function lbry_always_pub_callback()
@@ -292,7 +292,7 @@ class LBRY_Admin
         );
     }
 
-    /**
+    /**r
      * Prints select to choose a default to publish to channel
      */
     public function default_channel_callback()
