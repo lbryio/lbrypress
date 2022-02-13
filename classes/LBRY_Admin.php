@@ -25,6 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
+
         add_menu_page(
             __( 'LBRYPress Settings', 'lbrypress' ),
             __( 'LBRYPress', 'lbrypress' ),
@@ -48,6 +49,20 @@ class LBRY_Admin
                 }
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
+        
+        // Admin Error Notices
+        function lbry_plugin_not_configured_notice() {
+          	echo "<div id='notice' class='updated fade'><p>LBRYPress plugin is not configured yet. Please do it now.</p></div>\n";
+        }
+        $lbry_wallet = get_option('lbry_wallet');
+        if ( ! isset($lbry_wallet) ) {
+            add_action( 'admin_notices', 'lbry_plugin_not_configured_notice' );
+        }
+        function admin_permission_check() {
+          	if ( ! current_user_can( 'manage_options' ) )  {
+          		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+          	}
+        }
     }
 
     /**
@@ -267,7 +282,7 @@ class LBRY_Admin
         $address = LBRY()->daemon->address_list();
         $address = is_array( $address ) && ! empty( $address ) ? $address[0]->address : '';
         printf(
-            '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" readonly />',
+            '<input type="text" id="'. esc_attr('%1$s') .'" name="'. esc_attr('%2$s[%1$s]') .'" value="' . esc_attr('%3$s') . '" readonly />',
             LBRY_WALLET,
             LBRY_SETTINGS,
             $address
