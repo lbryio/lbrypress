@@ -25,6 +25,7 @@ class LBRY_Admin
     */
     public function create_options_page()
     {
+
         add_menu_page(
             __( 'LBRYPress Settings', 'lbrypress' ),
             __( 'LBRYPress', 'lbrypress' ),
@@ -48,6 +49,20 @@ class LBRY_Admin
                 }
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
+        
+        // Admin Error Notices
+        function lbry_plugin_not_configured_notice() {
+          	echo "<div id='notice' class='updated fade'><p>LBRYPress plugin is not configured yet. Please do it now.</p></div>\n";
+        }
+        $lbry_wallet = get_option('lbry_wallet');
+        if ( ! isset($lbry_wallet) ) {
+            add_action( 'admin_notices', 'lbry_plugin_not_configured_notice' );
+        }
+        function admin_permission_check() {
+          	if ( ! current_user_can( 'manage_options' ) )  {
+          		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+          	}
+        }
     }
 
     /**
@@ -267,49 +282,13 @@ class LBRY_Admin
         $address = LBRY()->daemon->address_list();
         $address = is_array( $address ) && ! empty( $address ) ? $address[0]->address : '';
         printf(
-            '<input type="text" id="%1$s" name="%2$s[%1$s]" value="%3$s" readonly />',
+            '<input type="text" id="'. esc_attr('%1$s') .'" name="'. esc_attr('%2$s[%1$s]') .'" value="' . esc_attr('%3$s') . '" readonly />',
             LBRY_WALLET,
             LBRY_SETTINGS,
             $address
         );
     }
 
-
-    /**
-     * Checkbox to default to always allow publish on LBRY
-     */
-    public function lbry_always_pub_callback()
-    {
-        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        if ( ! isset( $options ) ) {
-            $options = 0;
-        }
-        $checked = checked( $options, 1, false );
-        printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
-        'lbry_default_publish_setting',
-        LBRY_SETTINGS,
-
-        );
-    }
-
-    /**
-     * Checkbox to default to always allow publish on LBRY
-     */
-    public function lbry_always_pub_callback()
-    {
-        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        if ( ! isset( $options ) ) {
-            $options = 0;
-        }
-        $checked = checked( $options, 1, false );
-        printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
-        'lbry_default_publish_setting',
-        LBRY_SETTINGS,
-
-        );
-    }
 
     /**
      * Checkbox to default to always allow publish on LBRY
@@ -358,7 +337,6 @@ class LBRY_Admin
                 <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
     }
-    
     
     /**
     * Prints License input
