@@ -309,42 +309,6 @@ class LBRY_Admin
     }
 
     /**
-     * Checkbox to default to always allow publish on LBRY
-     */
-    public function lbry_always_pub_callback()
-    {
-        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        if ( ! isset( $options ) ) {
-            $options = 0;
-        }
-        $checked = checked( $options, 1, false );
-        printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
-        'lbry_default_publish_setting',
-        LBRY_SETTINGS,
-
-        );
-    }
-
-    /**
-     * Checkbox to default to always allow publish on LBRY
-     */
-    public function lbry_always_pub_callback()
-    {
-        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        if ( ! isset( $options ) ) {
-            $options = 0;
-        }
-        $checked = checked( $options, 1, false );
-        printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
-        'lbry_default_publish_setting',
-        LBRY_SETTINGS,
-
-        );
-    }
-
-    /**
      * Prints select to choose a default to publish to channel
      */
     public function default_channel_callback()
@@ -373,56 +337,6 @@ class LBRY_Admin
                 <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
     }
-    
-    
-    /**
-     * Checkbox to default to always allow publish on LBRY
-     */
-    public function lbry_always_pub_callback()
-    {
-        $options = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'];
-        if ( ! isset( $options ) ) {
-            $options = 0;
-        }
-        $checked = checked( $options, 1, false );
-        printf(
-        '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
-        'lbry_default_publish_setting',
-        LBRY_SETTINGS,
-
-        );
-    }
-
-    /**
-     * Prints select to choose a default to publish to channel
-     */
-    public function default_channel_callback()
-    {
-        $options = '';
-        $channel_list = LBRY()->daemon->channel_list();
-
-        if ( $channel_list ) {
-                foreach ( $channel_list as $channel ) {
-                    $selected = $this->options['default_lbry_channel'] === $channel->claim_id;
-
-                    $options .= '<option value="' . esc_attr( $channel->claim_id ) . '"';
-                    if ( $selected ) {
-                        $options .= ' selected';
-                    }
-                    $options .= '>' . esc_html( $channel->name ) . '</option>';
-                }
-
-                printf(
-                    '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '">' . esc_html('%3$s') . '</select>',
-                    'default_lbry_channel',
-                    LBRY_SETTINGS,
-                    $options
-                );
-        } else { ?>
-                <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
-        <?php }
-    }
-    
     
     /**
     * Prints License input
