@@ -37,7 +37,7 @@ class LBRY_Network
         add_action( 'add_meta_boxes', array( $this, 'lbry_meta_boxes' ) );
 
         // Save the post meta on 'save_post' hook
-        add_action('wp_insert_post', array($this, 'save_post_meta'), 11, 2);
+        add_action( 'wp_insert_post', array( $this, 'save_post_meta' ), 11, 2 );
     }
 
     /**
@@ -64,19 +64,25 @@ class LBRY_Network
      */
     public function save_post_meta( $post_id, $post )
     {
-        if ($post->post_type != 'post') {
-            return;
+        if ( $post->post_type != 'post' ) {
+            return $post_id;
         }
-
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return $post_id;
+        }
         // Verify the nonce before proceeding.
-        if (!isset($_POST['_lbrynonce']) || !wp_verify_nonce($_POST['_lbrynonce'], 'lbry_publish_channels')) {
+        if ( ! isset( $_POST['_lbrynonce'] ) || ! wp_verify_nonce( $_POST['_lbrynonce'], 'lbry_publish_post_nonce' ) ) {
+            //LBRY()->notice->set_notice('error', 'Security check failed' );
             return $post_id;
         }
-
-        // Check if the current user has permission to edit the post.
-        $post_type = get_post_type_object($post->post_type);
-        if (!current_user_can($post_type->cap->edit_post, $post_id)) {
+        $post_type = get_post_type_object( $post->post_type );
+        if ( ! current_user_can( $post_type->cap->edit_post, $post_id ) ) {
             return $post_id;
+        }
+        if ( ( $_POST[LBRY_WILL_PUBLISH] ) && $_POST[LBRY_WILL_PUBLISH] != get_post_meta( $post_id, LBRY_WILL_PUBLISH, true ) ) {
+            update_post_meta( $post_id, LBRY_WILL_PUBLISH, $_POST[LBRY_WILL_PUBLISH] );
+        } elseif ( ! isset( $_POST[LBRY_WILL_PUBLISH] ) ) {
+            update_post_meta( $post_id, LBRY_WILL_PUBLISH, 0 );
         }
 
         $channel = $_POST[LBRY_POST_PUB_CHANNEL];
@@ -86,18 +92,20 @@ class LBRY_Network
         $will_publish = $_POST[LBRY_WILL_PUBLISH];
 
         // Update meta acordingly
-        if (!$will_publish) {
-            update_post_meta($post_id, LBRY_WILL_PUBLISH, 'false');
-        } else {
-            update_post_meta($post_id, LBRY_WILL_PUBLISH, 'true');
+            
+        if ( $channel !== $cur_channel ) {
+            update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
+            delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
+        } elseif ( $channel === $cur_channel && ( $cur_channel === get_post_meta( $post_id, '_lbry_channel', true ) ) ) {
+            update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
+            delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
         }
-        if ($new_channel !== $cur_channel) {
-            update_post_meta($post_id, LBRY_POST_CHANNEL, $new_channel);
+        if ( $license !== $cur_license ) {
+            update_post_meta( $post_id, LBRY_POST_PUB_LICENSE, $license );
         }
-
-        if ($will_publish && $post->post_status == 'publish') {
+        if ( ( $will_publish ) && ( $will_publish == 1 ) && $post->post_status == 'publish') {
             // Publish the post on the LBRY Network
-            $this->publisher->publish($post, get_post_meta($post_id, LBRY_POST_CHANNEL, true));
+            $this->publisher->publish( $post, $channel, $license );
         }
     }
 
