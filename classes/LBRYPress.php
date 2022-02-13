@@ -64,7 +64,7 @@ class LBRYPress
      */
     public static function instance()
     {
-        if (is_null(self::$_instance)) {
+        if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
         return self::$_instance;
@@ -77,7 +77,7 @@ class LBRYPress
     public function __construct()
     {
         $this->define_constants();
-        spl_autoload_register(array($this, 'lbry_autoload_register'));
+        spl_autoload_register( array( $this, 'lbry_autoload_register' ) );
         $this->init();
         $this->init_hooks();
     }
@@ -88,10 +88,10 @@ class LBRYPress
      * @param string      $name  Constant name.
      * @param string|bool $value Constant value.
      */
-    private function define($name, $value)
+    private function define( $name, $value )
     {
-        if (! defined($name)) {
-            define($name, $value);
+        if ( ! defined( $name ) ) {
+            define( $name, $value );
         }
     }
 
@@ -130,11 +130,11 @@ class LBRYPress
     /**
      * Autoloader Registration
      */
-    private function lbry_autoload_register($class)
+    private function lbry_autoload_register( $class )
     {
         $file_name = LBRY_ABSPATH . 'classes/' . $class . '.php';
 
-        if (file_exists($file_name)) {
+        if ( file_exists( $file_name ) ) {
             require $file_name;
             return;
         }
@@ -149,7 +149,7 @@ class LBRYPress
         $this->speech = new LBRY_Speech();
 
         // Admin request
-        if (is_admin()) {
+        if ( is_admin() ) {
             $this->admin = new LBRY_Admin();
             $this->notice = new LBRY_Admin_Notice();
             $this->network = new LBRY_Network();
@@ -161,15 +161,15 @@ class LBRYPress
      */
     private function init_hooks()
     {
-        register_activation_hook(LBRY_PLUGIN_FILE, array($this, 'activate'));
-        register_deactivation_hook(LBRY_PLUGIN_FILE, array($this, 'deactivate'));
+        register_activation_hook( LBRY_PLUGIN_FILE, array( $this, 'activate' ) );
+        register_deactivation_hook( LBRY_PLUGIN_FILE, array( $this, 'deactivate' ) );
 
         // Banner output for published posts
         // NOTE: move this to its own class to reduce clutter?
-        add_action('the_content', array($this, 'published_on_lbry_banner'), 12, 1);
+        add_action( 'the_content', array( $this, 'published_on_lbry_banner' ), 12, 1 );
 
-        add_action('wp_enqueue_scripts', function () {
-            wp_enqueue_style('lbry-css', plugins_url('/frontend/lbry.css', LBRY_PLUGIN_FILE));
+        add_action( 'wp_enqueue_scripts', function () {
+            wp_enqueue_style( 'lbry-css', plugins_url( '/frontend/lbry.css', LBRY_PLUGIN_FILE ) );
         });
     }
 
@@ -181,16 +181,16 @@ class LBRYPress
         // TODO: Make sure errors are thrown if daemon can't be contacted, stop activation
 
         // Add options to the options table we need
-        if (! get_option(LBRY_SETTINGS)) {
+        if (! get_option( LBRY_SETTINGS ) ) {
 
-            // Default options
+            //Default options
             $option_defaults = array(
                 
                 LBRY_LICENSE => $this->licenses[0],
                 LBRY_LBC_PUBLISH => 1
             );
 
-            add_option(LBRY_SETTINGS, $option_defaults, false);
+            add_option( LBRY_SETTINGS, $option_defaults, false );
         }
 
         if ( ! get_option( LBRY_SPEECH_SETTINGS ) ) {
@@ -221,26 +221,26 @@ class LBRYPress
     public function deactivate()
     {
         // TODO: Stop the daemon
-        error_log('Deactivated LBRYPress');
+        error_log( 'Deactivated LBRYPress' );
     }
 
     public function published_on_lbry_banner($content)
     {
-        if (!is_single() || !in_the_loop() || !is_main_query()) {
+        if ( ! is_single() || ! in_the_loop() || ! is_main_query() ) {
             return $content;
         }
 
         global $post;
-        if ($post->post_type != 'post') {
+        if ( $post->post_type != 'post' ) {
             return $content;
         }
 
-        if (!get_post_meta($post->ID, LBRY_WILL_PUBLISH, true)) {
+        if ( ! get_post_meta( $post->ID, LBRY_WILL_PUBLISH, true ) ) {
             return $content;
         }
 
         ob_start();
-        require(LBRY_ABSPATH . 'templates/published_on_lbry_banner.php');
+        require( LBRY_ABSPATH . 'templates/published_on_lbry_banner.php' );
         $banner = ob_get_clean();
 
         return $content .= $banner;

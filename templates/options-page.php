@@ -45,4 +45,3 @@ $channel_list = $LBRY->daemon->channel_list();
             ?>
             </form>
 </div><!-- wrap -->
-

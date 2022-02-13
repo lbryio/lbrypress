@@ -62,7 +62,7 @@ class LBRY_Network
      * @param  WP_Post  $post       The Post Object we are saving
      * @return int                  Returns post_id if user cannot edit post
      */
-    public function save_post_meta($post_id, $post)
+    public function save_post_meta( $post_id, $post )
     {
         if ($post->post_type != 'post') {
             return;
@@ -103,7 +103,7 @@ class LBRY_Network
      * Returns the HTML for the LBRY Meta Box
      * @param WP_POST   $post
      */
-    public function meta_box_html($post)
+    public function meta_box_html( $post )
     {
         require_once(LBRY_ABSPATH . 'templates/meta_box.php');
     }
