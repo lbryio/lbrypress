@@ -33,7 +33,7 @@ usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) );
     if ( $channels ) {
         foreach ( $channels as $index=>$channel ) {   
             $options .= '<option class="lbry-meta-bx-option lbry-meta-option-channel" value="' . esc_attr( $channel->claim_id ) . '"';
-                if ( ( $cur_channel ) ? $cur_channel : $cur_channel = $default_channel ) {
+                if ( isset( $cur_channel ) ? $cur_channel : $cur_channel = $default_channel ) {
                     $options .= selected( $cur_channel, $channel->claim_id, false );
         }
             $options .= '>' . esc_html__( $channel->name, 'lbrypress' ) . '</option>';
@@ -54,7 +54,7 @@ usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) );
     if ( $licenses ) {
         foreach ( $licenses as $value => $name ) {
             $options .= '<option class="lbry-meta-bx-option lbry-meta-bx-option-last lbry-meta-option-license" value="' . esc_attr( $value ) . '"';
-                if ( ( $cur_license ) ? $cur_license : $cur_license = $default_license ) {
+                if ( isset( $cur_license ) ? $cur_license : $cur_license = $default_license ) {
                     $options .= selected( $cur_license, $value, false );
                 } 
             $options .= '>'. esc_html__( $name, 'lbrypress' ) . '</option>';
