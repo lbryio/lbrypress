@@ -181,22 +181,24 @@ class LBRY_Admin
 
     public function sanitize_general_settings( $input )
     {
-        if (!empty($input[LBRY_SPEECH_CHANNEL])) {
-            $channel = $input[LBRY_SPEECH_CHANNEL];
-            $channel = str_replace('@', '', $channel);
-            $input[LBRY_SPEECH_CHANNEL] = $channel;
-        }
+        $new_input = get_option( LBRY_SETTINGS ); // get saved data
 
-        if (!empty($input[LBRY_SPEECH_PW])) {
-            $encrypted = $this->encrypt($input['lbry_speech_pw']);
-            $input[LBRY_SPEECH_PW] = $encrypted;
-        } else {
-            // If we have a password and its empty, keep orginal password
-            if (!empty(get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW])) {
-                $input[LBRY_SPEECH_PW] = get_option(LBRY_SETTINGS)[LBRY_SPEECH_PW];
-            }
+        if ( isset( $input[LBRY_WALLET] ) ) {
+            $new_input[LBRY_WALLET] = sanitize_text_field( $input[LBRY_WALLET] );
         }
-        return $input;
+        $new_input['lbry_default_publish_setting'] = $input['lbry_default_publish_setting'];
+
+        if ( isset( $input['default_lbry_channel'] ) ) {
+            $new_input['default_lbry_channel'] = sanitize_text_field( $input['default_lbry_channel'] );
+        }
+        $license_array = LBRY()->licenses;
+        if ( isset( $input[LBRY_LICENSE] ) && ( in_array( $input[LBRY_LICENSE], $license_array ) ) ) {
+            $new_input[LBRY_LICENSE] = sanitize_text_field( $input[LBRY_LICENSE] );
+            }
+        if ( isset( $input[LBRY_LBC_PUBLISH] ) ) {
+            $new_input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
+        }
+        return $new_input;
     }
 
       public function sanitize_speech_settings( $input )
@@ -230,13 +232,6 @@ class LBRY_Admin
     {
         print 'This is where you can configure how LBRYPress will distribute your content:';
     }
-    /**
-    * Section info for the Speech Channel Section
-    */
-    public function speech_section_callback()
-    {
-      print 'If you have a Spee.ch account, you can enter your account details here, if you don\'t already have a Spee.ch account, no need to enter anything here.';
-    }
 
     /**
     * Section info for the Available Channel(s) Section
@@ -254,6 +249,15 @@ class LBRY_Admin
         <?php } else { ?>
             <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
         <?php }
+    }
+
+
+    /**
+    * Section info for the Speech Channel Section
+    */
+    public function speech_section_callback()
+    {
+      print 'If you have a Spee.ch account, you can enter your account details here, if you don\'t already have a Spee.ch account, no need to enter anything here.';
     }
 
     /**
@@ -360,8 +364,8 @@ class LBRY_Admin
             LBRY_SETTINGS,
             $this->options[LBRY_LBC_PUBLISH]
         );
-    }
 
+    }
 
     /**
      * Channels Page
