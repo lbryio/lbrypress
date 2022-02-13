@@ -91,6 +91,7 @@ class LBRY_Admin
         );
 
         add_settings_field(
+
             'lbry_default_publish_setting',
             'Always Publish to LBRY',
             array( $this, 'lbry_always_pub_callback' ),
@@ -99,6 +100,7 @@ class LBRY_Admin
         );
 
         add_settings_field(
+
             'default_lbry_channel',
             'Default Publish Channel',
             array( $this, 'default_channel_callback' ),
