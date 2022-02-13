@@ -4,6 +4,7 @@
  *
  * @package LBRYPress
  */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
 class LBRY_Network
 {
@@ -38,6 +39,10 @@ class LBRY_Network
 
         // Save the post meta on 'save_post' hook
         add_action( 'wp_insert_post', array( $this, 'save_post_meta' ), 11, 2 );
+
+        // Checkbox inside the WordPres meta box near "Publish" button
+        add_action( 'post_submitbox_misc_actions', array( $this, 'publish_to_lbry_checkbox' ) );
+
     }
 
     /**
@@ -107,6 +112,38 @@ class LBRY_Network
             // Publish the post on the LBRY Network
             $this->publisher->publish( $post, $channel, $license );
         }
+    }
+
+    /**
+     * Creates a checkbox that changes the default setting to always publish to LBRY, 
+     * can be reverted individually to not publish on a per post basis. Saves to options table.
+     */
+
+    public function publish_to_lbry_checkbox( $post ) 
+    {
+        $post_id = $post->ID;
+
+        if ( get_post_type( $post_id ) != 'post' ) {
+            return $post;
+        }
+        $default_value = get_option( LBRY_SETTINGS )['lbry_default_publish_setting']; 
+        $new_value = get_post_meta( $post_id, LBRY_WILL_PUBLISH, true );
+        if ( ( $new_value ) ? $new_value : $new_value = $default_value );
+        $value = $new_value;
+        if ( ( $value ) ? $value : 0 );
+
+        // nonce set on page meta-box.php
+        printf (
+        '<div class="lbry-meta-checkbox-wrapper lbry-meta-checkbox-wrapper-last">
+            <span class="lbry-pub-metabox"><img src="' . __( '%1$s', '%4$s' ) . '" class="icon icon-lbry meta-icon-lbry"></span><label class="lbry-meta-label">' . esc_html__('%2$s', '%4$s' ) . ' <strong>' . esc_html__('%3$s', '%4$s') . '</strong></label><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
+        </div>',
+        plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
+        'Publish to',
+        'LBRY',
+        'lbrypress',
+        checked( $value, true, false ),
+        LBRY_WILL_PUBLISH
+        );
     }
 
     /**
