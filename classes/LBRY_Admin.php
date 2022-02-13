@@ -117,7 +117,7 @@ class LBRY_Admin
         add_settings_field(
             LBRY_LBC_PUBLISH,
             'LBC Per Publish',
-            array( $this, 'lbc_publish_callback' ),
+            array( $this, 'lbc_per_publish_callback' ),
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
@@ -354,13 +354,14 @@ class LBRY_Admin
     /**
     * Prints LBC per publish input
     */
-    public function lbc_publish_callback()
+    public function lbc_per_publish_callback()
     {
         printf(
-            '<input type="number" id="%1$s" name="%2$s[%1$s]" value="%3$s" min="0.01" step="0.01"/>',
+            '<input type="number" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" value="' . esc_attr('%3$.3f') . '" min="0.001" step="0.001"><p>Current minimum bid <img src="' . esc_attr('%4$s ') . '" class="icon icon-lbc bid-icon-lbc"> 0.001</p>',
             LBRY_LBC_PUBLISH,
             LBRY_SETTINGS,
-            $this->options[LBRY_LBC_PUBLISH]
+            $this->options[LBRY_LBC_PUBLISH],
+            plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png'
         );
 
     }
