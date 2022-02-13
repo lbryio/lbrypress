@@ -79,9 +79,11 @@ class LBRY_Network
             return $post_id;
         }
 
-        $will_publish = (isset($_POST[LBRY_WILL_PUBLISH]) ? $_POST[LBRY_WILL_PUBLISH] : false);
-        $new_channel = (isset($_POST[LBRY_POST_CHANNEL]) ? $_POST[LBRY_POST_CHANNEL] : null);
-        $cur_channel = get_post_meta($post_id, LBRY_POST_CHANNEL, true);
+        $channel = $_POST[LBRY_POST_PUB_CHANNEL];
+         $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
+        $license = $_POST[LBRY_POST_PUB_LICENSE];
+        $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );
+        $will_publish = $_POST[LBRY_WILL_PUBLISH];
 
         // Update meta acordingly
         if (!$will_publish) {
