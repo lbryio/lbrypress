@@ -208,7 +208,7 @@ class LBRY_Admin
         $license_array = LBRY()->licenses;
         if ( isset( $input[LBRY_LICENSE] ) && ( in_array( $input[LBRY_LICENSE], $license_array ) ) ) {
             $new_input[LBRY_LICENSE] = sanitize_text_field( $input[LBRY_LICENSE] );
-            }
+        }
         if ( isset( $input[LBRY_LBC_PUBLISH] ) ) {
             $new_input[LBRY_LBC_PUBLISH] = number_format( floatval( $input[LBRY_LBC_PUBLISH] ), 3, '.', '' );
         }
@@ -290,7 +290,6 @@ class LBRY_Admin
         );
     }
 
-
     /**
      * Checkbox to default to always allow publish on LBRY
      */
@@ -305,7 +304,6 @@ class LBRY_Admin
         '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
         'lbry_default_publish_setting',
         LBRY_SETTINGS,
-
         );
     }
 
@@ -365,7 +363,6 @@ class LBRY_Admin
             $options
         );
     }
-
     
     /**
     * Prints LBC per publish input
@@ -424,9 +421,9 @@ class LBRY_Admin
             '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" placeholder="Leave empty for same password">',
             LBRY_SPEECH_PW,
             LBRY_SPEECH_SETTINGS,
-        );
+        );       
     }
-
+  
     /**
     * Handles new channel form submission
     */

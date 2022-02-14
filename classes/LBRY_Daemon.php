@@ -33,8 +33,7 @@ class LBRY_Daemon
      * https://lbry.tech/api/sdk#address_unused
      * @return string   Unused wallet address in base58
      */
-    public function wallet_unused_address()
-    {
+    public function wallet_unused_address() {
         try {
             $result = $this->request( 'address_unused' );
             return $result->result;
@@ -122,12 +121,12 @@ class LBRY_Daemon
         if ( strpos( $channel_name, '@' ) ) {
             throw new \Exception( 'Illegal character "@" in channel name', 1 );
         }
-
+        
         // No white space allowed
         if ( strpos( $channel_name, ' ' ) ) {
             throw new \Exception( "No spaces allowed in channel name", 1 );
         }
-
+ 
         $channel_name = '@' . $channel_name;
 
         try {

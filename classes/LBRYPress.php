@@ -108,7 +108,7 @@ class LBRYPress
         $this->define('LBRY_VERSION', $this->version);
 
         // Library Options Names
-        $this->define('LBRY_SETTINGS_GROUP', 'lbry_settings_group');
+        //$this->define('LBRY_SETTINGS_GROUP', 'lbry_settings_group');
         $this->define('LBRY_SETTINGS', 'lbry_settings');
         $this->define('LBRY_SETTINGS_SECTION_GENERAL', 'lbry_settings_section_general');
         $this->define('LBRY_ADMIN_PAGE', 'lbrypress');

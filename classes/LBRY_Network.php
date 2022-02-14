@@ -39,6 +39,7 @@ class LBRY_Network
 
         // Save the post meta on 'save_post' hook
         add_action( 'wp_insert_post', array( $this, 'save_post_meta' ), 11, 2 );
+        
        // Checkbox inside the WordPres meta box near "Publish" button
         add_action( 'post_submitbox_misc_actions', array( $this, 'publish_to_lbry_checkbox' ) );
     }
