@@ -5,6 +5,7 @@
  *
  * @package LBRYPress
  */
+defined('ABSPATH') || die(); // Exit if accessed directly
 
 class LBRY_Post_Handler
 {
