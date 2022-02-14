@@ -1,8 +1,10 @@
 <?php
+defined('ABSPATH') || die(); // Exit if accessed directly
+
     $url = get_post_meta(get_the_id(), LBRY_CANONICAL_URL, true);
     if (!$url) {
         // Get channel canonical for backwards compatibility
-        $channel_id = get_post_meta(get_the_id(), LBRY_POST_CHANNEL, true);
+        $channel_id = ( get_post_meta( get_the_id(), LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( get_the_id(), LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( get_the_id(), '_lbry_channel', true ) );
         $url = LBRY()->daemon->canonical_url($channel_id);
     }
 
