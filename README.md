@@ -1,17 +1,17 @@
-# LBRYPress - Publish from Wordpress to LBRY automatically
+# LBRYPress - Publish from WordPress to LBRY automatically
 
-This plugin and readme are in early development. Thank you for your patience.
+This plugin and README are in early development. Thank you for your patience.
 
 ![](https://spee.ch/c/lbry-press-cover.jpg)
 
 ## How it works
 The LBRYPress plugin communicates with the LBRY network via a locally installed SDK. This allows you to create a channel and then mirror any published posts to it. If there are images or GIFs in your post, they will be uploaded to spee.ch (our blockchain-based image sharing service) automatically during the publishing process. If you update a post, it will also be updated on LBRY. 
 
-## Downloading and installing the Wordpress plugin
-First, install the LBRYPress plugin on Wordpress. 
+## Downloading and installing the WordPress plugin
+First, install the LBRYPress plugin on WordPress. 
 
 1) Download the [zip file for this repository](https://github.com/lbryio/lbrypress/archive/master.zip).
-1) In Wordpress, install the plugin from the zip file. It will show errors until the next steps are completed.
+1) In WordPress, upload and install the plugin zip file from the WordPress admin dashboard. After activating, errors will show until the next steps are completed.
 
 ## Downloading and installing LBRY
 This will step you through downloading the LBRY SDK, installing it, and running as a system service. 
