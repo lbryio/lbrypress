@@ -105,7 +105,7 @@ class LBRY_Admin
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
-// remove from commit:
+
         add_settings_field(
             'lbry_default_publish_setting',
             'Always Publish to LBRY',
@@ -123,9 +123,9 @@ class LBRY_Admin
         );
 
         add_settings_field(
-            'lbry_default_publish_setting',
-            'Always Publish to LBRY',
-            array( $this, 'lbry_always_pub_callback' ),
+            LBRY_LICENSE,
+            'LBRY Publishing License',
+            array( $this, 'license_callback' ),
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
@@ -304,7 +304,6 @@ class LBRY_Admin
         '<input type="checkbox" id="lbry_default_publish_setting" name="' . esc_attr('%2$s[%1$s]') . '" value="1" ' . esc_attr( $checked ) . '><p>Set Default to always Publish to <strong>LBRY</strong>, this can be adjusted when publishing a New Post.</p>',
         'lbry_default_publish_setting',
         LBRY_SETTINGS,
-
         );
     }
 
@@ -337,7 +336,6 @@ class LBRY_Admin
                 <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
     }
-    
 
     /**
     * Prints License input
