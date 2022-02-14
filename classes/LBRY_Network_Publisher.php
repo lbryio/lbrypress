@@ -14,7 +14,7 @@ class LBRY_Network_Publisher
      * @param  string   $channel The Claim ID of the channel we are posting to
      */
     // NOTE: This is currently sitting at about 150ms, mostly the post parsing
-    public function publish( $post, $channel, $license ) {
+    public function publish( $post, $channel = null, $license ) {
         
         $post_id = $post->ID;
         // Get converted markdown into a file

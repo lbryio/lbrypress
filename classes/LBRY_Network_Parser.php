@@ -10,7 +10,6 @@ use League\HTMLToMarkdown\HtmlConverter;
  */
 defined('ABSPATH') || die(); // Exit if accessed directly
 
-
 class LBRY_Network_Parser
 {
     public $converter = null;

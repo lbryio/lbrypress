@@ -9,7 +9,8 @@ defined('ABSPATH') || die(); // Exit if accessed directly
 class LBRY_Admin_Notice
 {
 
-    public function __construct() {
+    public function __construct()
+    {
         add_action( 'admin_notices', array( $this, 'admin_notices' ) );
     }
 

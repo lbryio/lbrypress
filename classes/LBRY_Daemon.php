@@ -74,10 +74,9 @@ class LBRY_Daemon
      * 
      */
     public function wallet_balance()
-    {
-        
+    {   
         try { // Convert JSON string to an object
-            $result = $this->request( 'wallet_balance', array() );
+            $result = $this->request( 'wallet_balance' );
             return $result;
         } catch (LBRYDaemonException $e) {
             $this->logger->log('wallet_balance error', $e->getMessage() . ' | Code: ' . $e->getCode());
@@ -138,7 +137,7 @@ class LBRY_Daemon
                     'bid'  => $channel_bid
                 )
             );
-
+ 
             $this->logger->log( 'channel_create success!', 'Successfully created channel with result: ' . print_r( $result->result, true ) );
             return $result->result;
             

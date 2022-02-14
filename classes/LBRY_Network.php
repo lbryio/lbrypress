@@ -39,10 +39,9 @@ class LBRY_Network
 
         // Save the post meta on 'save_post' hook
         add_action( 'wp_insert_post', array( $this, 'save_post_meta' ), 11, 2 );
-
-        // Checkbox inside the WordPres meta box near "Publish" button
+        
+       // Checkbox inside the WordPres meta box near "Publish" button
         add_action( 'post_submitbox_misc_actions', array( $this, 'publish_to_lbry_checkbox' ) );
-
     }
 
     /**
@@ -84,47 +83,33 @@ class LBRY_Network
         if ( ! current_user_can( $post_type->cap->edit_post, $post_id ) ) {
             return $post_id;
         }
-        if ( ( $_POST['_lbry_will_publish'] ) && $_POST['_lbry_will_publish'] != get_post_meta( $post_id, '_lbry_will_publish', true ) ) {
-            update_post_meta( $post_id, '_lbry_will_publish', $_POST['_lbry_will_publish'] );
-        } elseif ( ! isset( $_POST['_lbry_will_publish'] ) ) {
-            update_post_meta( $post_id, '_lbry_will_publish', 0 );
+        if ( ( $_POST[LBRY_WILL_PUBLISH] ) && $_POST[LBRY_WILL_PUBLISH] != get_post_meta( $post_id, LBRY_WILL_PUBLISH, true ) ) {
+            update_post_meta( $post_id, LBRY_WILL_PUBLISH, $_POST[LBRY_WILL_PUBLISH] );
+        } elseif ( ! isset( $_POST[LBRY_WILL_PUBLISH] ) ) {
+            update_post_meta( $post_id, LBRY_WILL_PUBLISH, 0 );
         }
-            
-        $channel = $_POST[LBRY_POST_CHANNEL];
-         $cur_channel = ( get_post_meta( $post_id, LBRY_POST_CHANNEL, true ) ? get_post_meta( $post_id,LBRY_POST_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
-        $license = $_POST['_lbry_post_pub_license'];
-        $cur_license = get_post_meta( $post_id, '_lbry_post_pub_license', true );
-        $will_publish = $_POST['_lbry_will_publish'];
+
+        $channel = $_POST[LBRY_POST_PUB_CHANNEL];
+         $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
+        $license = $_POST[LBRY_POST_PUB_LICENSE];
+        $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );
+        $will_publish = $_POST[LBRY_WILL_PUBLISH];
 
         // Update meta acordingly
             
         if ( $channel !== $cur_channel ) {
-            update_post_meta( $post_id, LBRY_POST_CHANNEL, $channel );
+            update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
             delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
         } elseif ( $channel === $cur_channel && ( $cur_channel === get_post_meta( $post_id, '_lbry_channel', true ) ) ) {
-            update_post_meta( $post_id, LBRY_POST_CHANNEL, $channel );
+            update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
             delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
         }
         if ( $license !== $cur_license ) {
-            update_post_meta( $post_id, '_lbry_post_pub_license', $license );
-         }
+            update_post_meta( $post_id, LBRY_POST_PUB_LICENSE, $license );
+        }
         if ( ( $will_publish ) && ( $will_publish == 1 ) && $post->post_status == 'publish') {
             // Publish the post on the LBRY Network
             $this->publisher->publish( $post, $channel, $license );
-        }
-    }
-
-    /**
-     * Creates a checkbox that changes the default setting to always publish to LBRY, 
-     * can be reverted individually to not publish on a per post basis. Saves to options table.
-     */
-
-    public function publish_to_lbry_checkbox( $post ) 
-    {
-        $post_id = $post->ID;
-
-        if ( get_post_type( $post_id ) != 'post' ) {
-            return $post;
         }
         $default_value = get_option( LBRY_SETTINGS )['lbry_default_publish_setting']; 
         $new_value = get_post_meta( $post_id, '_lbry_will_publish', true );
@@ -142,6 +127,38 @@ class LBRY_Network
         'LBRY',
         'lbrypress',
         checked( $value, true, false )
+        );
+    }
+
+    /**
+     * Creates a checkbox that changes the default setting to always publish to LBRY, 
+     * can be reverted individually to not publish on a per post basis. Saves to options table.
+     */
+
+    public function publish_to_lbry_checkbox( $post ) 
+    {
+        $post_id = $post->ID;
+
+        if ( get_post_type( $post_id ) != 'post' ) {
+            return $post;
+        }
+        $default_value = get_option( LBRY_SETTINGS )['lbry_default_publish_setting']; 
+        $new_value = get_post_meta( $post_id, LBRY_WILL_PUBLISH, true );
+        if ( ( $new_value ) ? $new_value : $new_value = $default_value );
+        $value = $new_value;
+        if ( ( $value ) ? $value : 0 );
+
+        // nonce set on page meta-box.php
+        printf (
+        '<div class="lbry-meta-checkbox-wrapper lbry-meta-checkbox-wrapper-last">
+            <span class="lbry-pub-metabox"><img src="' . __( '%1$s', '%4$s' ) . '" class="icon icon-lbry meta-icon-lbry"></span><label class="lbry-meta-label">' . esc_html__('%2$s', '%4$s' ) . ' <strong>' . esc_html__('%3$s', '%4$s') . '</strong></label><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
+        </div>',
+        plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
+        'Publish to',
+        'LBRY',
+        'lbrypress',
+        checked( $value, true, false ),
+        LBRY_WILL_PUBLISH
         );
     }
 

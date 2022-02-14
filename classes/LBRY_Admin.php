@@ -27,14 +27,14 @@ class LBRY_Admin
     public function create_options_page()
     {
 
-        $hook_suffix = add_menu_page(
-                          __( 'LBRYPress Settings', 'lbrypress' ),
-                          __( 'LBRYPress', 'lbrypress' ),
-                          'manage_options',
-                          LBRY_ADMIN_PAGE,
-                          array( $this, 'options_page_html' ),
+        add_menu_page(
+            __( 'LBRYPress Settings', 'lbrypress' ),
+            __( 'LBRYPress', 'lbrypress' ),
+            'manage_options',
+            LBRY_ADMIN_PAGE,
+            array( $this, 'options_page_html' ),
                           plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
-                          );
+        );
 
         // Admin stylesheet enqueue
         function load_admin_stylesheet( $hook ) {
@@ -69,11 +69,10 @@ class LBRY_Admin
     /**
     * Returns the Options Page HTML for the plugin
     */
-    public function options_page_html() {
-      //$LBRY = LBRY();
+    public function options_page_html()
+    {
           // Set class properties to be referenced in callbacks
           $this->options = get_option( LBRY_SETTINGS );
-          //$this->options_channel = get_option( 'lbry_channel_settings' );
           $this->options_speech = get_option( LBRY_SPEECH_SETTINGS );
           require_once( LBRY_ABSPATH . 'templates/options-page.php' );
     }
@@ -116,25 +115,9 @@ class LBRY_Admin
         );
 
         add_settings_field(
-            'lbry_default_publish_setting',
-            'Always Publish to LBRY',
-            array( $this, 'lbry_always_pub_callback' ),
-            LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
-        );
-
-        add_settings_field(
             'default_lbry_channel',
             'Default Publish Channel',
             array( $this, 'default_channel_callback' ),
-            LBRY_ADMIN_PAGE,
-            LBRY_SETTINGS_SECTION_GENERAL
-        );
-// remove from commit:
-        add_settings_field(
-            'lbry_default_publish_setting',
-            'Always Publish to LBRY',
-            array( $this, 'lbry_always_pub_callback' ),
             LBRY_ADMIN_PAGE,
             LBRY_SETTINGS_SECTION_GENERAL
         );
@@ -232,7 +215,7 @@ class LBRY_Admin
         return $new_input;
     }
 
-    public function sanitize_speech_settings( $input )
+      public function sanitize_speech_settings( $input )
     {
         $new_input = get_option( LBRY_SPEECH_SETTINGS );
         if ( isset( $input[LBRY_SPEECH] ) ) {
@@ -306,7 +289,7 @@ class LBRY_Admin
             $address
         );
     }
-// remove from commit:
+
     /**
      * Checkbox to default to always allow publish on LBRY
      */
@@ -324,7 +307,7 @@ class LBRY_Admin
 
         );
     }
-    
+
     /**
      * Prints select to choose a default to publish to channel
      */
@@ -382,7 +365,6 @@ class LBRY_Admin
             $options
         );
     }
-
     
     /**
     * Prints LBC per publish input
@@ -396,7 +378,7 @@ class LBRY_Admin
             $this->options[LBRY_LBC_PUBLISH],
             plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png'
         );
-        
+
     }
 
     /**
@@ -441,10 +423,9 @@ class LBRY_Admin
             '<input type="password" id="' . esc_attr('%1$s') . '" name="' . esc_attr('%2$s[%1$s]') . '" placeholder="Leave empty for same password">',
             LBRY_SPEECH_PW,
             LBRY_SPEECH_SETTINGS,
-        );
+        );       
     }
-
-    
+  
     /**
     * Handles new channel form submission
     */
