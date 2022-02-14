@@ -338,7 +338,7 @@ class LBRY_Admin
                 <p>Looks like you haven't added any channels yet, you can do that now on the <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) ) ); ?>" class="">Channels Tab</a></p>
         <?php }
     }
-   
+
     /**
     * Prints License input
     */
