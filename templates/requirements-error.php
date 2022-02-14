@@ -1,3 +1,6 @@
+<?php
+defined('ABSPATH') || die(); // Exit if accessed directly
+?>
 <div class="error">
 	<p><?php echo LBRY_NAME; ?> error: Your environment doesn't meet all of the system requirements listed below.</p>
 
