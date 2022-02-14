@@ -111,23 +111,6 @@ class LBRY_Network
             // Publish the post on the LBRY Network
             $this->publisher->publish( $post, $channel, $license );
         }
-        $default_value = get_option( LBRY_SETTINGS )['lbry_default_publish_setting']; 
-        $new_value = get_post_meta( $post_id, '_lbry_will_publish', true );
-        if ( ( $new_value ) ? $new_value : $new_value = $default_value );
-        $value = $new_value;
-        if ( ( $value ) ? $value : 0 );
-
-        // nonce set on page meta-box.php
-        printf (
-        '<div class="lbry-meta-checkbox-wrapper lbry-meta-checkbox-wrapper-last">
-            <span class="lbry-pub-metabox"><img src="' . __( '%1$s', '%4$s' ) . '" class="icon icon-lbry meta-icon-lbry"></span><label class="lbry-meta-label">' . esc_html__('%2$s', '%4$s' ) . ' <strong>' . esc_html__('%3$s', '%4$s') . '</strong></label><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="_lbry_will_publish">
-        </div>',
-        plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
-        'Publish to',
-        'LBRY',
-        'lbrypress',
-        checked( $value, true, false )
-        );
     }
 
     /**
