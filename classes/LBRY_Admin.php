@@ -318,7 +318,7 @@ class LBRY_Admin
 
         if ( $channel_list ) {
                 foreach ( $channel_list as $channel ) {
-                    $selected = $this->options['default_lbry_channel'] === $channel->name;
+                    $selected = $this->options['default_lbry_channel'] === $channel->claim_id;
 
                     $options .= '<option value="' . esc_attr( $channel->claim_id ) . '"';
                     if ( $selected ) {
