@@ -256,8 +256,18 @@ class LBRY_Admin
 
         if ( $channel_list ) { ?>
             <ul class="lbry-channel-list">
-                <?php foreach ( $channel_list as $channel ) { ?>
-                    <li><?php esc_html_e( $channel->name ) ?></li>
+                <?php foreach ( $channel_list as $channel ) {
+                    $claim_id = $channel->claim_id;
+                    $results = LBRY()->daemon->claim_search( $claim_id );
+                    $lbry_url = $results->items[0]->canonical_url;
+                    if ($lbry_url) {
+                        $open_url = str_replace( 'lbry://', 'open.lbry.com/', $lbry_url );
+                    }
+                    $support_amount = $results->items[0]->meta->support_amount;
+                    if ( ( $support_amount < 1 ) ? $support_amount = '0' : $support_amount = number_format( intval( $support_amount ) ) );
+                    $init_bid = $results->items[0]->amount; ?>
+                    <li><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ) ?></a> <?php esc_html_e( $lbry_url, 'lbrypress'); ?> <span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></li>
+                    
                 <?php } ?>
             </ul>
         <?php } else { ?>

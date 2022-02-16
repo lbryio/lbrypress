@@ -67,6 +67,30 @@ class LBRY_Daemon
     }
 
     /**
+     * Returns the info about a claim can get supports and initial bid amount when claim created among other information about a claim.
+     * TODO Can be build out later to accept more params
+     * @param  string  $claim_id 
+     * @return object  $result
+     */
+    public function claim_search( $claim_id )
+    {
+        $params = array(
+            'claim_id'   => $claim_id,
+            // 'name'       => $norm_name,
+            // 'claim_type' => $claim_type,
+        );
+        try {
+            $result = $this->request( 'claim_search', $params );
+            $this->logger->log( 'Claim Search Results: ' . print_r( $result->result, true ) );
+            return $result->result;
+        } catch ( LBRYDaemonException $e ) {
+            $this->logger->log( 'claim_search error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            LBRY()->notice->set_notice( 'error', 'Issue getting claim search info' );
+            return;
+        }
+    }
+
+    /**
      * Returns the available balance of a current LBRY account
      * https://lbry.tech/api/sdk#wallet_balance
      * @param  string   $address           Wallet Address

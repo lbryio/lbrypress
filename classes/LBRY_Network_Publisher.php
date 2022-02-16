@@ -92,7 +92,7 @@ class LBRY_Network_Publisher
 
                 // Set License Published under
                 $published_license = $output->value->license;
-                if ( isset( $published_license ) && ( $published_license !== null ) ) {
+                if ( ( $published_license ) && ( $published_license !== null ) ) {
                     update_post_meta( $post->ID, '_lbry_post_published_license', $published_license );
                 }
 
