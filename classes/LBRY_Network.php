@@ -132,17 +132,38 @@ class LBRY_Network
         if ( ( $value ) ? $value : 0 );
 
         // nonce set on page meta-box.php
-        printf (
-        '<div class="lbry-meta-checkbox-wrapper lbry-meta-checkbox-wrapper-last">
-            <span class="lbry-pub-metabox"><img src="' . __( '%1$s', '%4$s' ) . '" class="icon icon-lbry meta-icon-lbry"></span><label class="lbry-meta-label">' . esc_html__('%2$s', '%4$s' ) . ' <strong>' . esc_html__('%3$s', '%4$s') . '</strong></label><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
-        </div>',
-        plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
-        'Publish to',
-        'LBRY',
-        'lbrypress',
-        checked( $value, true, false ),
-        LBRY_WILL_PUBLISH
-        );
+        if ( ( $lbry_published ) && ( ( $lbry_url) || ( $lbry_claim_id ) ) ) {
+            printf(
+                '<hr class="lbry-hr-meta">
+                <div class="misc-pub-section lbry-meta-published-lbry-wrapper">
+                    <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span> <span class="post-lbry-display-before">Published on:</span> <span class="post-lbry-display"><strong> LBRY</strong></span>
+                </div>
+                <div class="misc-pub-section lbry-url-meta-wrapper">
+                    <span class="lbry-meta-label"><strong> LBRY URL: </strong></span><a href="' . esc_url( '%2$s', 'lbrypress' ) . '" target="_blank">' . esc_html__( '%3$s', 'lbrypress' ) . '</a>
+                </div>
+                <div class="misc-pub-section lbry-claim-id-meta-wrapper">
+                    <span class="lbry-meta-label"><strong> LBRY claim ID: </strong></span><span class="lbry-pub-metabox"><p class="lbry-claim-id-metabox">' . esc_html__( '%4$s', 'lbrypress' ) . '</p></span>
+                </div>
+                <div class="misc-pub-section lbry-meta-checkbox-wrapper lbry-meta-wrapper-last">
+                    <span class="lbry-meta-label"> Update Post on: <span><strong>' . esc_html__('LBRY', 'lbrypress') . '</strong></span> <input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
+                </div>',
+                plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
+                $open_url,
+                $lbry_url,
+                $lbry_claim_id,
+                checked( $value, true, false ),
+                LBRY_WILL_PUBLISH
+                );
+        } else {
+            printf (
+            '<div class="misc-pub-section lbry-meta-checkbox-wrapper lbry-meta-wrapper-last">
+                <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span><span class="lbry-meta-label"> Publish to: <strong>' . esc_html__('LBRY', 'lbrypress') . '</strong></span><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%2$s') . ' name="' . esc_attr('%3$s') . '">
+            </div>',
+            plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
+            checked( $value, true, false ),
+            LBRY_WILL_PUBLISH
+            );
+        }
     }
 
     /**
