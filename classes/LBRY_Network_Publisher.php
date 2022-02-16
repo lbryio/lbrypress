@@ -84,9 +84,24 @@ class LBRY_Network_Publisher
                 // Set Claim ID
                 update_post_meta( $post->ID, LBRY_CLAIM_ID, $claim_id );
 
+                // Set Channel Name Published under
+                $published_channel = $output->signing_channel->name;
+                $channel_claim_id = $output->signing_channel->claim_id;
+                update_post_meta( $post->ID, '_lbry_post_published_channel', $published_channel );
+                update_post_meta( $post->ID, '_lbry_post_pub_channel_claim_id', $channel_claim_id );
+
+                // Set License Published under
+                $published_license = $output->value->license;
+                if ( ( $published_license ) && ( $published_license !== null ) ) {
+                    update_post_meta( $post->ID, '_lbry_post_published_license', $published_license );
+                }
+
                 // Set Canonical URL
                 $canonical_url = LBRY()->daemon->canonical_url( $claim_id );
                 update_post_meta( $post->ID, LBRY_CANONICAL_URL, $canonical_url );
+
+                // Set _lbry_is_published to true
+                update_post_meta( $post->ID, '_lbry_is_published', true );
             }
         } catch (Exception $e) {
             error_log( 'Issue publishing post ' . $post->ID . ' to LBRY: ' .  $e->getMessage() );
