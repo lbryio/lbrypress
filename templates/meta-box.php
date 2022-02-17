@@ -18,25 +18,25 @@ $lbrynonce = wp_create_nonce( 'lbry_publish_post_nonce' );
 
 $lbry_published = get_post_meta( $post_id, '_lbry_is_published', true );
 $lbry_claim_id = get_post_meta( $post_id, '_lbry_claim_id', true );
-// $lbry_url = get_post_meta( $post_id, '_lbry_canonical_url', true );
 $lbry_published_channel = get_post_meta( $post_id, '_lbry_post_published_channel', true );
-if ( ! ( $lbry_published_channel ) ) {
-    LBRY()->daemon->claim_search( $lbry_claim_id );
+if ( ( $lbry_published == true ) && ( $lbry_claim_id ) && ( ! ( $lbry_published_channel ) ) ) {
+    $result = LBRY()->daemon->claim_search( $lbry_claim_id );
+    $name =  $result->items[0]->signing_channel->name;
+    update_post_meta( $post_id, '_lbry_post_published_channel', $name );
 }
 $lbry_channel_claim_id = get_post_meta( $post_id, '_lbry_post_pub_channel', true );
-//if ( $lbry_channel_claim_id === null ? 'Anonymously' : $lbry_channel_claim_id);
 $lbry_published_license = get_post_meta( $post_id, '_lbry_post_pub_license', true );
+if ( ( $lbry_published == true ) && ( ( $lbry_claim_id ) ) && ( ! ( $lbry_published_license ) ) ) {
+    $result = LBRY()->daemon->claim_search( $lbry_claim_id );
+    $license = $result->items[0]->value->license;
+    update_post_meta( $post_id, '_lbry_post_pub_license', $license );
+}
 
-$channels = LBRY()->daemon->channel_list();
-$channels[] = $unnatributed;
 $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
 $default_channel = get_option( LBRY_SETTINGS )['default_lbry_channel'];
 $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channel_claim_id . '');
 
-// Sort the channels in a natural way
-usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) );
 ?>
-
 <input type="hidden" id="_lbrynonce" name="_lbrynonce" value="<?php echo $lbrynonce ?>"><?php 
 
     if ( ( ( $will_publish == true ) && ( $lbry_channel_claim_id ) ) || ( ( ( $lbry_published == true ) || ( $lbry_claim_id ) || ( $lbry_published_channel ) ) && ( $lbry_published_license != null ) ) ) { 
@@ -70,32 +70,37 @@ usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) );
             $chan_open_url,
             $lbry_published_license,
         );
-    } else { ?>
-        <div><label for="LBRY_POST_PUB_CHANNEL" class="lbry-meta-bx-label lbry-meta-bx-channel"><?php 
+    } else { 
+        $channels = LBRY()->daemon->channel_list();
+        $channels[] = $unnatributed;
+        // Sort the channels in a natural way
+        usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) ); ?>
+        
+            <div><label for="LBRY_POST_PUB_CHANNEL" class="lbry-meta-bx-label lbry-meta-bx-channel"><?php 
 
-        esc_html_e( 'Channel to Publish:', 'lbrypress' ); ?> </label></div><?php
+            esc_html_e( 'Channel to Publish:', 'lbrypress' ); ?> </label></div><?php
 
-        $options = '';
-        if ( $channels ) {
-            foreach ( $channels as $index=>$channel ) {   
-                $options .= '<option class="lbry-meta-bx-option lbry-meta-option-channel" value="' . esc_attr( $channel->claim_id ) . '"';
-                    if ( ( $cur_channel ) ? $cur_channel : $cur_channel = $default_channel ) {
-                        $options .= selected( $cur_channel, $channel->claim_id, false );
-            }
-                $options .= '>' . esc_html__( $channel->name, 'lbrypress' ) . '</option>';
-                        }
-                printf(
-                    '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '">' . esc_html('%2$s') . '</select>',
-                    LBRY_POST_PUB_CHANNEL,
-                    $options
-                );
-        } 
-        ?>
-        <div><label for="LBRY_POST_PUB_LICENSE" class="lbry-meta-bx-label lbry-meta-bx-license"><?php esc_html_e( 'Publish License:', 'lbrypress' ); ?> </label></div><?php
-        $licenses = LBRY()->licenses;
-        $options = '';
-        $default_license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
-        $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );
+            $options = '';
+            if ( $channels ) {
+                foreach ( $channels as $index=>$channel ) {   
+                    $options .= '<option class="lbry-meta-bx-option lbry-meta-option-channel" value="' . esc_attr( $channel->claim_id ) . '"';
+                        if ( ( $cur_channel ) ? $cur_channel : $cur_channel = $default_channel ) {
+                            $options .= selected( $cur_channel, $channel->claim_id, false );
+                }
+                    $options .= '>' . esc_html__( $channel->name, 'lbrypress' ) . '</option>';
+                            }
+                    printf(
+                        '<select id="' . esc_attr('%1$s') . '" name="' . esc_attr('%1$s') . '">' . esc_html('%2$s') . '</select>',
+                        LBRY_POST_PUB_CHANNEL,
+                        $options
+                    );
+            } 
+            ?>
+            <div><label for="LBRY_POST_PUB_LICENSE" class="lbry-meta-bx-label lbry-meta-bx-license"><?php esc_html_e( 'Publish License:', 'lbrypress' ); ?> </label></div><?php
+            $licenses = LBRY()->licenses;
+            $options = '';
+            $default_license = get_option(LBRY_SETTINGS)[LBRY_LICENSE];
+            $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );
         
         // Create options list, select current license
         if ( $licenses ) {

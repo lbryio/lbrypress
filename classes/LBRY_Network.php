@@ -90,26 +90,38 @@ class LBRY_Network
         }
 
         $channel = $_POST[LBRY_POST_PUB_CHANNEL];
-         $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
+        $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
         $license = $_POST[LBRY_POST_PUB_LICENSE];
         $cur_license = get_post_meta( $post_id, LBRY_POST_PUB_LICENSE, true );
         $will_publish = $_POST[LBRY_WILL_PUBLISH];
 
         // Update meta acordingly
             
-        if ( $channel !== $cur_channel ) {
+        if ( ( $channel ) && ( $channel !== $cur_channel ) && ( $channel != null || $channel != '' ) ) {
             update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
             delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
         } elseif ( $channel === $cur_channel && ( $cur_channel === get_post_meta( $post_id, '_lbry_channel', true ) ) ) {
             update_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, $channel );
-            delete_post_meta( $post_id, '_lbry_channel'); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
+            delete_post_meta( $post_id, '_lbry_channel' ); // remove the _lbry_channel if already set from the post and replaces with _lbry_post_pub_channel to avoid confusion
         }
-        if ( $license !== $cur_license ) {
+        if ( ( $license ) && ( $license !== $cur_license ) && ( $license != null || $license != '' ) ) {
+            update_post_meta( $post_id, LBRY_POST_PUB_LICENSE, $license );
+        } elseif ( $license === $cur_license && ( $cur_license === get_post_meta( $post_id, 'lbry_license', true ) ) ) {
             update_post_meta( $post_id, LBRY_POST_PUB_LICENSE, $license );
         }
-        if ( ( $will_publish ) && ( $will_publish == 1 ) && $post->post_status == 'publish') {
+        $published = get_post_meta( $post_id, '_lbry_is_published', true );
+        $will_pub = get_post_meta( $post_id, '_lbry_will_publish', true );
+        if ( ( $will_pub == 0 ) && ( ! ( $published ) || ( $published ) == 0 ) )  {
+            // If not publishing to LBRY we want to not save unused values in database
+            delete_post_meta( $post_id, '_lbry_post_pub_channel' );
+            delete_post_meta( $post_id, '_lbry_post_pub_license' );
+            delete_post_meta( $post_id, '_lbry_canonical_url' );
+        }
+        $pub_channel = ( $channel ) ? $channel : $cur_channel;
+        $pub_license = ( $license ) ? $license : $cur_license;
+        if ( ( $will_publish ) && ( $will_publish == true ) && ( $post->post_status == 'publish' ) && ( $pub_channel ) && ( $pub_license ) && ( $pub_license != null ) ) {
             // Publish the post on the LBRY Network
-            $this->publisher->publish( $post, $channel, $license );
+            $this->publisher->publish( $post, $pub_channel, $pub_license );
         }
     }
 
@@ -127,32 +139,34 @@ class LBRY_Network
         $lbry_claim_id = get_post_meta( $post_id, '_lbry_claim_id', true );
         if ( $_GET['action'] === 'edit' ) {
             if ( get_post_meta( $post_id, '_lbry_canonical_url', true ) == null || empty( get_post_meta( $post_id, '_lbry_canonical_url', true ) ) ) {
-            $canonical_url = LBRY()->daemon->canonical_url( $lbry_claim_id );
-            update_post_meta( $post_id, '_lbry_canonical_url', $canonical_url );
+                $canonical_url = LBRY()->daemon->canonical_url( $lbry_claim_id );
+                if ( $canonical_url != null ) {
+                    update_post_meta( $post_id, '_lbry_canonical_url', $canonical_url );
+                } elseif ( $canonical_url == null ) {
+                    delete_post_meta( $post_id, '_lbry_canonical_url' );
+                }
             }
         }
-        if ( ( get_post_meta( $post_id, '_lbry_will_publish', true ) == true ) && (isset( $lbry_claim_id ) ) ) {
-            update_post_meta( $post_id, '_lbry_is_published', true );
-        }
-        $lbry_published = get_post_meta( $post_id, '_lbry_is_published', true );
-        $lbry_url = ( get_post_meta( $post_id, '_lbry_canonical_url', true ) );
 
+        $lbry_url = ( get_post_meta( $post_id, '_lbry_canonical_url', true ) );
         if ($lbry_url) {
             $open_url = str_replace('lbry://', 'open.lbry.com/', $lbry_url );
         }
-        
-        $default_value = get_option( LBRY_SETTINGS )['lbry_default_publish_setting']; 
-        $new_value = get_post_meta( $post_id, LBRY_WILL_PUBLISH, true );
-        if ( ( $new_value ) ? $new_value : $new_value = $default_value );
-        $value = $new_value;
-        if ( ( $value ) ? $value : 0 );
+
+        $lbry_published = get_post_meta( $post_id, '_lbry_is_published', true );
+        $will_publish = get_post_meta( $post_id, '_lbry_will_publish', true );
+        $lbry_post_pub_channel = get_post_meta( $post_id, '_lbry_post_pub_channel', true );
+        if ( ( $will_publish ) ? $will_publish : $will_publish = get_option( LBRY_SETTINGS )['lbry_default_publish_setting'] );
+        if ( ( $_GET['action'] === 'edit' ) ? $value = $lbry_published : $value = $will_publish );
+
+        $checked = checked( $value, true, false );
 
         // nonce set on page meta-box.php
-        if ( ( $lbry_published ) && ( ( $lbry_url) || ( $lbry_claim_id ) ) ) {
+        if ( ( ( $will_publish == true ) && ( $lbry_post_pub_channel ) ) || ( ( ( $lbry_published ) || ( $lbry_claim_id ) ) && ( ( $lbry_url != null ) || ( $lbry_claim_id ) ) ) ) {
             printf(
                 '<hr class="lbry-hr-meta">
                 <div class="misc-pub-section lbry-meta-published-lbry-wrapper">
-                    <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span> <span class="post-lbry-display-before">Published on:</span> <span class="post-lbry-display"><strong> LBRY</strong></span>
+                    <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span> <span class="post-lbry-display-before">Published on:</span> <span class="post-lbry-display"><strong>LBRY</strong></span>
                 </div>
                 <div class="misc-pub-section lbry-url-meta-wrapper">
                     <span class="lbry-meta-label"><strong> LBRY URL: </strong></span><a href="' . esc_url( '%2$s', 'lbrypress' ) . '" target="_blank">' . esc_html__( '%3$s', 'lbrypress' ) . '</a>
@@ -161,22 +175,22 @@ class LBRY_Network
                     <span class="lbry-meta-label"><strong> LBRY claim ID: </strong></span><span class="lbry-pub-metabox"><p class="lbry-claim-id-metabox">' . esc_html__( '%4$s', 'lbrypress' ) . '</p></span>
                 </div>
                 <div class="misc-pub-section lbry-meta-checkbox-wrapper lbry-meta-wrapper-last">
-                    <span class="lbry-meta-label"> Update Post on: <span><strong>' . esc_html__('LBRY', 'lbrypress') . '</strong></span> <input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
+                    <span class="lbry-meta-label"> Update Post on: <span class="post-lbry-display"><strong>LBRY</strong></span> <input type="checkbox" class="lbry-meta-checkbox" value="1" ' . esc_attr('%5$s') . ' name="' . esc_attr('%6$s') . '">
                 </div>',
                 plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
                 $open_url,
                 $lbry_url,
                 $lbry_claim_id,
-                checked( $value, true, false ),
+                $checked,
                 LBRY_WILL_PUBLISH
                 );
         } else {
             printf (
             '<div class="misc-pub-section lbry-meta-checkbox-wrapper lbry-meta-wrapper-last">
-                <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span><span class="lbry-meta-label">Publish to: <strong> LBRY </strong></span><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%2$s') . ' name="' . esc_attr('%3$s') . '">
+                <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span><span class="lbry-meta-label">Publish to: <span class="post-lbry-display"> <strong>LBRY</strong></span> <input type="checkbox" class="lbry-meta-checkbox" value="1" ' . esc_attr('%2$s') . ' name="' . esc_attr('%3$s') . '">
             </div>',
             plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
-            checked( $value, true, false ),
+            $checked,
             LBRY_WILL_PUBLISH
             );
         }
