@@ -264,7 +264,17 @@ class LBRY_Admin
                         $open_url = str_replace( 'lbry://', 'open.lbry.com/', $lbry_url );
                     }
                     $support_amount = $results->items[0]->meta->support_amount;
-                    if ( ( $support_amount < 1 ) ? $support_amount = '0' : $support_amount = number_format( intval( $support_amount ) ) );
+                    if ( ( $support_amount < 0.001 ) ) {
+                        ( $support_amount = '0' );
+                    } elseif ( ( $support_amount < 0.01 ) && ( $support_amount >= 0.001 ) ) {
+                        ( $support_amount = '<0.01' );
+                    } elseif ( ( $support_amount <= 0.099 ) && ( $support_amount >= 0.01) ) {
+                        ( $support_amount = number_format( floatval( $support_amount ), 2, '.', '' ) );
+                    } elseif ( ( $support_amount <= 0.999 ) && ( $support_amount >= 0.1 ) ) {
+                        ( $support_amount = number_format( floatval( $support_amount ), 1, '.', '' ) );
+                    } else {
+                        ( $support_amount = number_format( intval( $support_amount ) ) );
+                    }
                     $init_bid = $results->items[0]->amount; ?>
                     <li><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ) ?></a> <?php esc_html_e( $lbry_url, 'lbrypress'); ?> <span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></li>
                     
