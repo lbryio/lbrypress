@@ -173,7 +173,7 @@ class LBRY_Network
         } else {
             printf (
             '<div class="misc-pub-section lbry-meta-checkbox-wrapper lbry-meta-wrapper-last">
-                <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span><span class="lbry-meta-label"> Publish to: <strong>' . esc_html__('LBRY', 'lbrypress') . '</strong></span><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%2$s') . ' name="' . esc_attr('%3$s') . '">
+                <span class="lbry-pub-metabox"><img src="' . __( '%1$s', 'lbrypress' ) . '" class="icon icon-lbry meta-icon-lbry"></span><span class="lbry-meta-label">Publish to: <strong> LBRY </strong></span><input type="checkbox" class="lbry-meta-checkbox" value="1"' . esc_attr('%2$s') . ' name="' . esc_attr('%3$s') . '">
             </div>',
             plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbry.png',
             checked( $value, true, false ),

@@ -14,6 +14,12 @@
   margin-bottom: -.2em;
 }
 
+.channel-bid-icon-lbc {
+  height: 1.1em;
+  margin-right: .1em;
+  margin-bottom: -.2em;
+}
+
 .lbry-pub-metabox {
   margin: 0 0 0 -.2em;
   padding: 0 .2em 0 0 ;
@@ -21,7 +27,7 @@
 .meta-icon-lbry {
   height: 1.55em;
   margin-bottom: -.4em;
-  padding-left: .1em;
+  padding: 0 .1em 0 0;
 }
 .lbry-meta-checkbox-wrapper {
   padding: .5em .8em .6em;
