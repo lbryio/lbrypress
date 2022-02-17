@@ -60,7 +60,7 @@ $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channe
             <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span></div>
             <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Supports:', 'lbrypress' ) . ' </strong>
             <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%2$s', 'lbrypress' ) . '</span><a href="#">' . __( 'Add', 'lbrypress' ) . '</a></div>
-            <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published at:', 'lbrypress' ) . '</strong></div>
+            <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published to:', 'lbrypress' ) . '</strong></div>
             <div class="lbry-meta-bx-content lbry-meta-bx-channel"><a href="' . esc_url( '%4$s', 'lbrypress' ) . '">' . esc_html__( '%3$s', 'lbrypress' ) . '</a></div>
             <div class="lbry-meta-label lbry-meta-bx-license"><strong>' . __( 'License published under:', 'lbrypress' ) .'</strong> </div>
             <div class="lbry-meta-bx-content lbry-meta-bx-license lbry-meta-bx-content-last">' . esc_html__( '%5$s', 'lbrypress' ) . '</div>',
