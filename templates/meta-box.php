@@ -39,9 +39,18 @@ usort( $channels, array( 'LBRYPress', 'channel_name_comp' ) );
 
 <input type="hidden" id="_lbrynonce" name="_lbrynonce" value="<?php echo $lbrynonce ?>"><?php 
 
-    if ( ( ( $lbry_published == true ) || ( $lbry_published_channel ) ) && ( $lbry_published_license != null) ) { 
+    if ( ( ( $will_publish == true ) && ( $lbry_channel_claim_id ) ) || ( ( ( $lbry_published == true ) || ( $lbry_claim_id ) || ( $lbry_published_channel ) ) && ( $lbry_published_license != null ) ) ) { 
+
+        $results = LBRY()->daemon->claim_search( $lbry_claim_id );
+        $init_bid = $results->items[0]->amount;
         printf(
-            '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published at:', 'lbrypress' ) . '</strong> <div class="lbry-meta-bx-content lbry-meta-bx-channel"><a href="' . esc_url( '%2$s', 'lbrypress' ) . '">' . esc_html__( '%1$s', 'lbrypress' ) . '</a></div><div class="lbry-meta-label lbry-meta-bx-license"><strong>' . __( 'License published under:', 'lbrypress' ) .'</strong> </div><div class="lbry-meta-bx-content lbry-meta-bx-license lbry-meta-bx-content-last">' . esc_html__( '%3$s', 'lbrypress' ) . '</div></div>',
+            '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Initial bid amount:', 'lbrypress' ) . ' </strong>
+            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span></div>
+            <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published at:', 'lbrypress' ) . '</strong></div>
+            <div class="lbry-meta-bx-content lbry-meta-bx-channel"><a href="' . esc_url( '%4$s', 'lbrypress' ) . '">' . esc_html__( '%3$s', 'lbrypress' ) . '</a></div>
+            <div class="lbry-meta-label lbry-meta-bx-license"><strong>' . __( 'License published under:', 'lbrypress' ) .'</strong> </div>
+            <div class="lbry-meta-bx-content lbry-meta-bx-license lbry-meta-bx-content-last">' . esc_html__( '%5$s', 'lbrypress' ) . '</div>',
+            $init_bid,
             $lbry_published_channel,
             $chan_open_url,
             $lbry_published_license,
