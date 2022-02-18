@@ -494,19 +494,19 @@ class LBRY_Admin
     public static function wallet_balance_warning()
     {
         // See if we've checked in the past two hours
-        if (!get_transient('lbry_wallet_check')) {
+        if ( ! get_transient( 'lbry_wallet_check' ) ) {
             $balance = LBRY()->daemon->wallet_balance();
-            if ($balance < get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH] * 20) {
+            if ( $balance < get_option( LBRY_SETTINGS )[LBRY_LBC_PUBLISH] * 20 ) {
                 // If LBRY Balance is low, send email, but only once per day
-                if (!get_transient('lbry_wallet_warning_email')) {
-                    $email = get_option('admin_email');
+                if ( ! get_transient( 'lbry_wallet_warning_email' ) ) {
+                    $email = get_option( 'admin_email' );
                     $subject = 'Your LBRYPress Wallet Balance is Low!';
-                    $message = "Your LBRY Wallet for your WordPress installation at " . site_url() . " is running very low.\r\n\r\nYou currently have " . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
-                    wp_mail($email, $subject, $message);
-                    set_transient('lbry_wallet_warning_email', true, DAY_IN_SECONDS);
+                    $message = 'Your LBRY Wallet for your WordPress installation at ' . site_url() . ' is running very low.\r\n\r\nYou currently have ' . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
+                    wp_mail( $email, $subject, $message );
+                    set_transient( 'lbry_wallet_warning_email', true, DAY_IN_SECONDS );
                 }
             }
-            set_transient('lbry_wallet_check', true, 2 * HOUR_IN_SECONDS);
+            set_transient( 'lbry_wallet_check', true, 2 * HOUR_IN_SECONDS );
         }
     }
 
