@@ -86,3 +86,38 @@
 .lbry-meta-bx-content-last {
   padding: .2em .8em 1em .1em;
 }
+
+table.lbry-channel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Georgia;
+}
+
+.lbry-channel-table th, .lbry-channel-table td {
+  padding: 1em 2em;
+  border: 2px solid #fff;
+  background: #fbd7b4;
+  font-size: 1.1em;
+}
+.lbry-channel-table thead th {
+  padding: .5em 2em;
+  background: #f69546;
+  text-align: left;
+  font-weight: normal;
+  font-size: 1.2em;
+  color: #fff;
+}
+.lbry-channel-table tbody tr:nth-child(odd) *:nth-child(even), .lbry-channel-table tbody tr:nth-child(even) *:nth-child(odd) {
+  background: #f3eddd;
+}
+.lbry-channel-table tfoot th {
+  padding: .5em 2em;
+  background: #f69546;
+  text-align: left;
+  font-weight: normal;
+  font-size: .9em;
+  color: #fff;
+}
+.lbry-channel-table tr *:nth-child(3), .lbry-channel-table tr *:nth-child(4) {
+  /* text-align: right; */
+}
