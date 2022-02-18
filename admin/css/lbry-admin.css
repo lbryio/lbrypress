@@ -94,10 +94,10 @@ table.lbry-channel-table {
 }
 
 .lbry-channel-table th, .lbry-channel-table td {
-  padding: 1em 2em;
+  padding: .4em 1.6em;
   border: 2px solid #fff;
   background: #fbd7b4;
-  font-size: 1.1em;
+  font-size: 1em;
 }
 .lbry-channel-table thead th {
   padding: .5em 2em;
