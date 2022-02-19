@@ -14,6 +14,12 @@
   margin-bottom: -.2em;
 }
 
+.channel-bid-icon-lbc {
+  height: 1.1em;
+  margin-right: .1em;
+  margin-bottom: -.2em;
+}
+
 .lbry-pub-metabox {
   margin: 0 0 0 -.2em;
   padding: 0 .2em 0 0 ;
@@ -21,14 +27,14 @@
 .meta-icon-lbry {
   height: 1.55em;
   margin-bottom: -.4em;
-  padding-left: .1em;
+  padding: 0 .1em 0 0;
 }
 .lbry-meta-checkbox-wrapper {
   padding: .5em .8em .6em;
 }
 
 .lbry-meta-wrapper-last {
-  padding: 0em .8em 1.2em;
+  padding: 0em .8em 1.5em;
 }
 
 .lbry-meta-label {
@@ -79,4 +85,39 @@
 
 .lbry-meta-bx-content-last {
   padding: .2em .8em 1em .1em;
+}
+
+table.lbry-channel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: Georgia;
+}
+
+.lbry-channel-table th, .lbry-channel-table td {
+  padding: .4em 1.6em;
+  border: 2px solid #fff;
+  background: #fbd7b4;
+  font-size: 1em;
+}
+.lbry-channel-table thead th {
+  padding: .5em 2em;
+  background: #f69546;
+  text-align: left;
+  font-weight: normal;
+  font-size: 1.2em;
+  color: #fff;
+}
+.lbry-channel-table tbody tr:nth-child(odd) *:nth-child(even), .lbry-channel-table tbody tr:nth-child(even) *:nth-child(odd) {
+  background: #f3eddd;
+}
+.lbry-channel-table tfoot th {
+  padding: .5em 2em;
+  background: #f69546;
+  text-align: left;
+  font-weight: normal;
+  font-size: .9em;
+  color: #fff;
+}
+.lbry-channel-table tr *:nth-child(3), .lbry-channel-table tr *:nth-child(4) {
+  /* text-align: right; */
 }
