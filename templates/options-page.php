@@ -19,9 +19,19 @@ $lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
         <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=general' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'general' || '' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Settings' ); ?></a>
         <a href="<?php echo esc_url( admin_url( 'admin.php?page=lbrypress&tab=channels' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'channels' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Channels' ); ?></a>
         <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=speech' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'speech' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Spee.ch' ); ?></a>
+        <?php
+        if ( $lbry_active_tab == 'supports' ) {
+            $admin_url = admin_url( 'options.php?page=lbrypress&tab=supports' );
+            printf(
+                '<a href="' . esc_url( $admin_url ) . '" class="nav-tab nav-tab-active">' . esc_html__( 'Supports', 'lbrypress') . '</a>',
+                $admin_url,
+            );
+        } ?>
     </nav>
         <?php if ( $lbry_active_tab == 'channels' ) {
             include_once( 'channels-page.php' );
+        } elseif ( $lbry_active_tab == 'supports' ) {
+            include_once( 'supports-add-form.php' );
         } else {
             ?>
             <form class="form-table" action="<?php echo esc_url( admin_url( 'options.php' ) ); ?>" method="post">
@@ -32,7 +42,9 @@ $lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
                     do_settings_sections( LBRY_ADMIN_PAGE );
                     submit_button();
                 } elseif ( $lbry_active_tab == 'channels' ) {
-                    include_once( 'channels-page.php' );
+                    //include_once( 'channels-page.php' );
+                } elseif ( $lbry_active_tab == 'supports' ) {
+                    // include_once( 'supports-add-form.php' ); 
                 } elseif ( $lbry_active_tab == 'speech' ) {
                     settings_fields( LBRY_SPEECH_SETTINGS );
                     do_settings_sections( 'lbrypress-speech' );

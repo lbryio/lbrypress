@@ -19,6 +19,7 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
+        add_action('admin_post_lbry_supports_add', array($this, 'supports_add'));
     }
 
     /**
@@ -33,7 +34,7 @@ class LBRY_Admin
             'manage_options',
             LBRY_ADMIN_PAGE,
             array( $this, 'options_page_html' ),
-                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
+            plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
         );
 
         // Admin stylesheet enqueue
@@ -473,6 +474,43 @@ class LBRY_Admin
                     // Tell the user it takes some time to go through
                     LBRY()->notice->set_notice(
                         'success', 'Successfully added a new channel: @' . esc_html( $channel_name ) . '! Please allow a few minutes for the bid to process.', true );
+                    
+                } catch ( \Exception $e ) {
+                    LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
+                }
+            }
+        } else {
+            LBRY()->notice->set_notice('error', 'Security check failed' );
+            die( __( 'Security check failed', 'lbrypress' ) );
+        }
+
+        wp_safe_redirect( $redirect_url );
+        exit();
+    }
+
+    /**
+     * Handles adding supports form submission
+     */
+    public function supports_add()
+    {
+        $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
+        
+        // Check that nonce
+        if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_supports_nonce' ) ) {
+            if ( empty( $_POST['lbry_supports_add_claim_id'] ) || empty( $_POST['lbry_supports_add_amount'] ) ) {
+                LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
+            } elseif ( isset( $_POST['lbry_supports_add_claim_id'] ) && isset( $_POST['lbry_supports_add_amount'] ) ) {
+                $claim_id = $_POST['lbry_supports_add_claim_id']; // TODO: sanitize key() only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use something else for better control?
+
+                $bid = $_POST['lbry_supports_add_amount'];
+                $support_bid = number_format( floatval( $bid ), 3, '.', '' );
+
+                // Try to add the new channel
+                try { 
+            //        $result = LBRY()->daemon->channel_new( $claim_id, $supports_bid );
+                    // Tell the user it takes some time to go through
+                    LBRY()->notice->set_notice(
+                        'success', 'Successfully added supports for: @' . esc_html( $claim_name ) . '! Please allow a few minutes for the bid to process.', true );
                     
                 } catch ( \Exception $e ) {
                     LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
