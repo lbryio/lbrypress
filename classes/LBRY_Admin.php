@@ -255,7 +255,6 @@ class LBRY_Admin
     {
         $channel_list = LBRY()->daemon->channel_list();
         if ( $channel_list ) { ?>
-
           <table class="lbry-channel-table">
             <thead>
                 <tr>
