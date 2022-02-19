@@ -51,6 +51,20 @@ class LBRY_Admin
                 }
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
+
+        // Admin JS enqueue
+        function load_admin_script() {
+            if ( ( $_GET['page'] == 'lbrypress') && ( $_GET['tab'] == 'channels' ) ) {
+                wp_enqueue_script(
+                    'lbry-table-sort',
+                    plugins_url( '/admin/js/table-sort.js', LBRY_PLUGIN_FILE ),
+                    array('jquery'),
+                    LBRY_VERSION,
+                    true
+                );
+            }
+        }
+        add_action( 'admin_enqueue_scripts', 'load_admin_script' );
         
         // Admin Error Notices
         function lbry_plugin_not_configured_notice() {
@@ -258,10 +272,10 @@ class LBRY_Admin
           <table class="lbry-channel-table">
             <thead>
                 <tr>
-                    <th>Channel</th>
-                    <th>LBRY URL</th>
-                    <th>Posts</th>
-                    <th colspan="2">Supports</th>
+                    <th data-sort="name">Channel</th>
+                    <th data-sort="lbryurl">LBRY URL</th>
+                    <th data-sort="number">Posts</th>
+                    <th data-sort="amount" colspan="2">Supports</th>
                 </tr>
             </thead>
             <tbody>
