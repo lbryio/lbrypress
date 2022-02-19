@@ -292,7 +292,7 @@ class LBRY_Admin
                 <td><?php esc_html_e( $lbry_url, 'lbrypress' ); ?></td>
                 <td><?php esc_html_e( $claims_published, 'lbrypress' ); ?></td>
                 <td><span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></td>
-                <td><a href="#">Add</a></td>
+                <td><a href="<?php echo admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'claim_id' => $claim_id, 'current_support' => $support_amount, 'init_bid' => $init_bid ), 'admin.php' ) ); ?>">Add</a></td>
                 </tr>
           <?php endforeach; ?>
             </tbody>
@@ -303,7 +303,6 @@ class LBRY_Admin
        <?php } else { ?>
          <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
      <?php }
-      
     }
 
     /**

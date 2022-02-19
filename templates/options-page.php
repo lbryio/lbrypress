@@ -21,7 +21,7 @@ $lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
         <a href="<?php echo esc_url( admin_url( 'options.php?page=lbrypress&tab=speech' ) ); ?>" class="nav-tab <?php echo $lbry_active_tab == 'speech' ? 'nav-tab-active' : ''; ?>"><?php esc_html_e( 'Spee.ch' ); ?></a>
         <?php
         if ( $lbry_active_tab == 'supports' ) {
-            $admin_url = admin_url( 'options.php?page=lbrypress&tab=supports' );
+            $admin_url = admin_url( 'admin.php?page=lbrypress&tab=supports' );
             printf(
                 '<a href="' . esc_url( $admin_url ) . '" class="nav-tab nav-tab-active">' . esc_html__( 'Supports', 'lbrypress') . '</a>',
                 $admin_url,
@@ -44,7 +44,7 @@ $lbry_active_tab  = isset( $_GET['tab'] ) ? $_GET['tab'] : 'general';
                 } elseif ( $lbry_active_tab == 'channels' ) {
                     //include_once( 'channels-page.php' );
                 } elseif ( $lbry_active_tab == 'supports' ) {
-                    // include_once( 'supports-add-form.php' ); 
+                    //include_once( 'supports-add-form.php' ); 
                 } elseif ( $lbry_active_tab == 'speech' ) {
                     settings_fields( LBRY_SPEECH_SETTINGS );
                     do_settings_sections( 'lbrypress-speech' );
