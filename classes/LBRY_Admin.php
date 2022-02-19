@@ -512,13 +512,15 @@ class LBRY_Admin
     {
         // See if we've checked in the past two hours
         if ( ! get_transient( 'lbry_wallet_check' ) ) {
-            $balance = LBRY()->daemon->wallet_balance();
+            $result = LBRY()->daemon->wallet_balance();
+            $balance = $result->result->available;
+            $site_url = get_site_url();
             if ( $balance < get_option( LBRY_SETTINGS )[LBRY_LBC_PUBLISH] * 20 ) {
                 // If LBRY Balance is low, send email, but only once per day
                 if ( ! get_transient( 'lbry_wallet_warning_email' ) ) {
                     $email = get_option( 'admin_email' );
                     $subject = 'Your LBRYPress Wallet Balance is Low!';
-                    $message = 'Your LBRY Wallet for your WordPress installation at ' . site_url() . ' is running very low.\r\n\r\nYou currently have ' . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
+                    $message = 'Your LBRY Wallet for your WordPress installation at ' . esc_html_e( $site_url ) . ' is running very low.\r\n\r\nYou currently have ' . esc_html_e( $balance ) . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
                     wp_mail( $email, $subject, $message );
                     set_transient( 'lbry_wallet_warning_email', true, DAY_IN_SECONDS );
                 }
