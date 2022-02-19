@@ -19,6 +19,7 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
+        add_action('admin_post_lbry_supports_add', array($this, 'supports_add'));
     }
 
     /**
@@ -33,7 +34,7 @@ class LBRY_Admin
             'manage_options',
             LBRY_ADMIN_PAGE,
             array( $this, 'options_page_html' ),
-                          plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
+            plugin_dir_url( LBRY_PLUGIN_FILE ) . '/admin/images/lbry-icon.png'
         );
 
         // Admin stylesheet enqueue
@@ -253,38 +254,57 @@ class LBRY_Admin
     public function available_channels_callback()
     {
         $channel_list = LBRY()->daemon->channel_list();
-
         if ( $channel_list ) { ?>
-            <ul class="lbry-channel-list">
-                <?php foreach ( $channel_list as $channel ) {
-                    $claim_id = $channel->claim_id;
-                    $results = LBRY()->daemon->claim_search( $claim_id );
-                    $lbry_url = $results->items[0]->canonical_url;
-                    if ($lbry_url) {
-                        $open_url = str_replace( 'lbry://', 'open.lbry.com/', $lbry_url );
-                    }
-                    $support_amount = $results->items[0]->meta->support_amount;
-                    if ( ( $support_amount < 0.001 ) ) {
-                        ( $support_amount = '0' );
-                    } elseif ( ( $support_amount < 0.01 ) && ( $support_amount >= 0.001 ) ) {
-                        ( $support_amount = '<0.01' );
-                    } elseif ( ( $support_amount <= 0.099 ) && ( $support_amount >= 0.01) ) {
-                        ( $support_amount = number_format( floatval( $support_amount ), 2, '.', '' ) );
-                    } elseif ( ( $support_amount <= 0.999 ) && ( $support_amount >= 0.1 ) ) {
-                        ( $support_amount = number_format( floatval( $support_amount ), 1, '.', '' ) );
-                    } else {
-                        ( $support_amount = number_format( intval( $support_amount ) ) );
-                    }
-                    $init_bid = $results->items[0]->amount; ?>
-                    <li><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ) ?></a> <?php esc_html_e( $lbry_url, 'lbrypress'); ?> <span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></li>
-                    
-                <?php } ?>
-            </ul>
-        <?php } else { ?>
-            <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
-        <?php }
-    }
 
+          <table class="lbry-channel-table">
+            <thead>
+                <tr>
+                    <th>Channel</th>
+                    <th>LBRY URL</th>
+                    <th>Posts</th>
+                    <th colspan="2">Supports</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $channel_list as $channel ):
+                $claim_id = $channel->claim_id;
+                $results = LBRY()->daemon->claim_search( $claim_id );
+                $lbry_url = $results->items[0]->canonical_url;
+                if ( $lbry_url ) {
+                    $open_url = str_replace( 'lbry://', 'open.lbry.com/', $lbry_url );
+                }
+                $support_amount = $results->items[0]->meta->support_amount;
+                $claims_published = $results->items[0]->meta->claims_in_channel;
+                if ( ( $support_amount < 0.001 ) ) {
+                    ( $support_amount = '0' );
+                } elseif ( ( $support_amount < 0.01 ) && ( $support_amount >= 0.001 ) ) {
+                    ( $support_amount = '<0.01' );
+                } elseif ( ( $support_amount <= 0.099 ) && ( $support_amount >= 0.01) ) {
+                    ( $support_amount = number_format( floatval( $support_amount ), 2, '.', '' ) );
+                } elseif ( ( $support_amount <= 0.999 ) && ( $support_amount >= 0.1 ) ) {
+                    ( $support_amount = number_format( floatval( $support_amount ), 1, '.', '' ) );
+                } else {
+                    ( $support_amount = number_format( intval( $support_amount ) ) );
+                }
+                $init_bid = $results->items[0]->amount; ?>          
+                <tr>
+                <td><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
+                <td><?php esc_html_e( $lbry_url, 'lbrypress' ); ?></td>
+                <td><?php esc_html_e( $claims_published, 'lbrypress' ); ?></td>
+                <td><span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></td>
+                <td><a href="#">Add</a></td>
+                </tr>
+          <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr><th colspan="5">LBRYPress</th></tr>
+            </tfoot>
+         </table>
+       <?php } else { ?>
+         <p>Looks like you haven't added any channels yet, feel free to do so below:</p>
+     <?php }
+      
+    }
 
     /**
     * Section info for the Speech Channel Section
@@ -488,25 +508,64 @@ class LBRY_Admin
     }
 
     /**
+     * Handles adding supports form submission
+     */
+    public function supports_add()
+    {
+        $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
+        
+        // Check that nonce
+        if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_supports_nonce' ) ) {
+            if ( empty( $_POST['lbry_supports_add_claim_id'] ) || empty( $_POST['lbry_supports_add_amount'] ) ) {
+                LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
+            } elseif ( isset( $_POST['lbry_supports_add_claim_id'] ) && isset( $_POST['lbry_supports_add_amount'] ) ) {
+                $claim_id = $_POST['lbry_supports_add_claim_id']; // TODO: sanitize key() only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use something else for better control?
+
+                $bid = $_POST['lbry_supports_add_amount'];
+                $support_bid = number_format( floatval( $bid ), 3, '.', '' );
+
+                // Try to add the new channel
+                try { 
+            //        $result = LBRY()->daemon->channel_new( $claim_id, $supports_bid );
+                    // Tell the user it takes some time to go through
+                    LBRY()->notice->set_notice(
+                        'success', 'Successfully added supports for: @' . esc_html( $claim_name ) . '! Please allow a few minutes for the bid to process.', true );
+                    
+                } catch ( \Exception $e ) {
+                    LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
+                }
+            }
+        } else {
+            LBRY()->notice->set_notice('error', 'Security check failed' );
+            die( __( 'Security check failed', 'lbrypress' ) );
+        }
+
+        wp_safe_redirect( $redirect_url );
+        exit();
+    }
+
+    /**
      * Checks at most once an hour to see if the wallet balance is too low
      */
     // IDEA: Check user permissions possibly
     public static function wallet_balance_warning()
     {
         // See if we've checked in the past two hours
-        if (!get_transient('lbry_wallet_check')) {
-            $balance = LBRY()->daemon->wallet_balance();
-            if ($balance < get_option(LBRY_SETTINGS)[LBRY_LBC_PUBLISH] * 20) {
+        if ( ! get_transient( 'lbry_wallet_check' ) ) {
+            $result = LBRY()->daemon->wallet_balance();
+            $balance = $result->result->available;
+            $site_url = get_site_url();
+            if ( $balance < get_option( LBRY_SETTINGS )[LBRY_LBC_PUBLISH] * 20 ) {
                 // If LBRY Balance is low, send email, but only once per day
-                if (!get_transient('lbry_wallet_warning_email')) {
-                    $email = get_option('admin_email');
+                if ( ! get_transient( 'lbry_wallet_warning_email' ) ) {
+                    $email = get_option( 'admin_email' );
                     $subject = 'Your LBRYPress Wallet Balance is Low!';
-                    $message = "Your LBRY Wallet for your WordPress installation at " . site_url() . " is running very low.\r\n\r\nYou currently have " . $balance . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
-                    wp_mail($email, $subject, $message);
-                    set_transient('lbry_wallet_warning_email', true, DAY_IN_SECONDS);
+                    $message = 'Your LBRY Wallet for your WordPress installation at ' . esc_html_e( $site_url ) . ' is running very low.\r\n\r\nYou currently have ' . esc_html_e( $balance ) . ' LBC left in your wallet. In order to keep publishing to the LBRY network, please add some LBC to your account.';
+                    wp_mail( $email, $subject, $message );
+                    set_transient( 'lbry_wallet_warning_email', true, DAY_IN_SECONDS );
                 }
             }
-            set_transient('lbry_wallet_check', true, 2 * HOUR_IN_SECONDS);
+            set_transient( 'lbry_wallet_check', true, 2 * HOUR_IN_SECONDS );
         }
     }
 
