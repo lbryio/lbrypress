@@ -1,8 +1,8 @@
 jQuery(document).ready(function($) {
     var compare = {
-        name: function(a, b) {
-            a = a.replace(/^@/, '') && a.replace(/-/g, '');
-            b = b.replace(/^@/, '') && b.replace(/-/g, '');
+        channel: function(a, b) {
+            a = a.replace(/^@/i, '') && a.replace(/[-]/gi, '');
+            b = b.replace(/^@/i, '') && b.replace(/[-]/gi, '');
 
             if (a < b) {
                 return -1;
@@ -20,16 +20,23 @@ jQuery(document).ready(function($) {
                 return a > b ? 1 : 0;
             }
         },
-        amount: function(a, b) {
-            a = a.split('.');
-            b = b.split('.');
-
-            a = Number(a[0]) + Number(a[1]);
-            b = Number(b[0]) + Number(b[1]);
+        claim: function(a, b) {
+            if (a < b) {
+                return -1;
+            } else {
+                return a > b ? 1 : 0;
+            }
+        },
+        posts: function(a, b) {
+            a = Number(a);
+            b = Number(b);
 
             return a - b;
         },
-        number: function(a, b) {
+        support: function(a, b) {
+            a = a.replace(/,/g, '');
+            b = b.replace(/,/g, '');
+
             a = Number(a);
             b = Number(b);
 

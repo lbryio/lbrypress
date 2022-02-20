@@ -52,7 +52,7 @@ class LBRY_Admin
         }
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
 
-        // Admin JS enqueue
+        // Admin channel sort JS enqueue
         function load_admin_script() {
             if ( ( $_GET['page'] == 'lbrypress') && ( $_GET['tab'] == 'channels' ) ) {
                 wp_enqueue_script(
@@ -272,10 +272,12 @@ class LBRY_Admin
           <table class="lbry-channel-table">
             <thead>
                 <tr>
-                    <th data-sort="name">Channel</th>
+                    <th data-sort="channel">Channel</th>
                     <th data-sort="lbryurl">LBRY URL</th>
-                    <th data-sort="number">Posts</th>
-                    <th data-sort="amount" colspan="2">Supports</th>
+                    <th data-sort="claim">Claim ID</th>
+                    <th data-sort="date">~ Date Created</th>
+                    <th data-sort="posts">Posts</th>
+                    <th data-sort="support" colspan="2">Supports</th>
                 </tr>
             </thead>
             <tbody>
@@ -286,6 +288,8 @@ class LBRY_Admin
                 if ( $lbry_url ) {
                     $open_url = str_replace( 'lbry://', 'open.lbry.com/', $lbry_url );
                 }
+                $timestamp = $results->items[0]->meta->creation_timestamp;
+                $created_date = date( 'm-d-y', $timestamp );
                 $support_amount = $results->items[0]->meta->support_amount;
                 $claims_published = $results->items[0]->meta->claims_in_channel;
                 if ( ( $support_amount < 0.001 ) ) {
@@ -303,14 +307,16 @@ class LBRY_Admin
                 <tr>
                 <td><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
                 <td><?php esc_html_e( $lbry_url, 'lbrypress' ); ?></td>
+                <td><?php esc_html_e( $claim_id, 'lbrypress' ); ?></td>
+                <td><?php esc_html_e( $created_date, 'lbrypress' ); ?></td>
                 <td><?php esc_html_e( $claims_published, 'lbrypress' ); ?></td>
                 <td><span title="Initial Bid Amount: <?php esc_html_e( $init_bid, 'lbrypress' ); ?>"><img src="<?php echo esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) . 'admin/images/lbc.png' ) ?>" class="icon icon-lbc bid-icon-lbc channel-bid-icon-lbc"><?php esc_html_e( $support_amount, 'lbrypress' ); ?></span></td>
-                <td><a href="<?php echo admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'claim_id' => $claim_id, 'current_support' => $support_amount, 'init_bid' => $init_bid ), 'admin.php' ) ); ?>">Add</a></td>
+                <td><a href="<?php echo admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'claim_id' => $claim_id, 'current_support' => $support_amount, 'init_bid' => $init_bid, 'lbry_url' => urlencode($lbry_url), 'return_page' => 'channels' ), 'admin.php' ) ); ?>">Add</a></td>
                 </tr>
           <?php endforeach; ?>
             </tbody>
             <tfoot>
-                <tr><th colspan="5">LBRYPress</th></tr>
+                <tr><th colspan="7">LBRYPress</th></tr>
             </tfoot>
          </table>
        <?php } else { ?>
