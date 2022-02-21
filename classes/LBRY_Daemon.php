@@ -171,6 +171,37 @@ class LBRY_Daemon
             return;
         }
     }
+    /**
+     * Add supports to an existing claim
+     * https://lbry.tech/api/sdk#
+     * @return array    dictionary containing result of the request
+     */
+
+    public function supports_add( $claim_id, $supports_bid, $supporting_channel = null, $lbry_url = null )
+    {
+        try {
+            $result = $this->request(
+                'support_create',
+                array(
+                    'claim_id' => $claim_id,
+                    'channel_name' => $supporting_channel,
+                    'amount'  => $supports_bid
+                )
+            );
+            if ( $result ) {
+                if ( ( ($lbry_url) && ($lbry_url !== null ) ) ? $lbry_url : $lbry_url = $claim_id );
+                LBRY()->notice->set_notice(
+                    'success', 'Successfully added supports for claim id: ' . esc_html__( $lbry_url, 'lbrypress' ) . '! Please allow a few minutes for the support to process.', true );
+                }
+            $this->logger->log( 'support_create success!', 'Successfully added support with result: ' . print_r( $result->result, true ) );
+            return $result->result;
+            
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log( 'support_create error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            throw new \Exception( 'Issue creating new support.', 1 );
+            return;
+        }
+    }
 
     /**
      * Returns the canonical URL for the supplied claim ID, null otherwise
