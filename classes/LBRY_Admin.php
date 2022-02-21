@@ -19,7 +19,7 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'page_init'));
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
-        add_action('admin_post_lbry_supports_add', array($this, 'supports_add'));
+        add_action('admin_post_lbry_add_supports', array($this, 'add_supports'));
     }
 
     /**
@@ -528,26 +528,27 @@ class LBRY_Admin
     /**
      * Handles adding supports form submission
      */
-    public function supports_add()
+    public function add_supports()
     {
-        $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
-        
+        if ( ( $_POST['post_id'] ) && ( $_POST['post_id'] !== null ) ) {
+            $redirect_url = admin_url( add_query_arg( array( 'post' => $_POST['post_id'], 'action' => 'edit' ), 'post.php') );
+        } else {
+            $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
+        }
+        if ( ( $_POST['lbry_url'] ) ? $lbry_url = urldecode($_POST['lbry_url']) : $lbry_url = $_POST['lbry_supports_add_claim_id']);
+        if ( ( $_POST['supporting_channel'] ) ? $supporting_channel = $_POST['supporting_channel'] : $supporting_channel = null );
         // Check that nonce
         if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'add_supports_nonce' ) ) {
-            if ( empty( $_POST['lbry_supports_add_claim_id'] ) || empty( $_POST['lbry_supports_add_amount'] ) ) {
-                LBRY()->notice->set_notice( 'error', 'Must supply both channel name and bid amount' );
-            } elseif ( isset( $_POST['lbry_supports_add_claim_id'] ) && isset( $_POST['lbry_supports_add_amount'] ) ) {
+            if ( isset( $_POST['lbry_supports_add_claim_id'] ) && isset( $_POST['lbry_supports_add_bid_amount'] ) ) {
                 $claim_id = $_POST['lbry_supports_add_claim_id']; // TODO: sanitize key() only allows for lowercase chars, dashes, and underscores. maybe remove to allow more characters? and use something else for better control?
 
-                $bid = $_POST['lbry_supports_add_amount'];
-                $support_bid = number_format( floatval( $bid ), 3, '.', '' );
+                $claim_id = sanitize_text_field( $claim_id );
+                $bid = $_POST['lbry_supports_add_bid_amount'];
+                $supports_bid = number_format( floatval( $bid ), 3, '.', '' );
 
-                // Try to add the new channel
+                // Try to add support to the claim
                 try { 
-            //        $result = LBRY()->daemon->channel_new( $claim_id, $supports_bid );
-                    // Tell the user it takes some time to go through
-                    LBRY()->notice->set_notice(
-                        'success', 'Successfully added supports for: @' . esc_html( $claim_name ) . '! Please allow a few minutes for the bid to process.', true );
+                    $result = LBRY()->daemon->supports_add( $claim_id, $supports_bid, $supporting_channel, $lbry_url );
                     
                 } catch ( \Exception $e ) {
                     LBRY()->notice->set_notice( 'error', $e->getMessage(), false );

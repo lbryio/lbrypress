@@ -31,7 +31,8 @@ if ( ( $lbry_published == true ) && ( ( $lbry_claim_id ) ) && ( ! ( $lbry_publis
     $license = $result->items[0]->value->license;
     update_post_meta( $post_id, '_lbry_post_pub_license', $license );
 }
-
+$lbry_canonical_url = get_post_meta( $post_id, '_lbry_canonical_url', true );
+$lbry_url = ( ($lbry_canonical_url) ? $lbry_canonical_url : 'lbry://' . $lbry_published_channel . '#' . $lbry_claim_id );
 $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
 $default_channel = get_option( LBRY_SETTINGS )['default_lbry_channel'];
 $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channel_claim_id . '');
@@ -57,17 +58,28 @@ $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channe
             }
         printf(
             '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Initial bid amount:', 'lbrypress' ) . ' </strong>
-            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span></div>
-            <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Supports:', 'lbrypress' ) . ' </strong>
-            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%2$s', 'lbrypress' ) . '</span><a href="' . admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'claim_id' => $lbry_claim_id, 'lbry_url' => $lbry_url, 'current_support' => $support_amount, 'init_bid' => $init_bid ), 'admin.php' ) ) . '">' . __( 'Add', 'lbrypress' ) . '</a></div>
-            <div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published to:', 'lbrypress' ) . '</strong></div>
-            <div class="lbry-meta-bx-content lbry-meta-bx-channel"><a href="' . esc_url( '%4$s', 'lbrypress' ) . '">' . esc_html__( '%3$s', 'lbrypress' ) . '</a></div>
-            <div class="lbry-meta-label lbry-meta-bx-license"><strong>' . __( 'License published under:', 'lbrypress' ) .'</strong> </div>
-            <div class="lbry-meta-bx-content lbry-meta-bx-license lbry-meta-bx-content-last">' . esc_html__( '%5$s', 'lbrypress' ) . '</div>',
-            $init_bid,
+            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span></div>',
+            $init_bid
+        );
+        printf(
+            '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Supports:', 'lbrypress' ) . ' </strong>
+            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span><a href="' . admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'post_id' => $post_id, 'claim_id' => '%2$s', 'lbry_url' => '%3$s', 'supporting_channel' => '%4$s', 'current_support' => '%5$.3f', 'init_bid' => '%6$.3f' ), 'admin.php' ) ) . '">' . __( 'Add', 'lbrypress' ) . '</a></div>',
             $support_amount,
+            $lbry_claim_id,
+            urlencode($lbry_url),
             $lbry_published_channel,
+            $support_amount,
+            $init_bid
+        );
+        printf(
+            '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published to:', 'lbrypress' ) . '</strong></div>
+            <div class="lbry-meta-bx-content lbry-meta-bx-channel"><a href="' . esc_url( '%1$s', 'lbrypress' ) . '">' . esc_html__( '%2$s', 'lbrypress' ) . '</a></div>',
             $chan_open_url,
+            $lbry_published_channel,
+        );
+        printf(
+            '<div class="lbry-meta-label lbry-meta-bx-license"><strong>' . __( 'License published under:', 'lbrypress' ) .'</strong> </div>
+            <div class="lbry-meta-bx-content lbry-meta-bx-license lbry-meta-bx-content-last">' . esc_html__( '%1$s', 'lbrypress' ) . '</div>',
             $lbry_published_license,
         );
     } else { 
