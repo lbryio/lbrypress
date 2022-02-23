@@ -164,6 +164,7 @@ class LBRYPress
     {
         register_activation_hook( LBRY_PLUGIN_FILE, array( $this, 'activate' ) );
         register_deactivation_hook( LBRY_PLUGIN_FILE, array( $this, 'deactivate' ) );
+        add_filter( 'kses_allowed_protocols' , array( $this, 'lbry_add_additional_protocols' ) );
 
         // Banner output for published posts
         // NOTE: move this to its own class to reduce clutter?
@@ -225,6 +226,19 @@ class LBRYPress
     {
         // TODO: Stop the daemon
         error_log( 'Deactivated LBRYPress' );
+    }
+
+    /**
+     * Allowing additional URL protocols to list of allowed protocols.
+     *
+     * @param array $protocols List of protocols allowed by (default WordPress.)
+     *
+     * @return array $protocols Updated list including additional protocols.
+     */
+    public function lbry_add_additional_protocols( $protocols )
+    {
+        $protocols[] = 'lbry';
+        return $protocols;
     }
 
     public function published_on_lbry_banner($content)
