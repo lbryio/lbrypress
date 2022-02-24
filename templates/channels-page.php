@@ -19,13 +19,13 @@ if ( current_user_can( 'manage_options' ) ) {
 	<h3><?php _e( 'Available Channels To Publish', 'lbrypress' ); ?></h3>
     <?php //LBRY()->admin->available_channels_callback(); ?>		
     <?php 
-          if ( isset( $_POST['lbry_new_channel'] ) ) {
+          if ( $_POST['lbry_new_channel'] ) {
             $channel = $_POST['lbry_new_channel'];
             $channel = str_replace( '@', '', $channel );
             $channel = str_replace( ' ', '-', $channel );          
             $clean_input['lbry_new_channel'] = sanitize_user( $channel );
           }
-          if ( isset( $_POST['lbry_channel_bid_amount'] ) ) {
+          if ( $_POST['lbry_channel_bid_amount'] ) {
             $channel_bid = $_POST['lbry_channel_bid_amount'];
             $clean_input['lbry_channel_bid_amount'] = number_format( floatval( $channel_bid ), 3, '.', '' );
           }
@@ -68,8 +68,8 @@ if ( current_user_can( 'manage_options' ) ) {
                   }
                   $init_bid = $results->items[0]->amount; ?>          
                   <tr>
-                  <td><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
-                  <td><?php esc_html_e( esc_url( $lbry_url ), 'lbrypress' ); ?></td>
+                  <td><a href=""><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
+                  <td><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( esc_url( $lbry_url ), 'lbrypress' ); ?></a></td>
                   <td><?php esc_html_e( $claim_id, 'lbrypress' ); ?></td>
                   <td><?php esc_html_e( $created_date, 'lbrypress' ); ?></td>
                   <td><?php esc_html_e( $claims_published, 'lbrypress' ); ?></td>

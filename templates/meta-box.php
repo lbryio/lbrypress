@@ -32,7 +32,12 @@ if ( ( $lbry_published == true ) && ( ( $lbry_claim_id ) ) && ( ! ( $lbry_publis
     update_post_meta( $post_id, '_lbry_post_pub_license', $license );
 }
 $lbry_canonical_url = get_post_meta( $post_id, '_lbry_canonical_url', true );
-$lbry_url = ( ($lbry_canonical_url) ? $lbry_canonical_url : 'lbry://' . $lbry_published_channel . '#' . $lbry_claim_id );
+if ( ! $lbry_canonical_url ) {
+    $result = LBRY()->daemon->claim_search( $lbry_claim_id );
+    $lbry_canonical_url = $result->items[0]->canonical_url;
+    update_post_meta( $post_id, '_lbry_canonical_url', $lbry_canonical_url );
+}
+$lbry_url = $lbry_canonical_url;
 $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
 $default_channel = get_option( LBRY_SETTINGS )['default_lbry_channel'];
 $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channel_claim_id . '');
@@ -63,13 +68,13 @@ $chan_open_url = ( 'open.lbry.com/'. $lbry_published_channel .'#' . $lbry_channe
         );
         printf(
             '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'Supports:', 'lbrypress' ) . ' </strong>
-            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span><a href="' . admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'post_id' => $post_id, 'claim_id' => '%2$s', 'lbry_url' => '%3$s', 'supporting_channel' => '%4$s', 'current_support' => '%5$.3f', 'init_bid' => '%6$.3f' ), 'admin.php' ) ) . '">' . __( 'Add', 'lbrypress' ) . '</a></div>',
+            <span class="lbry-meta-bx-content lbry-meta-bx-channel"><img src="' . esc_url( plugin_dir_url( LBRY_PLUGIN_FILE ) ) . 'admin/images/lbc.png" class="icon icon-lbc bid-icon-lbc bid-icon-lbc"> ' . esc_html__( '%1$s', 'lbrypress' ) . '</span><a href="' . esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'supports', 'post_id' => intval($post_id), 'claim_id' => esc_html__( '%2$s', 'lbrypress' ), 'lbry_url' => '%3$s', 'supporting_channel' => esc_html__( '%4$s', 'lbrypress' ), 'current_support' => '%5$.3f', 'init_bid' => '%6$.3f'), 'admin.php' ) ) ) . '">' . __( 'Add', 'lbrypress' ) . '</a></div>',
             $support_amount,
-            $lbry_claim_id,
-            urlencode($lbry_url),
-            $lbry_published_channel,
-            $support_amount,
-            $init_bid
+            urlencode( $lbry_claim_id ),
+            urlencode( esc_url( $lbry_url ) ),
+            urlencode( $lbry_published_channel ),
+            urlencode( $support_amount ),
+            urlencode( $init_bid )
         );
         printf(
             '<div class="lbry-meta-label lbry-meta-bx-channel"><strong>' . __( 'LBRY channel published to:', 'lbrypress' ) . '</strong></div>
