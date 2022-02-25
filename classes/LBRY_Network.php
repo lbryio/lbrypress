@@ -56,7 +56,10 @@ class LBRY_Network
             array($this, 'meta_box_html'),  // Callback function
             'post',                         // Screen Options (or post type)
             'side',                         // Context
-            'high'                          // Priority
+            'high',                          // Priority
+            array(
+                '__block_editor_compatible_meta_box' => false,
+            )
         );
     }
 
