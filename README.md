@@ -12,6 +12,7 @@ First, install the LBRYPress plugin on WordPress.
 
 1) Download the [zip file for this repository](https://github.com/lbryio/lbrypress/archive/master.zip).
 1) In WordPress, upload and install the plugin zip file from the WordPress admin dashboard. After activating, errors will show until the next steps are completed.
+1) LBRYPress is not currently working correctly with the WordPress block editor, try either [Classic Editor](https://wordpress.org/plugins/classic-editor/) or [Disable Gutenberg](https://wordpress.org/plugins/disable-gutenberg/) plugins to use the classic WP Editor screen. LBRYPress may work in the future with Gutenberg block editor.
 
 ## Downloading and installing LBRY
 This will step you through downloading the LBRY SDK, installing it, and running as a system service. 
