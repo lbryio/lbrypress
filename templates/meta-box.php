@@ -34,8 +34,8 @@ if ( ( $lbry_published == true ) && ( ( $lbry_claim_id ) ) && ( ! ( $lbry_publis
 $lbry_canonical_url = get_post_meta( $post_id, '_lbry_canonical_url', true );
 if ( ! $lbry_canonical_url ) {
     $result = LBRY()->daemon->claim_search( $lbry_claim_id );
-    $canonical_url = $result->items[0]->canonical_url;
-    update_post_meta( $post_id, '_lbry_canonical_url', $canonical_url );
+    $lbry_canonical_url = $result->items[0]->canonical_url;
+    update_post_meta( $post_id, '_lbry_canonical_url', $lbry_canonical_url );
 }
 $lbry_url = $lbry_canonical_url;
 $cur_channel = ( get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) ? get_post_meta( $post_id, LBRY_POST_PUB_CHANNEL, true ) : get_post_meta( $post_id, '_lbry_channel', true ) );
