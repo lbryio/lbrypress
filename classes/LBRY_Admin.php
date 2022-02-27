@@ -20,6 +20,7 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
         add_action('admin_post_lbry_add_supports', array($this, 'add_supports'));
+        add_action('admin_post_lbry_edit_channel', array($this, 'edit_channel'));
     }
 
     /**
@@ -53,7 +54,7 @@ class LBRY_Admin
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
 
         // Admin channel sort JS enqueue
-        function load_admin_script() {
+        function load_channel_sort_script() {
             if ( ( $_GET['page'] == 'lbrypress') && ( $_GET['tab'] == 'channels' ) ) {
                 wp_enqueue_script(
                     'lbry-table-sort',
@@ -64,7 +65,22 @@ class LBRY_Admin
                 );
             }
         }
-        add_action( 'admin_enqueue_scripts', 'load_admin_script' );
+        add_action( 'admin_enqueue_scripts', 'load_channel_sort_script' );
+
+        // Admin Media Upload on Edit Channel tab
+        function load_channel_edit_media_scripts() {
+            if ( ( $_GET['page'] == 'lbrypress' ) && ( $_GET['tab'] == 'channel-edit' ) ) {
+                wp_enqueue_media();
+                wp_enqueue_script(
+                    'lbry-media-upload',
+                    plugins_url( '/admin/js/admin-image-uploader.js', LBRY_PLUGIN_FILE ),
+                    array( 'jquery' ),
+                    LBRY_VERSION,
+                    true
+                );
+            }
+        }
+        add_action( 'admin_enqueue_scripts', 'load_channel_edit_media_scripts' );
         
         // Admin Error Notices
         function lbry_plugin_not_configured_notice() {
@@ -476,7 +492,7 @@ class LBRY_Admin
      */
     public function add_supports()
     {
-        if ( ( $_POST['post_id'] ) && ( $_POST['post_id'] !== null ) ) {
+        if ( ( $_POST['post_id'] ) && ( absint( $_POST['post_id'] ) ) ) {
             $redirect_url = admin_url( add_query_arg( array( 'post' => $_POST['post_id'], 'action' => 'edit' ), 'post.php') );
         } else {
             $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
@@ -500,6 +516,67 @@ class LBRY_Admin
                     LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
                 }
             }
+        } else {
+            LBRY()->notice->set_notice('error', 'Security check failed' );
+            die( __( 'Security check failed', 'lbrypress' ) );
+        }
+
+        wp_safe_redirect( $redirect_url );
+        exit();
+    }
+
+    /**
+     * Handles editing an existing channel form submission
+     */
+    public function edit_channel()
+    {
+        $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
+
+        $claim = $_POST['claim_id'];
+        $claim_id = sanitize_text_field( $claim );
+        $bid = $_POST['lbry_supports_add_bid_amount'];
+        $channel_bid = number_format( floatval( $bid ), 3, '.', '' );
+        $title = $_POST['lbry_edit_channel_title'];
+        $channel_title = sanitize_text_field( $title );
+        $description = $_POST['lbry_edit_channel_description'];
+        $channel_description = sanitize_text_field( $description );
+        $tags = $_POST['lbry_edit_channel_tags'];
+        $channel_tags = sanitize_text_field( $tags );
+        $website = $_POST['lbry_new_channel_website'];
+        $channel_website = sanitize_text_field( $website );
+        $email = $_POST['lbry_new_channel_email'];
+        $channel_email = sanitize_text_field( $email );
+        // $language_array = LBRY()->languages;
+        // $primlang = $_POST['lbry_new_channel_prim_lang'];
+        // $primary_language = ( ($primlang) && in_array( $primlang, $language_array ) );
+        // $seclang = $_POST['lbry_new_channel_sec_lang'];
+        // $secondary_language = ( ($seclang) && in_array( $seclang, $language_array ) );
+        // $thumbnail = $_POST[''];
+        // $thumbnail_url = wp_get_attachment_url( get_option( 'lbry_media_selector_thumbnail_id' ) )
+        // $header = $_POST[''];
+        // $header_url = wp_get_attachment_url( get_option( 'lbry_media_selector_header_id' ) );
+
+        // Check that nonce
+        if ( isset( $_POST['_lbrynonce'] ) && wp_verify_nonce( $_POST['_lbrynonce'], 'edit_channel_nonce' ) ) {
+            $args = array(
+                'claim_id'    => $claim_id,
+                'bid'         => $channel_bid,
+                'title'       => $channel_title,
+                'description' => $channel_description,
+                'tags'        => $channel_tags,
+                'website_url' => $channel_website,
+                'email'       => $channel_email,
+                //'languages'   => array( $primary_language, $secondary_language ),
+                //'thumbnail_url' => $thumbnail_url,
+                //'cover_url'   => $header_url,
+            );
+                // Try to add support to the claim
+                try { 
+                    $result = LBRY()->daemon->channel_edit( $args );
+                    
+                } catch ( \Exception $e ) {
+                    LBRY()->notice->set_notice( 'error', $e->getMessage(), false );
+                }
         } else {
             LBRY()->notice->set_notice('error', 'Security check failed' );
             die( __( 'Security check failed', 'lbrypress' ) );
