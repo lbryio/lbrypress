@@ -20,7 +20,6 @@ class LBRY_Admin
         add_action('admin_init', array($this, 'wallet_balance_warning'));
         add_action('admin_post_lbry_add_channel', array($this, 'add_channel'));
         add_action('admin_post_lbry_add_supports', array($this, 'add_supports'));
-        add_action('admin_post_lbry_edit_channel', array($this, 'edit_channel'));
     }
 
     /**
@@ -54,7 +53,7 @@ class LBRY_Admin
         add_action( 'admin_enqueue_scripts', 'load_admin_stylesheet' );
 
         // Admin channel sort JS enqueue
-        function load_channel_sort_script() {
+        function load_admin_script() {
             if ( ( $_GET['page'] == 'lbrypress') && ( $_GET['tab'] == 'channels' ) ) {
                 wp_enqueue_script(
                     'lbry-table-sort',
@@ -65,22 +64,7 @@ class LBRY_Admin
                 );
             }
         }
-        add_action( 'admin_enqueue_scripts', 'load_channel_sort_script' );
-
-        // Admin Media Upload on Edit Channel tab
-        function load_channel_edit_media_scripts() {
-            if ( ( $_GET['page'] == 'lbrypress' ) && ( $_GET['tab'] == 'channel-edit' ) ) {
-                wp_enqueue_media();
-                wp_enqueue_script(
-                    'lbry-media-upload',
-                    plugins_url( '/admin/js/admin-image-uploader.js', LBRY_PLUGIN_FILE ),
-                    array( 'jquery' ),
-                    LBRY_VERSION,
-                    true
-                );
-            }
-        }
-        add_action( 'admin_enqueue_scripts', 'load_channel_edit_media_scripts' );
+        add_action( 'admin_enqueue_scripts', 'load_admin_script' );
         
         // Admin Error Notices
         function lbry_plugin_not_configured_notice() {
