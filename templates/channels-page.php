@@ -68,7 +68,7 @@ if ( current_user_can( 'manage_options' ) ) {
                   }
                   $init_bid = $results->items[0]->amount; ?>          
                   <tr>
-                  <td><a href=""><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
+                  <td><a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channel-edit', 'claim_id' => urlencode( esc_html__( $claim_id, 'lbrypress' ) ), 'channel_name' => urlencode( esc_html__($channel->name, 'lbrypress' ) ), 'current_support' => urlencode( floatval($support_amount) ), 'init_bid' => urlencode( floatval($init_bid) ), 'lbry_url' => urlencode( esc_url($lbry_url) ) ), 'admin.php' ) ) ); ?>"><?php esc_html_e( $channel->name, 'lbrypress' ); ?></a></td>
                   <td><a href="<?php echo esc_url( $open_url, 'lbrypress' ); ?>"><?php esc_html_e( esc_url( $lbry_url ), 'lbrypress' ); ?></a></td>
                   <td><?php esc_html_e( $claim_id, 'lbrypress' ); ?></td>
                   <td><?php esc_html_e( $created_date, 'lbrypress' ); ?></td>
@@ -91,7 +91,8 @@ if ( current_user_can( 'manage_options' ) ) {
             		
 		<input type="hidden" name="action" value="lbry_add_channel">
 		<input type="hidden" name="_lbrynonce" value="<?php echo $lbrynonce ?>">
-        <h3><?php echo _e( 'Create a New Channel', 'lbrypress' ); ?></h3>			
+        <h3><?php echo _e( 'Quick Create a New Channel', 'lbrypress' ); ?></h3>
+        <p>Create a Channel that can be edited later to add details or set-up a complete <a href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channel-edit' ), 'admin.php' ) ) ); ?>">Channel</a> now.</p>		
 		<table class="form-table" role="presentation">
             <tbody>
                 <tr>
