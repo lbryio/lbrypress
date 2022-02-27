@@ -34,10 +34,10 @@ if ( current_user_can( 'manage_options' ) ) {
 	<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" id="lbry_add_supports_form">	
             		
 		<input type="hidden" name="action" value="lbry_add_supports">
-		<input type="hidden" name="_lbrynonce" value="<?php echo $lbrynonce; ?>">
-        <input type="hidden" name="post_id" value="<?php echo $return_post; ?>">
-        <input type="hidden" name="lbry_url" value="<?php echo esc_attr($lbry_url); ?>">
-        <input type="hidden" name="supporting_channel" value="<?php echo $supporting_channel; ?>">
+		<input type="hidden" name="_lbrynonce" value="<?php echo esc_attr($lbrynonce); ?>">
+        <input type="hidden" name="post_id" value="<?php echo esc_attr($return_post); ?>">
+        <input type="hidden" name="lbry_url" value="<?php echo esc_url($lbry_url); ?>">
+        <input type="hidden" name="supporting_channel" value="<?php echo esc_attr($supporting_channel); ?>">
 
         <h2><?php echo _e( 'Add Supports to Claim:', 'lbrypress' ); ?></h2>
             <?php printf(

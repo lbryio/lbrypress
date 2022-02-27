@@ -476,7 +476,7 @@ class LBRY_Admin
      */
     public function add_supports()
     {
-        if ( ( $_POST['post_id'] ) && ( $_POST['post_id'] !== null ) ) {
+        if ( ( $_POST['post_id'] ) && ( absint( $_POST['post_id'] ) ) ) {
             $redirect_url = admin_url( add_query_arg( array( 'post' => $_POST['post_id'], 'action' => 'edit' ), 'post.php') );
         } else {
             $redirect_url = admin_url( add_query_arg( array( 'page' => 'lbrypress', 'tab' => 'channels' ), 'options.php' ) );
