@@ -171,6 +171,31 @@ class LBRY_Daemon
             return;
         }
     }
+
+    /**
+     * Edit an existing channel to add missing details
+     * https://lbry.tech/api/sdk#channel_update
+     * @return array    dictionary containing result of the request
+     */
+
+    public function channel_edit( $args )
+    {
+        try {
+            $result = $this->request(
+                'channel_update',
+                $args
+            );
+ 
+            $this->logger->log( 'channel_update success!', 'Successfully updated channel with result: ' . print_r( $result->result, true ) );
+            return $result->result;
+            
+        } catch (LBRYDaemonException $e) {
+            $this->logger->log( 'channel_update error', $e->getMessage() . ' | Code: ' . $e->getCode() );
+            throw new \Exception( 'Issue updating channel.', 1 );
+            return;
+        }
+    }
+
     /**
      * Add supports to an existing claim
      * https://lbry.tech/api/sdk#
